@@ -1,0 +1,239 @@
+<!doctype html>
+<html lang="id">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>ALUR · Lab Maya Pseudocode</title>
+<meta name="description" content="ALUR (Algoritma, Logika, Uji, Rancang): laboratorium maya untuk menulis, menjalankan, dan menelusuri pseudocode berbahasa Indonesia: tabel jejak, flowchart, dan konversi Python otomatis. Untuk Informatika SMP Fase D.">
+<meta name="theme-color" content="#14181D">
+<meta name="application-name" content="ALUR">
+<meta property="og:title" content="ALUR · Lab Maya Pseudocode">
+<meta property="og:description" content="Tulis pseudocode, jalankan langkah demi langkah, lihat tabel jejak, flowchart, dan versi Python-nya.">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="icon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="icon-192.png">
+<link rel="preload" href="fonts/jetbrains-mono-400.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="preload" href="fonts/ibm-plex-sans-400.woff2" as="font" type="font/woff2" crossorigin>
+<style>
+/*STYLE*/
+</style>
+</head>
+<body>
+<a class="skip" href="#main">Lewati ke isi</a>
+<div class="app">
+  <header class="top">
+    <div class="brand">
+      <svg class="brand-mark" viewBox="0 0 64 64" aria-hidden="true"><rect x="4" y="4" width="24" height="24" fill="var(--verm)"/><path d="M48 4 L60 16 L48 28 L36 16 Z" fill="var(--amber)"/><circle cx="16" cy="48" r="12" fill="var(--teal)"/><rect x="37" y="37" width="22" height="22" fill="none" stroke="currentColor" stroke-width="3"/></svg>
+      <div class="brand-text">
+        <h1>ALUR <span class="h1-sub">Lab Maya Pseudocode</span></h1>
+        <p><abbr title="Algoritma, Logika, Uji, Rancang">Algoritma · Logika · Uji · Rancang</abbr></p>
+      </div>
+    </div>
+    <nav class="views" role="tablist" aria-label="Bagian lab">
+      <button role="tab" id="tab-lab" aria-selected="true" aria-controls="view-lab" data-view="lab">Lab</button>
+      <button role="tab" id="tab-misi" aria-selected="false" aria-controls="view-misi" data-view="misi">Misi <span class="count" id="misi-count">0/12</span></button>
+      <button role="tab" id="tab-notasi" aria-selected="false" aria-controls="view-notasi" data-view="notasi">Notasi</button>
+    </nav>
+    <button class="icon-btn theme-btn" id="theme-btn" type="button" aria-label="Ganti tema terang/gelap" title="Ganti tema">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3a9 9 0 1 0 9 9 7 7 0 0 1-9-9z" fill="currentColor"/></svg>
+    </button>
+  </header>
+
+  <main id="main">
+    <!-- ───────────── LAB ───────────── -->
+    <section id="view-lab" role="tabpanel" aria-labelledby="tab-lab">
+      <div class="mission-strip" id="mission-strip" hidden>
+        <div class="ms-head">
+          <span class="ms-tag" id="ms-tag">LKPD</span>
+          <strong id="ms-title">Misi</strong>
+          <span class="ms-sub" id="ms-sub"></span>
+          <div class="ms-actions">
+            <button class="btn btn-primary" id="btn-test" type="button">Uji otomatis</button>
+            <button class="btn" id="btn-ms-task" type="button">Lihat tugas</button>
+            <button class="btn btn-quiet" id="btn-ms-exit" type="button">Keluar dari misi</button>
+          </div>
+        </div>
+        <p class="ms-task" id="ms-task" hidden></p>
+        <div class="ms-results" id="ms-results" hidden></div>
+      </div>
+
+      <div class="lab-grid">
+        <div class="pane pane-editor">
+          <div class="pane-bar">
+            <label class="field-inline" for="sel-example"><span>Contoh</span>
+              <select id="sel-example"></select>
+            </label>
+            <div class="palette" role="group" aria-label="Sisipkan simbol">
+              <button type="button" data-ins="←" title="Penugasan (ketik juga &lt;-)">←</button>
+              <button type="button" data-ins="≠" title="Tidak sama dengan">≠</button>
+              <button type="button" data-ins="≤" title="Kurang dari atau sama dengan">≤</button>
+              <button type="button" data-ins="≥" title="Lebih dari atau sama dengan">≥</button>
+              <button type="button" data-ins="×" title="Kali">×</button>
+              <button type="button" data-ins="÷" title="Bagi">÷</button>
+            </div>
+          </div>
+          <div class="editor" id="editor">
+            <div class="gutter" aria-hidden="true"><div class="gutter-inner" id="gutter"></div></div>
+            <div class="code-area">
+              <pre class="hl" id="hl" aria-hidden="true"><code id="hl-code"></code><div class="lineflag" id="lineflag" hidden></div></pre>
+              <textarea id="code" spellcheck="false" autocapitalize="off" autocomplete="off" autocorrect="off" wrap="off" aria-label="Editor pseudocode"></textarea>
+            </div>
+          </div>
+          <div class="errbar" id="errbar" role="status" hidden></div>
+          <div class="io-row">
+            <label for="inputs">Data masukan <span class="hint">dipakai berurutan oleh INPUT, pisahkan dengan koma</span></label>
+            <input id="inputs" type="text" spellcheck="false" autocomplete="off" placeholder="contoh: 80, 90, 70, -1">
+          </div>
+          <div class="controls">
+            <button class="btn btn-primary" id="btn-run" type="button" title="Ctrl + Enter"><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M4 2.5v11l9-5.5z" fill="currentColor"/></svg>Jalankan</button>
+            <button class="btn" id="btn-step" type="button" title="Ctrl + Shift + Enter"><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M3 2.5v11l7-5.5zM11 2.5h2v11h-2z" fill="currentColor"/></svg>Langkah</button>
+            <button class="btn" id="btn-pause" type="button" disabled><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M4 2.5h3v11H4zM9 2.5h3v11H9z" fill="currentColor"/></svg>Jeda</button>
+            <button class="btn btn-quiet" id="btn-reset" type="button"><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M8 2.5a5.5 5.5 0 1 1-5.2 3.7l1.6.6A3.8 3.8 0 1 0 8 4.2V6L4.8 3.4 8 .8z" fill="currentColor"/></svg>Ulang</button>
+            <label class="speed" for="speed"><span>Kecepatan</span>
+              <select id="speed"><option value="0">Lambat</option><option value="1">Sedang</option><option value="2" selected>Cepat</option><option value="3">Instan</option></select>
+            </label>
+            <span class="status" id="status" data-state="idle">Siap</span>
+          </div>
+        </div>
+
+        <div class="pane pane-out">
+          <div class="console" id="console-box">
+            <div class="pane-bar slim"><span class="bar-title">Layar output</span><button class="link-btn" id="btn-clear" type="button">Bersihkan</button></div>
+            <div class="console-body" id="console" aria-live="polite"></div>
+            <form class="ask" id="ask" hidden>
+              <label for="ask-input" id="ask-label">INPUT</label>
+              <input id="ask-input" type="text" autocomplete="off" spellcheck="false">
+              <button class="btn btn-primary" type="submit">Kirim</button>
+            </form>
+          </div>
+          <div class="inspect">
+            <div class="subtabs" role="tablist" aria-label="Panel pengamatan">
+              <button role="tab" data-sub="vars" aria-selected="true" id="st-vars" aria-controls="p-vars">Variabel</button>
+              <button role="tab" data-sub="trace" aria-selected="false" id="st-trace" aria-controls="p-trace">Tabel jejak</button>
+              <button role="tab" data-sub="flow" aria-selected="false" id="st-flow" aria-controls="p-flow">Flowchart</button>
+              <button role="tab" data-sub="py" aria-selected="false" id="st-py" aria-controls="p-py">Python</button>
+            </div>
+            <div class="subpanel" id="p-vars" role="tabpanel" aria-labelledby="st-vars"></div>
+            <div class="subpanel" id="p-trace" role="tabpanel" aria-labelledby="st-trace" hidden></div>
+            <div class="subpanel flow-panel" id="p-flow" role="tabpanel" aria-labelledby="st-flow" hidden>
+              <div class="flow-bar">
+                <div class="legend" aria-label="Arti simbol">
+                  <span><i class="lg lg-term"></i>Mulai/selesai</span><span><i class="lg lg-proc"></i>Proses</span><span><i class="lg lg-io"></i>Input/output</span><span><i class="lg lg-dec"></i>Keputusan</span><span><i class="lg lg-sub"></i>Subprogram</span>
+                </div>
+                <div class="zoom" role="group" aria-label="Perbesaran">
+                  <button type="button" class="icon-btn" id="z-out" aria-label="Perkecil">−</button>
+                  <span id="z-val">100%</span>
+                  <button type="button" class="icon-btn" id="z-in" aria-label="Perbesar">+</button>
+                  <button type="button" class="link-btn" id="z-fit">Pas</button>
+                </div>
+              </div>
+              <div class="flow-canvas" id="flow"></div>
+            </div>
+            <div class="subpanel" id="p-py" role="tabpanel" aria-labelledby="st-py" hidden>
+              <div class="py-bar"><span class="bar-title">Hasil konversi otomatis</span><button class="btn" id="btn-copy-py" type="button">Salin kode Python</button></div>
+              <pre class="code-block" id="py-code"></pre>
+              <ul class="py-notes">
+                <li>Indeks pseudocode modul dimulai dari 1, sedangkan Python dari 0. Konversi ini sudah menyesuaikannya (<code>data[1]</code> menjadi <code>data[0]</code>).</li>
+                <li><code>UNTUK i DARI 1 HINGGA n</code> menjadi <code>range(1, n + 1)</code> karena batas atas <code>range</code> tidak ikut dihitung.</li>
+                <li>Jenis data pada <code>input()</code> ditebak dari data saat program terakhir dijalankan. Python menampilkan hasil <code>/</code> sebagai desimal, misalnya <code>80.0</code>.</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ───────────── MISI ───────────── -->
+    <section id="view-misi" role="tabpanel" aria-labelledby="tab-misi" hidden>
+      <div class="misi-head">
+        <div>
+          <h2>Misi bertahap</h2>
+          <p class="lede">Dua belas misi, dari algoritma sehari-hari sampai proyek sistem kelompok. Setiap misi punya uji otomatis: lab menjalankan programmu dengan beberapa data dan memeriksa hasilnya. Label LKPD dan kode TP mengikuti modul Informatika Kelas IX SMP Labschool Jakarta.</p>
+        </div>
+        <div class="who">
+          <label for="who-name">Nama</label><input id="who-name" type="text" autocomplete="name" placeholder="Nama lengkap">
+          <label for="who-class">Kelas</label><input id="who-class" type="text" placeholder="9B">
+          <p class="hint">Disimpan di peramban ini saja, dipakai untuk bukti pengerjaan.</p>
+        </div>
+      </div>
+      <div class="progress" aria-hidden="true"><div class="progress-fill" id="progress-fill"></div></div>
+      <div class="misi-grid">
+        <ol class="misi-list" id="misi-list"></ol>
+        <article class="misi-detail" id="misi-detail" aria-live="polite"></article>
+      </div>
+    </section>
+
+    <!-- ───────────── NOTASI ───────────── -->
+    <section id="view-notasi" role="tabpanel" aria-labelledby="tab-notasi" hidden>
+      <div class="notasi">
+        <div class="notasi-intro">
+          <h2>Notasi yang dikenali lab</h2>
+          <p class="lede">Lab ini memakai konvensi pseudocode berbahasa Indonesia yang lazim dipakai di Informatika SMP. Tiga aturan yang paling sering terlupa:</p>
+          <ol class="rules">
+            <li><strong>Kata kunci ditulis KAPITAL.</strong> <code>JIKA</code>, <code>SELAMA</code>, <code>OUTPUT</code>; bukan <code>jika</code>.</li>
+            <li><strong>Simpan nilai dengan ←.</strong> Ketik <code>&lt;-</code> dan lab mengubahnya menjadi ←. Tanda <code>=</code> dipakai untuk membandingkan.</li>
+            <li><strong>Indeks dimulai dari 1.</strong> <code>data[1]</code> adalah elemen pertama. Di Python, elemen pertama adalah <code>data[0]</code>.</li>
+          </ol>
+        </div>
+        <div class="table-wrap">
+          <table class="ref">
+            <caption>Kata kunci dan padanannya</caption>
+            <thead><tr><th scope="col">Elemen</th><th scope="col">Pseudocode</th><th scope="col">Python</th><th scope="col">Simbol flowchart</th></tr></thead>
+            <tbody id="ref-body"></tbody>
+          </table>
+        </div>
+        <div class="ref-cols">
+          <div class="table-wrap">
+            <table class="ref">
+              <caption>Operator</caption>
+              <thead><tr><th scope="col">Jenis</th><th scope="col">Pseudocode</th><th scope="col">Python</th></tr></thead>
+              <tbody>
+                <tr><td>Aritmatika</td><td><code>+ - × ÷ MOD DIV **</code></td><td><code>+ - * / % // **</code></td></tr>
+                <tr><td>Perbandingan</td><td><code>= ≠ &lt; &gt; ≤ ≥</code></td><td><code>== != &lt; &gt; &lt;= &gt;=</code></td></tr>
+                <tr><td>Logika</td><td><code>DAN ATAU BUKAN</code></td><td><code>and or not</code></td></tr>
+                <tr><td>Penugasan</td><td><code>←</code> (atau ketik <code>&lt;-</code>)</td><td><code>=</code></td></tr>
+                <tr><td>Gabung teks</td><td><code>"Nilai: " + n</code></td><td><code>f"Nilai: {n}"</code></td></tr>
+              </tbody>
+            </table>
+          </div>
+          <div class="table-wrap">
+            <table class="ref">
+              <caption>Fungsi bawaan lab</caption>
+              <thead><tr><th scope="col">Fungsi</th><th scope="col">Hasil</th><th scope="col">Python</th></tr></thead>
+              <tbody>
+                <tr><td><code>PANJANG(x)</code></td><td>banyak elemen array atau huruf teks</td><td><code>len(x)</code></td></tr>
+                <tr><td><code>AKAR(x)</code></td><td>akar kuadrat</td><td><code>math.sqrt(x)</code></td></tr>
+                <tr><td><code>BULATKAN(x)</code></td><td>pembulatan</td><td><code>round(x)</code></td></tr>
+                <tr><td><code>ACAK(a, b)</code></td><td>bilangan bulat acak a sampai b</td><td><code>random.randint(a, b)</code></td></tr>
+                <tr><td><code>TEKS(x)</code> / <code>ANGKA(x)</code></td><td>ubah ke teks / ke angka</td><td><code>str(x)</code> / <code>float(x)</code></td></tr>
+                <tr><td><code>POTONG(t, a, b)</code></td><td>huruf ke-a sampai ke-b dari teks t</td><td><code>t[a-1:b]</code></td></tr>
+                <tr><td><code>MUTLAK(x)</code></td><td>nilai mutlak</td><td><code>abs(x)</code></td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+        <p class="hint keys">Pintasan: <kbd>Ctrl</kbd> + <kbd>Enter</kbd> menjalankan program, <kbd>Ctrl</kbd> + <kbd>Shift</kbd> + <kbd>Enter</kbd> maju satu langkah, <kbd>Tab</kbd> menambah indentasi.</p>
+      </div>
+    </section>
+  </main>
+
+  <footer class="foot">
+    <p>Dikembangkan oleh <strong>Ramli Jainal Muttaqin, S.Pd.</strong> (SMP Labschool Jakarta) untuk Informatika SMP Fase D, elemen Berpikir Komputasional. Bebas dipakai di kelas mana pun.</p>
+    <p class="hint">Semua proses berjalan di peramban. Setelah dibuka sekali, lab tetap bisa dipakai tanpa internet.</p>
+  </footer>
+</div>
+<div class="toast" id="toast" role="status" hidden></div>
+<script>
+/*CORE*/
+</script>
+<script>
+/*DATA*/
+</script>
+<script>
+/*CHECK*/
+</script>
+<script>
+/*APP*/
+</script>
+</body>
+</html>

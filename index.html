@@ -1,0 +1,2890 @@
+<!doctype html>
+<html lang="id">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>ALUR · Lab Maya Pseudocode</title>
+<meta name="description" content="ALUR (Algoritma, Logika, Uji, Rancang): laboratorium maya untuk menulis, menjalankan, dan menelusuri pseudocode berbahasa Indonesia: tabel jejak, flowchart, dan konversi Python otomatis. Untuk Informatika SMP Fase D.">
+<meta name="theme-color" content="#14181D">
+<meta name="application-name" content="ALUR">
+<meta property="og:title" content="ALUR · Lab Maya Pseudocode">
+<meta property="og:description" content="Tulis pseudocode, jalankan langkah demi langkah, lihat tabel jejak, flowchart, dan versi Python-nya.">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="icon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="icon-192.png">
+<link rel="preload" href="fonts/jetbrains-mono-400.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="preload" href="fonts/ibm-plex-sans-400.woff2" as="font" type="font/woff2" crossorigin>
+<style>
+@font-face { font-family: 'IBM Plex Sans'; font-style: normal; font-weight: 400; font-display: swap; src: url(fonts/ibm-plex-sans-400.woff2) format('woff2'); }
+@font-face { font-family: 'IBM Plex Sans'; font-style: italic; font-weight: 400; font-display: swap; src: url(fonts/ibm-plex-sans-400-italic.woff2) format('woff2'); }
+@font-face { font-family: 'IBM Plex Sans'; font-style: normal; font-weight: 500; font-display: swap; src: url(fonts/ibm-plex-sans-500.woff2) format('woff2'); }
+@font-face { font-family: 'IBM Plex Sans'; font-style: normal; font-weight: 600 700; font-display: swap; src: url(fonts/ibm-plex-sans-600.woff2) format('woff2'); }
+@font-face { font-family: 'JetBrains Mono'; font-style: normal; font-weight: 400 500; font-display: swap; src: url(fonts/jetbrains-mono-400.woff2) format('woff2'); }
+@font-face { font-family: 'JetBrains Mono'; font-style: normal; font-weight: 600 700; font-display: swap; src: url(fonts/jetbrains-mono-700.woff2) format('woff2'); }
+@font-face { font-family: 'Newsreader'; font-style: normal; font-weight: 500; font-display: swap; src: url(fonts/newsreader-500.woff2) format('woff2'); }
+@font-face { font-family: 'Newsreader'; font-style: normal; font-weight: 600 700; font-display: swap; src: url(fonts/newsreader-600.woff2) format('woff2'); }
+
+/* Layout: meja kerja dua bidang — lembar kode gelap di kiri, panel instrumen di kanan, di atas kertas berpetak titik */
+:root {
+  --paper: #F5F7F9;
+  --sheet: #FFFFFF;
+  --ink: #14181D;
+  --ink-2: #4E5864;
+  --rule: #DCE1E7;
+  --tint: #EDF0F3;
+  --dot: #D9DEE4;
+  --code-bg: #14181D;
+  --code-fg: #E6E9ED;
+  --code-mute: #8F99A3;
+  --code-line: #1E242B;
+  --verm: #E8562A;
+  --verm-ink: #B2401A;
+  --verm-soft: #FBE4DB;
+  --amber: #F2A541;
+  --amber-ink: #85560C;
+  --amber-soft: #F8DDB0;
+  --teal: #2FB5A5;
+  --teal-ink: #137066;
+  --teal-soft: #D4F0EC;
+  --focus: #E8562A;
+  --font-display: 'Newsreader', Cambria, Georgia, serif;
+  --font-ui: 'IBM Plex Sans', 'Segoe UI', system-ui, -apple-system, sans-serif;
+  --font-code: 'JetBrains Mono', Consolas, 'DejaVu Sans Mono', 'Courier New', monospace;
+  --r: 10px;
+  --shadow: 0 1px 2px rgb(20 24 29 / 0.06), 0 4px 14px rgb(20 24 29 / 0.05);
+  color-scheme: light;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --paper: #0E1114; --sheet: #161A1F; --ink: #E7EAEE; --ink-2: #A5AEB8; --rule: #2A3038; --tint: #1C2127; --dot: #232930;
+    --code-bg: #0A0C0F; --code-line: #151A20; --verm-ink: #FF8C66; --verm-soft: #3B1F16; --amber-ink: #F3C46E; --amber-soft: #4A3818;
+    --teal-ink: #55D3C3; --teal-soft: #12302C; --shadow: 0 1px 2px rgb(0 0 0 / 0.4), 0 6px 18px rgb(0 0 0 / 0.25);
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --paper: #0E1114; --sheet: #161A1F; --ink: #E7EAEE; --ink-2: #A5AEB8; --rule: #2A3038; --tint: #1C2127; --dot: #232930;
+  --code-bg: #0A0C0F; --code-line: #151A20; --verm-ink: #FF8C66; --verm-soft: #3B1F16; --amber-ink: #F3C46E; --amber-soft: #4A3818;
+  --teal-ink: #55D3C3; --teal-soft: #12302C; --shadow: 0 1px 2px rgb(0 0 0 / 0.4), 0 6px 18px rgb(0 0 0 / 0.25);
+  color-scheme: dark;
+}
+
+*, *::before, *::after { box-sizing: border-box; }
+html { -webkit-text-size-adjust: 100%; font-variant-ligatures: none; font-feature-settings: 'calt' 0, 'liga' 0; }
+body {
+  margin: 0; background: var(--paper); color: var(--ink);
+  font: 15px/1.55 var(--font-ui);
+  background-image: radial-gradient(var(--dot) 1px, transparent 1.2px);
+  background-size: 22px 22px;
+}
+[hidden] { display: none !important; }
+button, input, select, textarea { font: inherit; color: inherit; }
+code, kbd { font-family: var(--font-code); font-size: 0.9em; }
+:focus-visible { outline: 2px solid var(--focus); outline-offset: 2px; }
+.skip { position: absolute; left: -999px; top: 8px; background: var(--ink); color: var(--sheet); padding: 6px 10px; border-radius: 6px; z-index: 10; }
+.skip:focus { left: 16px; }
+
+.app { max-width: 1480px; margin: 0 auto; padding-inline: 20px; padding-block: 14px 28px; display: flex; flex-direction: column; gap: 14px; }
+
+#view-lab, #view-misi, #view-notasi { display: flex; flex-direction: column; gap: 14px; min-width: 0; }
+
+/* header */
+.top { display: flex; align-items: center; gap: 16px; flex-wrap: wrap; }
+.brand { display: flex; align-items: center; gap: 12px; margin-right: auto; min-width: 0; }
+.brand-mark { width: 38px; height: 38px; color: var(--ink); flex: none; }
+.brand-text h1 { font: 600 1.6rem/1.1 var(--font-display); margin: 0; letter-spacing: -0.01em; text-wrap: balance; }
+.brand-text h1 .h1-sub { font: 500 1.05rem var(--font-display); color: var(--ink-2); margin-left: 6px; letter-spacing: 0; }
+.brand-text abbr { text-decoration: none; }
+.brand-text p { margin: 2px 0 0; font: 500 0.72rem/1.3 var(--font-code); letter-spacing: 0.06em; text-transform: uppercase; color: var(--ink-2); }
+.views { display: flex; gap: 4px; background: var(--sheet); border: 1px solid var(--rule); border-radius: 999px; padding: 4px; box-shadow: var(--shadow); }
+.views button { border: 0; background: transparent; padding: 7px 16px; border-radius: 999px; cursor: pointer; font-weight: 500; color: var(--ink-2); display: inline-flex; gap: 8px; align-items: center; }
+.views button[aria-selected="true"] { background: var(--ink); color: var(--sheet); }
+.views .count { font: 600 0.72rem var(--font-code); padding: 1px 7px; border-radius: 999px; background: var(--tint); color: var(--ink-2); }
+.views button[aria-selected="true"] .count { background: var(--verm); color: #fff; }
+.icon-btn { border: 1px solid var(--rule); background: var(--sheet); width: 34px; height: 34px; border-radius: 8px; display: inline-grid; place-items: center; cursor: pointer; color: var(--ink); padding: 0; }
+.icon-btn svg { width: 18px; height: 18px; }
+.theme-btn { border-radius: 999px; box-shadow: var(--shadow); }
+
+/* buttons */
+.btn { display: inline-flex; align-items: center; gap: 7px; border: 1px solid var(--rule); background: var(--sheet); color: var(--ink); padding: 7px 13px; border-radius: 8px; cursor: pointer; font-weight: 500; font-size: 0.9rem; white-space: nowrap; }
+.btn svg { width: 14px; height: 14px; }
+.btn:hover:not(:disabled) { border-color: var(--ink-2); }
+.btn:disabled { opacity: 0.45; cursor: not-allowed; }
+.btn-primary { background: var(--verm); border-color: var(--verm); color: #fff; }
+.btn-primary:hover:not(:disabled) { background: #D44A20; border-color: #D44A20; }
+.btn-quiet { background: transparent; }
+.link-btn { border: 0; background: none; color: var(--ink-2); cursor: pointer; font-size: 0.82rem; text-decoration: underline; text-underline-offset: 3px; padding: 2px 4px; }
+.hint { color: var(--ink-2); font-size: 0.8rem; font-weight: 400; }
+
+/* mission strip */
+.mission-strip { background: var(--sheet); border: 1px solid var(--rule); border-radius: var(--r); box-shadow: var(--shadow); padding: 12px 14px; display: flex; flex-direction: column; gap: 10px; }
+.ms-head { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+.ms-tag { font: 600 0.72rem var(--font-code); letter-spacing: 0.05em; text-transform: uppercase; color: var(--verm-ink); background: var(--verm-soft); padding: 3px 8px; border-radius: 6px; }
+.ms-head strong { font: 600 1.15rem var(--font-display); }
+.ms-sub { color: var(--ink-2); font-size: 0.85rem; }
+.ms-actions { margin-left: auto; display: flex; gap: 8px; flex-wrap: wrap; }
+.ms-task { margin: 0; max-width: 90ch; color: var(--ink); }
+.ms-results { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.4fr); gap: 14px; border-top: 1px solid var(--rule); padding-top: 10px; }
+.ms-summary { grid-column: 1 / -1; font-weight: 600; display: flex; align-items: center; gap: 8px; }
+.ms-summary.ok { color: var(--teal-ink); }
+.ms-summary.no { color: var(--verm-ink); }
+.checklist { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 6px; font-size: 0.88rem; }
+.checklist li { display: grid; grid-template-columns: 20px minmax(0, 1fr); gap: 6px; align-items: start; }
+.checklist .mk { width: 18px; height: 18px; border-radius: 50%; display: grid; place-items: center; font: 700 11px var(--font-code); margin-top: 2px; }
+.checklist .ok .mk { background: var(--teal-soft); color: var(--teal-ink); }
+.checklist .no .mk { background: var(--verm-soft); color: var(--verm-ink); }
+.checklist .det { display: block; color: var(--ink-2); font-size: 0.8rem; overflow-wrap: anywhere; }
+.col-title { font: 600 0.72rem var(--font-code); letter-spacing: 0.06em; text-transform: uppercase; color: var(--ink-2); margin: 0 0 6px; }
+
+/* lab grid */
+.lab-grid { display: grid; grid-template-columns: minmax(0, 1.05fr) minmax(0, 1fr); gap: 16px; height: max(640px, calc(100vh - 120px)); }
+.pane { min-width: 0; min-height: 0; display: flex; flex-direction: column; gap: 10px; }
+.pane-bar { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+.pane-bar.slim { padding: 8px 12px; border-bottom: 1px solid var(--rule); }
+.bar-title { font: 600 0.72rem var(--font-code); letter-spacing: 0.06em; text-transform: uppercase; color: var(--ink-2); margin-right: auto; }
+.field-inline { display: inline-flex; align-items: center; gap: 8px; font-size: 0.85rem; color: var(--ink-2); min-width: 0; flex: 1 1 260px; }
+.field-inline select { flex: 1; min-width: 0; }
+select, input[type="text"] { background: var(--sheet); border: 1px solid var(--rule); border-radius: 8px; padding: 7px 10px; color: var(--ink); }
+.palette { display: inline-flex; border: 1px solid var(--rule); border-radius: 8px; overflow: hidden; background: var(--sheet); }
+.palette button { border: 0; border-right: 1px solid var(--rule); background: transparent; width: 34px; height: 34px; font: 600 1rem var(--font-code); cursor: pointer; color: var(--ink); }
+.palette button:last-child { border-right: 0; }
+.palette button:hover { background: var(--tint); }
+
+/* editor */
+.editor { flex: 1; min-height: 260px; display: flex; background: var(--code-bg); border-radius: var(--r); overflow: hidden; box-shadow: var(--shadow); position: relative; }
+.gutter { flex: none; width: 46px; overflow: hidden; background: var(--code-line); border-right: 1px solid #262D35; }
+.gutter-inner { padding-block: 14px; font: 13px/22px var(--font-code); color: #5D6873; text-align: right; padding-right: 10px; will-change: transform; }
+.gutter-inner div { height: 22px; }
+.gutter-inner .g-cur { color: var(--amber); font-weight: 600; }
+.gutter-inner .g-err { color: #fff; background: var(--verm); }
+.code-area { position: relative; flex: 1; min-width: 0; }
+.code-area textarea, .hl { position: absolute; inset: 0; margin: 0; padding: 14px 16px 40px; font: 14px/22px var(--font-code); white-space: pre; tab-size: 2; letter-spacing: 0; word-spacing: 0; border: 0; }
+.code-area textarea { color: transparent; background: transparent; caret-color: #FFFFFF; resize: none; outline: none; overflow: auto; z-index: 2; -webkit-text-fill-color: transparent; }
+.code-area textarea::selection { background: rgb(242 165 65 / 0.35); }
+.hl { overflow: hidden; color: var(--code-fg); z-index: 1; pointer-events: none; }
+.hl code { font: inherit; }
+.lineflag { position: absolute; left: 0; height: 22px; min-width: 100%; background: rgb(242 165 65 / 0.16); box-shadow: inset 3px 0 0 var(--amber); pointer-events: none; z-index: -1; }
+.lineflag.err { background: rgb(232 86 42 / 0.22); box-shadow: inset 3px 0 0 var(--verm); }
+.t-kw { color: #FF8A5C; font-weight: 600; }
+.t-str { color: #F2C063; }
+.t-num { color: #F2C063; }
+.t-com { color: var(--code-mute); font-style: italic; }
+.t-op { color: #FF8A5C; font-weight: 600; }
+.t-fn { color: #6FD8CB; }
+.errbar { background: var(--verm-soft); color: var(--verm-ink); border-radius: 8px; padding: 8px 12px; font-size: 0.88rem; display: flex; gap: 8px; align-items: baseline; }
+.errbar b { font-family: var(--font-code); white-space: nowrap; }
+.errbar.warn { background: var(--amber-soft); color: var(--amber-ink); }
+.io-row { display: flex; flex-direction: column; gap: 4px; }
+.io-row label { font-size: 0.85rem; font-weight: 500; display: flex; gap: 8px; flex-wrap: wrap; align-items: baseline; }
+.io-row input { font-family: var(--font-code); font-size: 0.9rem; width: 100%; }
+.controls { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+.speed { display: inline-flex; align-items: center; gap: 6px; font-size: 0.85rem; color: var(--ink-2); }
+.speed select { padding: 6px 8px; }
+.status { margin-left: auto; font: 600 0.75rem var(--font-code); letter-spacing: 0.04em; text-transform: uppercase; padding: 5px 10px; border-radius: 999px; background: var(--tint); color: var(--ink-2); white-space: nowrap; }
+.status[data-state="running"], .status[data-state="paused"] { background: var(--amber-soft); color: var(--amber-ink); }
+.status[data-state="input"] { background: var(--teal-soft); color: var(--teal-ink); }
+.status[data-state="done"] { background: var(--teal-soft); color: var(--teal-ink); }
+.status[data-state="error"] { background: var(--verm-soft); color: var(--verm-ink); }
+
+/* console + inspect */
+.console { flex: 0 0 34%; min-height: 150px; display: flex; flex-direction: column; background: var(--sheet); border: 1px solid var(--rule); border-radius: var(--r); box-shadow: var(--shadow); overflow: hidden; }
+.console-body { flex: 1; overflow: auto; padding: 10px 14px; font: 13.5px/1.6 var(--font-code); min-height: 0; }
+.console-body .o { white-space: pre-wrap; overflow-wrap: anywhere; }
+.o-in { color: var(--ink-2); }
+.o-in::before { content: "› "; color: var(--teal-ink); }
+.o-err { color: var(--verm-ink); background: var(--verm-soft); border-radius: 6px; padding: 4px 8px; margin: 4px 0; font-family: var(--font-ui); font-size: 0.86rem; }
+.o-info { color: var(--ink-2); font-family: var(--font-ui); font-size: 0.82rem; font-style: italic; }
+.o-ok { color: var(--teal-ink); font-family: var(--font-ui); font-size: 0.85rem; font-weight: 500; }
+.ask { display: flex; gap: 8px; align-items: center; padding: 8px 12px; border-top: 1px solid var(--rule); background: var(--teal-soft); flex-wrap: wrap; }
+.ask label { font: 600 0.82rem var(--font-code); color: var(--teal-ink); }
+.ask input { flex: 1; min-width: 120px; font-family: var(--font-code); }
+.inspect { flex: 1; min-height: 0; display: flex; flex-direction: column; background: var(--sheet); border: 1px solid var(--rule); border-radius: var(--r); box-shadow: var(--shadow); overflow: hidden; }
+.subtabs { display: flex; border-bottom: 1px solid var(--rule); overflow-x: auto; flex: none; }
+.subtabs button { border: 0; background: none; padding: 10px 14px; cursor: pointer; font-weight: 500; font-size: 0.88rem; color: var(--ink-2); border-bottom: 2px solid transparent; white-space: nowrap; }
+.subtabs button[aria-selected="true"] { color: var(--ink); border-bottom-color: var(--verm); }
+.subpanel { flex: 1; min-height: 0; overflow: auto; padding: 12px 14px; }
+
+/* variables */
+.frames { display: flex; flex-direction: column; gap: 12px; }
+.frame { border: 1px solid var(--rule); border-radius: 8px; overflow: hidden; }
+.frame-h { display: flex; justify-content: space-between; gap: 8px; padding: 6px 10px; background: var(--tint); font: 600 0.75rem var(--font-code); letter-spacing: 0.03em; }
+.frame-h .scope { color: var(--ink-2); font-weight: 500; }
+.frame.local { border-color: var(--teal); }
+.frame.local .frame-h { background: var(--teal-soft); color: var(--teal-ink); }
+.vrow { display: grid; grid-template-columns: minmax(90px, 0.35fr) minmax(0, 1fr); gap: 10px; padding: 7px 10px; border-top: 1px solid var(--rule); align-items: start; transition: background-color 0.6s; }
+.vrow:first-of-type { border-top: 0; }
+.vrow.chg { background: var(--amber-soft); transition: none; }
+.vname { font: 600 0.88rem var(--font-code); overflow-wrap: anywhere; }
+.vtype { display: block; font: 400 0.7rem var(--font-ui); color: var(--ink-2); }
+.vval { font: 0.88rem var(--font-code); overflow-wrap: anywhere; min-width: 0; }
+.cells { display: flex; flex-wrap: wrap; gap: 4px; }
+.cell { display: flex; flex-direction: column; align-items: center; min-width: 34px; }
+.cell b { font-weight: 500; border: 1px solid var(--rule); background: var(--sheet); padding: 2px 6px; border-radius: 4px; min-width: 34px; text-align: center; }
+.cell i { font: normal 0.66rem var(--font-code); color: var(--ink-2); }
+.empty { color: var(--ink-2); font-size: 0.88rem; padding: 6px 2px; }
+.empty strong { color: var(--ink); }
+
+/* trace */
+.trace-wrap { overflow: auto; border: 1px solid var(--rule); border-radius: 8px; max-height: 100%; }
+table.trace { border-collapse: collapse; font: 0.82rem var(--font-code); width: max-content; min-width: 100%; font-variant-numeric: tabular-nums; }
+.trace th, .trace td { border-bottom: 1px solid var(--rule); padding: 5px 10px; text-align: left; white-space: nowrap; }
+.trace thead th { position: sticky; top: 0; background: var(--ink); color: var(--sheet); font-weight: 600; z-index: 1; }
+.trace td.ln { color: var(--ink-2); }
+.trace td.v { color: var(--ink); font-weight: 600; }
+.trace td.note { color: var(--ink-2); white-space: normal; min-width: 220px; font-family: var(--font-ui); }
+.trace td.note .t { color: var(--teal-ink); font-weight: 600; }
+.trace td.note .f { color: var(--verm-ink); font-weight: 600; }
+.trace tr.cur td { background: var(--amber-soft); }
+.trace-foot { margin-top: 8px; }
+
+/* flowchart */
+.flow-panel { display: flex; flex-direction: column; gap: 10px; }
+.flow-bar { display: flex; justify-content: space-between; gap: 10px; flex-wrap: wrap; align-items: center; }
+.legend { display: flex; flex-wrap: wrap; gap: 10px; font-size: 0.75rem; color: var(--ink-2); }
+.legend span { display: inline-flex; align-items: center; gap: 5px; }
+.lg { display: inline-block; width: 18px; height: 11px; border: 1.4px solid var(--ink); background: var(--sheet); }
+.lg-term { background: var(--ink); border-radius: 6px; }
+.lg-io { transform: skewX(-20deg); }
+.lg-dec { width: 11px; height: 11px; transform: rotate(45deg); background: var(--amber-soft); margin-inline: 3px; }
+.lg-sub { box-shadow: inset 3px 0 0 var(--sheet), inset 4.4px 0 0 var(--ink), inset -3px 0 0 var(--sheet), inset -4.4px 0 0 var(--ink); }
+.zoom { display: inline-flex; align-items: center; gap: 6px; font: 0.8rem var(--font-code); color: var(--ink-2); }
+.zoom .icon-btn { width: 28px; height: 28px; font-size: 1rem; }
+.flow-canvas { flex: 1; min-height: 0; overflow: auto; border: 1px solid var(--rule); border-radius: 8px; padding: 12px; background-color: var(--paper); background-image: radial-gradient(var(--dot) 1px, transparent 1.2px); background-size: 18px 18px; display: flex; flex-direction: column; gap: 18px; align-items: flex-start; }
+.chart h3 { margin: 0 0 6px; font: 600 0.75rem var(--font-code); letter-spacing: 0.04em; color: var(--ink-2); text-transform: uppercase; }
+.fc-svg { display: block; max-width: none; height: auto; }
+.fc-shape { fill: var(--sheet); stroke: var(--ink); stroke-width: 1.4; }
+.fc-term, .fc-ret { fill: var(--ink); }
+.fc-dec { fill: var(--amber-soft); }
+.fc-subline { stroke: var(--ink); stroke-width: 1.2; }
+.fc-text { font: 12px var(--font-code); fill: var(--ink); }
+.fc-text-term, .fc-text-ret { fill: var(--sheet); }
+.fc-edge { fill: none; stroke: var(--ink-2); stroke-width: 1.3; }
+.fc-back { stroke: var(--verm); }
+.fc-ah { fill: var(--ink-2); }
+.fc-lab { font: 11px var(--font-ui); fill: var(--ink-2); }
+.fc-dot { fill: var(--ink-2); }
+.fc-node.is-active .fc-shape { stroke: var(--verm); stroke-width: 3; fill: var(--verm-soft); }
+.fc-node.is-active .fc-text { fill: var(--ink); font-weight: 600; }
+.fc-node.is-err .fc-shape { stroke: var(--verm); stroke-width: 3; stroke-dasharray: 5 3; }
+
+/* python */
+.py-bar { display: flex; align-items: center; gap: 10px; margin-bottom: 10px; flex-wrap: wrap; }
+.code-block { margin: 0; background: var(--code-bg); color: var(--code-fg); border-radius: 8px; padding: 14px 16px; font: 13.5px/1.6 var(--font-code); overflow: auto; tab-size: 4; }
+.py-notes { margin: 12px 0 0; padding-left: 18px; color: var(--ink-2); font-size: 0.84rem; display: flex; flex-direction: column; gap: 4px; max-width: 75ch; }
+
+/* missions */
+.misi-head { display: flex; justify-content: space-between; gap: 20px; flex-wrap: wrap; align-items: flex-end; }
+.misi-head h2, .notasi h2 { font: 600 1.9rem/1.1 var(--font-display); margin: 0 0 6px; text-wrap: balance; }
+.lede { margin: 0; color: var(--ink-2); max-width: 64ch; }
+.who { display: grid; grid-template-columns: auto minmax(0, 1fr) auto minmax(0, 90px); gap: 6px 8px; align-items: center; font-size: 0.85rem; background: var(--sheet); border: 1px solid var(--rule); border-radius: var(--r); padding: 10px 12px; box-shadow: var(--shadow); max-width: 100%; }
+.who input { width: 100%; min-width: 0; }
+.who .hint { grid-column: 1 / -1; margin: 0; }
+.progress { height: 6px; background: var(--tint); border-radius: 999px; overflow: hidden; }
+.progress-fill { height: 100%; width: 0; background: var(--teal); transition: width 0.4s; }
+.misi-grid { display: grid; grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.3fr); gap: 18px; align-items: start; }
+.misi-list { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 6px; }
+.misi-group { font: 600 0.72rem var(--font-code); letter-spacing: 0.06em; text-transform: uppercase; color: var(--ink-2); margin: 10px 0 2px; }
+.misi-group:first-child { margin-top: 0; }
+.mcard { width: 100%; text-align: left; display: grid; grid-template-columns: 30px minmax(0, 1fr) auto; gap: 10px; align-items: center; background: var(--sheet); border: 1px solid var(--rule); border-radius: 9px; padding: 10px 12px; cursor: pointer; }
+.mcard:hover { border-color: var(--ink-2); }
+.mcard[aria-current="true"] { border-color: var(--verm); box-shadow: 0 0 0 1px var(--verm); }
+.mnum { font: 600 0.8rem var(--font-code); color: var(--ink-2); }
+.mtitle { font-weight: 600; display: block; }
+.mskill { font-size: 0.78rem; color: var(--ink-2); }
+.mstate { font: 600 0.7rem var(--font-code); text-transform: uppercase; letter-spacing: 0.04em; padding: 3px 8px; border-radius: 999px; background: var(--tint); color: var(--ink-2); white-space: nowrap; }
+.mstate.done { background: var(--teal-soft); color: var(--teal-ink); }
+.mstate.wip { background: var(--amber-soft); color: var(--amber-ink); }
+.misi-detail { background: var(--sheet); border: 1px solid var(--rule); border-radius: var(--r); box-shadow: var(--shadow); padding: 20px 22px; display: flex; flex-direction: column; gap: 14px; position: sticky; top: 12px; min-width: 0; }
+.md-tag { font: 600 0.72rem var(--font-code); letter-spacing: 0.06em; text-transform: uppercase; color: var(--verm-ink); }
+.misi-detail h3 { font: 600 1.6rem/1.15 var(--font-display); margin: 2px 0 0; text-wrap: balance; }
+.misi-detail p { margin: 0; max-width: 68ch; }
+.md-meta { display: flex; gap: 8px; flex-wrap: wrap; }
+.chip { font: 500 0.75rem var(--font-code); padding: 3px 9px; border-radius: 999px; background: var(--tint); color: var(--ink-2); }
+.chip.ok { background: var(--teal-soft); color: var(--teal-ink); }
+.md-actions { display: flex; gap: 8px; flex-wrap: wrap; }
+details.hintbox { border: 1px dashed var(--rule); border-radius: 8px; padding: 8px 12px; }
+details.hintbox summary { cursor: pointer; font-weight: 500; color: var(--amber-ink); }
+details.hintbox p { margin-top: 6px; }
+.scen { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 8px; }
+.scen button { text-align: left; border: 1px solid var(--rule); background: var(--sheet); border-radius: 9px; padding: 10px; cursor: pointer; display: flex; flex-direction: column; gap: 4px; }
+.scen button[aria-pressed="true"] { border-color: var(--verm); box-shadow: 0 0 0 1px var(--verm); }
+.scen .L { font: 600 1.2rem var(--font-display); color: var(--verm-ink); }
+.scen .d { font-size: 0.78rem; color: var(--ink-2); }
+.trace-quiz { border-collapse: collapse; font-family: var(--font-code); font-size: 0.88rem; width: 100%; }
+.trace-quiz th, .trace-quiz td { border: 1px solid var(--rule); padding: 6px 8px; text-align: left; }
+.trace-quiz thead th { background: var(--ink); color: var(--sheet); }
+.trace-quiz input { width: 72px; font-family: var(--font-code); padding: 4px 6px; }
+.trace-quiz input.ok { border-color: var(--teal); background: var(--teal-soft); }
+.trace-quiz input.no { border-color: var(--verm); background: var(--verm-soft); }
+.mini-code { margin: 0; background: var(--code-bg); color: var(--code-fg); border-radius: 8px; padding: 12px 14px; font: 13px/1.6 var(--font-code); overflow: auto; }
+.result-line { font-weight: 600; }
+.result-line.ok { color: var(--teal-ink); }
+.result-line.no { color: var(--verm-ink); }
+.proof { width: 100%; min-height: 160px; font: 12px/1.5 var(--font-code); border: 1px solid var(--rule); border-radius: 8px; padding: 8px; background: var(--tint); }
+
+/* notasi */
+.notasi { display: flex; flex-direction: column; gap: 18px; }
+.notasi-intro { background: var(--sheet); border: 1px solid var(--rule); border-radius: var(--r); padding: 18px 20px; box-shadow: var(--shadow); }
+.rules { margin: 12px 0 0; padding-left: 20px; display: flex; flex-direction: column; gap: 6px; max-width: 80ch; }
+.ref-cols { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 18px; }
+.table-wrap { overflow-x: auto; background: var(--sheet); border: 1px solid var(--rule); border-radius: var(--r); box-shadow: var(--shadow); }
+table.ref { border-collapse: collapse; width: 100%; font-size: 0.88rem; }
+table.ref caption { text-align: left; padding: 12px 14px 4px; font: 600 1.05rem var(--font-display); }
+.ref th, .ref td { padding: 8px 14px; border-bottom: 1px solid var(--rule); text-align: left; vertical-align: top; }
+.ref thead th { font: 600 0.72rem var(--font-code); letter-spacing: 0.05em; text-transform: uppercase; color: var(--ink-2); }
+.ref tbody tr:last-child td { border-bottom: 0; }
+.ref td code { white-space: nowrap; }
+.ref .ps { color: var(--verm-ink); }
+.ref .pyc { color: var(--teal-ink); }
+.sym { display: inline-block; vertical-align: middle; }
+kbd { border: 1px solid var(--rule); border-bottom-width: 2px; border-radius: 4px; padding: 0 5px; background: var(--sheet); }
+
+/* footer & toast */
+.foot { border-top: 1px solid var(--rule); padding-top: 12px; font-size: 0.85rem; color: var(--ink-2); }
+.foot p { margin: 0 0 2px; }
+.foot strong { color: var(--ink); }
+.toast { position: fixed; left: 50%; bottom: calc(18px + env(safe-area-inset-bottom, 0px)); transform: translateX(-50%); background: var(--ink); color: var(--sheet); padding: 10px 14px; border-radius: 10px; box-shadow: var(--shadow); display: flex; gap: 12px; align-items: center; z-index: 20; max-width: calc(100vw - 32px); font-size: 0.9rem; }
+.toast button { background: none; border: 0; color: var(--amber); font-weight: 600; cursor: pointer; text-decoration: underline; }
+
+/* responsive */
+@media (max-width: 1080px) {
+  .lab-grid { grid-template-columns: minmax(0, 1fr); height: auto; }
+  .editor { height: 440px; flex: none; }
+  .console { flex: none; height: 220px; }
+  .inspect { min-height: 520px; }
+  .misi-grid { grid-template-columns: minmax(0, 1fr); }
+  .misi-detail { position: static; }
+  .ms-results { grid-template-columns: minmax(0, 1fr); }
+}
+@media (max-width: 720px) {
+  .app { padding-inline: 16px; }
+  .top { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 12px; }
+  .top .views { grid-column: 1 / -1; order: 3; }
+  .views .wide { display: none; }
+  .brand-text h1 { font-size: 1.3rem; }
+  .views { width: 100%; justify-content: space-between; }
+  .views button { padding: 7px 10px; flex: 1; justify-content: center; }
+  .ref-cols { grid-template-columns: minmax(0, 1fr); }
+  .who { grid-template-columns: auto minmax(0, 1fr); }
+  .status { margin-left: 0; }
+  .editor { height: 380px; }
+  .misi-detail { padding: 16px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { transition: none !important; animation: none !important; scroll-behavior: auto !important; }
+}
+
+</style>
+</head>
+<body>
+<a class="skip" href="#main">Lewati ke isi</a>
+<div class="app">
+  <header class="top">
+    <div class="brand">
+      <svg class="brand-mark" viewBox="0 0 64 64" aria-hidden="true"><rect x="4" y="4" width="24" height="24" fill="var(--verm)"/><path d="M48 4 L60 16 L48 28 L36 16 Z" fill="var(--amber)"/><circle cx="16" cy="48" r="12" fill="var(--teal)"/><rect x="37" y="37" width="22" height="22" fill="none" stroke="currentColor" stroke-width="3"/></svg>
+      <div class="brand-text">
+        <h1>ALUR <span class="h1-sub">Lab Maya Pseudocode</span></h1>
+        <p><abbr title="Algoritma, Logika, Uji, Rancang">Algoritma · Logika · Uji · Rancang</abbr></p>
+      </div>
+    </div>
+    <nav class="views" role="tablist" aria-label="Bagian lab">
+      <button role="tab" id="tab-lab" aria-selected="true" aria-controls="view-lab" data-view="lab">Lab</button>
+      <button role="tab" id="tab-misi" aria-selected="false" aria-controls="view-misi" data-view="misi">Misi <span class="count" id="misi-count">0/12</span></button>
+      <button role="tab" id="tab-notasi" aria-selected="false" aria-controls="view-notasi" data-view="notasi">Notasi</button>
+    </nav>
+    <button class="icon-btn theme-btn" id="theme-btn" type="button" aria-label="Ganti tema terang/gelap" title="Ganti tema">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3a9 9 0 1 0 9 9 7 7 0 0 1-9-9z" fill="currentColor"/></svg>
+    </button>
+  </header>
+
+  <main id="main">
+    <!-- ───────────── LAB ───────────── -->
+    <section id="view-lab" role="tabpanel" aria-labelledby="tab-lab">
+      <div class="mission-strip" id="mission-strip" hidden>
+        <div class="ms-head">
+          <span class="ms-tag" id="ms-tag">LKPD</span>
+          <strong id="ms-title">Misi</strong>
+          <span class="ms-sub" id="ms-sub"></span>
+          <div class="ms-actions">
+            <button class="btn btn-primary" id="btn-test" type="button">Uji otomatis</button>
+            <button class="btn" id="btn-ms-task" type="button">Lihat tugas</button>
+            <button class="btn btn-quiet" id="btn-ms-exit" type="button">Keluar dari misi</button>
+          </div>
+        </div>
+        <p class="ms-task" id="ms-task" hidden></p>
+        <div class="ms-results" id="ms-results" hidden></div>
+      </div>
+
+      <div class="lab-grid">
+        <div class="pane pane-editor">
+          <div class="pane-bar">
+            <label class="field-inline" for="sel-example"><span>Contoh</span>
+              <select id="sel-example"></select>
+            </label>
+            <div class="palette" role="group" aria-label="Sisipkan simbol">
+              <button type="button" data-ins="←" title="Penugasan (ketik juga &lt;-)">←</button>
+              <button type="button" data-ins="≠" title="Tidak sama dengan">≠</button>
+              <button type="button" data-ins="≤" title="Kurang dari atau sama dengan">≤</button>
+              <button type="button" data-ins="≥" title="Lebih dari atau sama dengan">≥</button>
+              <button type="button" data-ins="×" title="Kali">×</button>
+              <button type="button" data-ins="÷" title="Bagi">÷</button>
+            </div>
+          </div>
+          <div class="editor" id="editor">
+            <div class="gutter" aria-hidden="true"><div class="gutter-inner" id="gutter"></div></div>
+            <div class="code-area">
+              <pre class="hl" id="hl" aria-hidden="true"><code id="hl-code"></code><div class="lineflag" id="lineflag" hidden></div></pre>
+              <textarea id="code" spellcheck="false" autocapitalize="off" autocomplete="off" autocorrect="off" wrap="off" aria-label="Editor pseudocode"></textarea>
+            </div>
+          </div>
+          <div class="errbar" id="errbar" role="status" hidden></div>
+          <div class="io-row">
+            <label for="inputs">Data masukan <span class="hint">dipakai berurutan oleh INPUT, pisahkan dengan koma</span></label>
+            <input id="inputs" type="text" spellcheck="false" autocomplete="off" placeholder="contoh: 80, 90, 70, -1">
+          </div>
+          <div class="controls">
+            <button class="btn btn-primary" id="btn-run" type="button" title="Ctrl + Enter"><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M4 2.5v11l9-5.5z" fill="currentColor"/></svg>Jalankan</button>
+            <button class="btn" id="btn-step" type="button" title="Ctrl + Shift + Enter"><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M3 2.5v11l7-5.5zM11 2.5h2v11h-2z" fill="currentColor"/></svg>Langkah</button>
+            <button class="btn" id="btn-pause" type="button" disabled><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M4 2.5h3v11H4zM9 2.5h3v11H9z" fill="currentColor"/></svg>Jeda</button>
+            <button class="btn btn-quiet" id="btn-reset" type="button"><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M8 2.5a5.5 5.5 0 1 1-5.2 3.7l1.6.6A3.8 3.8 0 1 0 8 4.2V6L4.8 3.4 8 .8z" fill="currentColor"/></svg>Ulang</button>
+            <label class="speed" for="speed"><span>Kecepatan</span>
+              <select id="speed"><option value="0">Lambat</option><option value="1">Sedang</option><option value="2" selected>Cepat</option><option value="3">Instan</option></select>
+            </label>
+            <span class="status" id="status" data-state="idle">Siap</span>
+          </div>
+        </div>
+
+        <div class="pane pane-out">
+          <div class="console" id="console-box">
+            <div class="pane-bar slim"><span class="bar-title">Layar output</span><button class="link-btn" id="btn-clear" type="button">Bersihkan</button></div>
+            <div class="console-body" id="console" aria-live="polite"></div>
+            <form class="ask" id="ask" hidden>
+              <label for="ask-input" id="ask-label">INPUT</label>
+              <input id="ask-input" type="text" autocomplete="off" spellcheck="false">
+              <button class="btn btn-primary" type="submit">Kirim</button>
+            </form>
+          </div>
+          <div class="inspect">
+            <div class="subtabs" role="tablist" aria-label="Panel pengamatan">
+              <button role="tab" data-sub="vars" aria-selected="true" id="st-vars" aria-controls="p-vars">Variabel</button>
+              <button role="tab" data-sub="trace" aria-selected="false" id="st-trace" aria-controls="p-trace">Tabel jejak</button>
+              <button role="tab" data-sub="flow" aria-selected="false" id="st-flow" aria-controls="p-flow">Flowchart</button>
+              <button role="tab" data-sub="py" aria-selected="false" id="st-py" aria-controls="p-py">Python</button>
+            </div>
+            <div class="subpanel" id="p-vars" role="tabpanel" aria-labelledby="st-vars"></div>
+            <div class="subpanel" id="p-trace" role="tabpanel" aria-labelledby="st-trace" hidden></div>
+            <div class="subpanel flow-panel" id="p-flow" role="tabpanel" aria-labelledby="st-flow" hidden>
+              <div class="flow-bar">
+                <div class="legend" aria-label="Arti simbol">
+                  <span><i class="lg lg-term"></i>Mulai/selesai</span><span><i class="lg lg-proc"></i>Proses</span><span><i class="lg lg-io"></i>Input/output</span><span><i class="lg lg-dec"></i>Keputusan</span><span><i class="lg lg-sub"></i>Subprogram</span>
+                </div>
+                <div class="zoom" role="group" aria-label="Perbesaran">
+                  <button type="button" class="icon-btn" id="z-out" aria-label="Perkecil">−</button>
+                  <span id="z-val">100%</span>
+                  <button type="button" class="icon-btn" id="z-in" aria-label="Perbesar">+</button>
+                  <button type="button" class="link-btn" id="z-fit">Pas</button>
+                </div>
+              </div>
+              <div class="flow-canvas" id="flow"></div>
+            </div>
+            <div class="subpanel" id="p-py" role="tabpanel" aria-labelledby="st-py" hidden>
+              <div class="py-bar"><span class="bar-title">Hasil konversi otomatis</span><button class="btn" id="btn-copy-py" type="button">Salin kode Python</button></div>
+              <pre class="code-block" id="py-code"></pre>
+              <ul class="py-notes">
+                <li>Indeks pseudocode modul dimulai dari 1, sedangkan Python dari 0. Konversi ini sudah menyesuaikannya (<code>data[1]</code> menjadi <code>data[0]</code>).</li>
+                <li><code>UNTUK i DARI 1 HINGGA n</code> menjadi <code>range(1, n + 1)</code> karena batas atas <code>range</code> tidak ikut dihitung.</li>
+                <li>Jenis data pada <code>input()</code> ditebak dari data saat program terakhir dijalankan. Python menampilkan hasil <code>/</code> sebagai desimal, misalnya <code>80.0</code>.</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ───────────── MISI ───────────── -->
+    <section id="view-misi" role="tabpanel" aria-labelledby="tab-misi" hidden>
+      <div class="misi-head">
+        <div>
+          <h2>Misi bertahap</h2>
+          <p class="lede">Dua belas misi, dari algoritma sehari-hari sampai proyek sistem kelompok. Setiap misi punya uji otomatis: lab menjalankan programmu dengan beberapa data dan memeriksa hasilnya. Label LKPD dan kode TP mengikuti modul Informatika Kelas IX SMP Labschool Jakarta.</p>
+        </div>
+        <div class="who">
+          <label for="who-name">Nama</label><input id="who-name" type="text" autocomplete="name" placeholder="Nama lengkap">
+          <label for="who-class">Kelas</label><input id="who-class" type="text" placeholder="9B">
+          <p class="hint">Disimpan di peramban ini saja, dipakai untuk bukti pengerjaan.</p>
+        </div>
+      </div>
+      <div class="progress" aria-hidden="true"><div class="progress-fill" id="progress-fill"></div></div>
+      <div class="misi-grid">
+        <ol class="misi-list" id="misi-list"></ol>
+        <article class="misi-detail" id="misi-detail" aria-live="polite"></article>
+      </div>
+    </section>
+
+    <!-- ───────────── NOTASI ───────────── -->
+    <section id="view-notasi" role="tabpanel" aria-labelledby="tab-notasi" hidden>
+      <div class="notasi">
+        <div class="notasi-intro">
+          <h2>Notasi yang dikenali lab</h2>
+          <p class="lede">Lab ini memakai konvensi pseudocode berbahasa Indonesia yang lazim dipakai di Informatika SMP. Tiga aturan yang paling sering terlupa:</p>
+          <ol class="rules">
+            <li><strong>Kata kunci ditulis KAPITAL.</strong> <code>JIKA</code>, <code>SELAMA</code>, <code>OUTPUT</code>; bukan <code>jika</code>.</li>
+            <li><strong>Simpan nilai dengan ←.</strong> Ketik <code>&lt;-</code> dan lab mengubahnya menjadi ←. Tanda <code>=</code> dipakai untuk membandingkan.</li>
+            <li><strong>Indeks dimulai dari 1.</strong> <code>data[1]</code> adalah elemen pertama. Di Python, elemen pertama adalah <code>data[0]</code>.</li>
+          </ol>
+        </div>
+        <div class="table-wrap">
+          <table class="ref">
+            <caption>Kata kunci dan padanannya</caption>
+            <thead><tr><th scope="col">Elemen</th><th scope="col">Pseudocode</th><th scope="col">Python</th><th scope="col">Simbol flowchart</th></tr></thead>
+            <tbody id="ref-body"></tbody>
+          </table>
+        </div>
+        <div class="ref-cols">
+          <div class="table-wrap">
+            <table class="ref">
+              <caption>Operator</caption>
+              <thead><tr><th scope="col">Jenis</th><th scope="col">Pseudocode</th><th scope="col">Python</th></tr></thead>
+              <tbody>
+                <tr><td>Aritmatika</td><td><code>+ - × ÷ MOD DIV **</code></td><td><code>+ - * / % // **</code></td></tr>
+                <tr><td>Perbandingan</td><td><code>= ≠ &lt; &gt; ≤ ≥</code></td><td><code>== != &lt; &gt; &lt;= &gt;=</code></td></tr>
+                <tr><td>Logika</td><td><code>DAN ATAU BUKAN</code></td><td><code>and or not</code></td></tr>
+                <tr><td>Penugasan</td><td><code>←</code> (atau ketik <code>&lt;-</code>)</td><td><code>=</code></td></tr>
+                <tr><td>Gabung teks</td><td><code>"Nilai: " + n</code></td><td><code>f"Nilai: {n}"</code></td></tr>
+              </tbody>
+            </table>
+          </div>
+          <div class="table-wrap">
+            <table class="ref">
+              <caption>Fungsi bawaan lab</caption>
+              <thead><tr><th scope="col">Fungsi</th><th scope="col">Hasil</th><th scope="col">Python</th></tr></thead>
+              <tbody>
+                <tr><td><code>PANJANG(x)</code></td><td>banyak elemen array atau huruf teks</td><td><code>len(x)</code></td></tr>
+                <tr><td><code>AKAR(x)</code></td><td>akar kuadrat</td><td><code>math.sqrt(x)</code></td></tr>
+                <tr><td><code>BULATKAN(x)</code></td><td>pembulatan</td><td><code>round(x)</code></td></tr>
+                <tr><td><code>ACAK(a, b)</code></td><td>bilangan bulat acak a sampai b</td><td><code>random.randint(a, b)</code></td></tr>
+                <tr><td><code>TEKS(x)</code> / <code>ANGKA(x)</code></td><td>ubah ke teks / ke angka</td><td><code>str(x)</code> / <code>float(x)</code></td></tr>
+                <tr><td><code>POTONG(t, a, b)</code></td><td>huruf ke-a sampai ke-b dari teks t</td><td><code>t[a-1:b]</code></td></tr>
+                <tr><td><code>MUTLAK(x)</code></td><td>nilai mutlak</td><td><code>abs(x)</code></td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+        <p class="hint keys">Pintasan: <kbd>Ctrl</kbd> + <kbd>Enter</kbd> menjalankan program, <kbd>Ctrl</kbd> + <kbd>Shift</kbd> + <kbd>Enter</kbd> maju satu langkah, <kbd>Tab</kbd> menambah indentasi.</p>
+      </div>
+    </section>
+  </main>
+
+  <footer class="foot">
+    <p>Dikembangkan oleh <strong>Ramli Jainal Muttaqin, S.Pd.</strong> (SMP Labschool Jakarta) untuk Informatika SMP Fase D, elemen Berpikir Komputasional. Bebas dipakai di kelas mana pun.</p>
+    <p class="hint">Semua proses berjalan di peramban. Setelah dibuka sekali, lab tetap bisa dipakai tanpa internet.</p>
+  </footer>
+</div>
+<div class="toast" id="toast" role="status" hidden></div>
+<script>
+/* ALUR (Lab Maya Pseudocode) — core engine
+ * Lexer, parser (konvensi pseudocode berbahasa Indonesia), interpreter langkah demi langkah,
+ * pencetak pseudocode, penerjemah Python, dan pembuat flowchart SVG.
+ */
+(function (root) {
+  'use strict';
+
+  const KEYWORDS = new Set(['MULAI', 'SELESAI', 'INPUT', 'OUTPUT', 'JIKA', 'MAKA', 'LAIN', 'AKHIR', 'SELAMA', 'UNTUK', 'DARI', 'HINGGA', 'LANGKAH',
+    'SETIAP', 'DALAM', 'FUNGSI', 'PROSEDUR', 'KEMBALIKAN', 'DAN', 'ATAU', 'BUKAN', 'BENAR', 'SALAH', 'MOD', 'DIV', 'TAMBAH', 'KE', 'ARRAY']);
+  const STMT_KW = ['MULAI', 'SELESAI', 'INPUT', 'OUTPUT', 'JIKA', 'SELAMA', 'UNTUK', 'FUNGSI', 'PROSEDUR', 'KEMBALIKAN', 'TAMBAH', 'AKHIR'];
+  const BUILTINS = ['PANJANG', 'AKAR', 'BULATKAN', 'ACAK', 'TEKS', 'ANGKA', 'POTONG', 'MUTLAK'];
+  const NONE = Symbol('tidak-ada');
+
+  class LabError extends Error {
+    constructor(line, msg, kind) { super(msg); this.line = line; this.kind = kind || 'sintaks'; }
+  }
+
+  /* ───────────────────────── LEXER ───────────────────────── */
+  function normalize(src) {
+    return String(src).replace(/\r\n?/g, '\n').replace(/[“”„]/g, '"').replace(/[‘’]/g, "'")
+      .replace(/\t/g, '  ').replace(/ /g, ' ');
+  }
+  function lex(src) {
+    src = normalize(src);
+    const toks = []; let i = 0, line = 1;
+    const push = (t, v) => toks.push({ t, v, line });
+    const OPS2 = { '<-': '←', '<=': '≤', '>=': '≥', '!=': '≠', '<>': '≠', '==': '==', '**': '**', '//': '//' };
+    while (i < src.length) {
+      const c = src[i];
+      if (c === '\n') { push('NL'); i++; line++; continue; }
+      if (c === ' ' || c === '\f' || c === '\v') { i++; continue; }
+      if (c === '#') { let j = src.indexOf('\n', i); if (j < 0) j = src.length; push('COMMENT', src.slice(i + 1, j).trim()); i = j; continue; }
+      if (c === '"' || c === "'") {
+        let j = i + 1; while (j < src.length && src[j] !== c && src[j] !== '\n') j++;
+        if (src[j] !== c) throw new LabError(line, `Teks belum ditutup. Tambahkan tanda kutip ${c} di akhir teks.`);
+        push('STR', src.slice(i + 1, j)); i = j + 1; continue;
+      }
+      const rest = src.slice(i, i + 96);
+      let m = /^\d+(\.\d+)?/.exec(rest);
+      if (m) { push('NUM', parseFloat(m[0])); i += m[0].length; continue; }
+      m = /^[A-Za-z_À-ÖØ-öø-ɏ][A-Za-z0-9_À-ÖØ-öø-ɏ]*/.exec(rest);
+      if (m) { const w = m[0]; push(KEYWORDS.has(w) ? 'KW' : 'ID', w); i += w.length; continue; }
+      const two = src.slice(i, i + 2);
+      if (OPS2[two]) { push('OP', OPS2[two]); i += 2; continue; }
+      if ('←≤≥≠×÷+-*/%^=<>()[],:'.includes(c)) { push('OP', c === '^' ? '**' : c); i++; continue; }
+      if (c === '→') throw new LabError(line, 'Tanda → hanya boleh dipakai di dalam teks bertanda kutip. Untuk menyimpan nilai gunakan ←.');
+      throw new LabError(line, `Karakter "${c}" tidak dikenali di sini.`);
+    }
+    push('NL'); push('EOF');
+    return toks;
+  }
+
+  /* ───────────────────────── PARSER ───────────────────────── */
+  function parse(src) {
+    const toks = lex(src);
+    let p = 0;
+    const peek = (k = 0) => toks[Math.min(p + k, toks.length - 1)];
+    const next = () => toks[p++];
+    const is = (t, v, k = 0) => { const x = peek(k); return x.t === t && (v === undefined || x.v === v); };
+    const isKW = (v, k = 0) => is('KW', v, k);
+    const isOP = (v, k = 0) => is('OP', v, k);
+    const accept = (t, v) => (is(t, v) ? next() : null);
+    const expect = (t, v, msg) => { if (is(t, v)) return next(); const x = peek(); throw new LabError(x.line, msg || `Seharusnya ada ${v || t} di sini, tetapi ditemukan ${describe(x)}.`); };
+    const skipNL = () => { while (is('NL')) p++; };
+    const describe = (x) => x.t === 'NL' ? 'akhir baris' : x.t === 'EOF' ? 'akhir program' : x.t === 'STR' ? `"${x.v}"` : x.t === 'COMMENT' ? 'komentar' : String(x.v);
+    const closerAhead = () => isKW('AKHIR') || isKW('SELESAI');
+    const noColon = () => { if (isOP(':')) throw new LabError(peek().line, 'Tanda titik dua (:) tidak dipakai di pseudocode. Itu aturan Python.'); };
+    const endOfStmt = () => is('NL') || is('EOF') || is('COMMENT');
+
+    function parseBlock(stop, opener, openLine, closer) {
+      const body = [];
+      for (;;) {
+        skipNL();
+        if (is('EOF')) {
+          if (!opener) return body;
+          throw new LabError(openLine, `${opener} di baris ${openLine} belum ditutup dengan ${closer}.`);
+        }
+        if (stop()) return body;
+        body.push(parseStmt());
+      }
+    }
+    function expectCloser(name, opener, openLine) {
+      if (isKW('AKHIR') && isKW(name, 1)) { const e = next(); next(); return e.line; }
+      const x = peek();
+      if (isKW('AKHIR')) throw new LabError(x.line, `${opener} di baris ${openLine} harus ditutup AKHIR ${name}, tetapi yang ditulis AKHIR ${describe(peek(1))}.`);
+      if (isKW('SELESAI')) throw new LabError(openLine, `${opener} di baris ${openLine} belum ditutup. Tambahkan AKHIR ${name} sebelum SELESAI.`);
+      throw new LabError(x.line, `${opener} di baris ${openLine} belum ditutup dengan AKHIR ${name}.`);
+    }
+
+    function parseStmt() {
+      const x = peek(); const line = x.line; let s;
+      if (x.t === 'COMMENT') { next(); return { k: 'comment', text: x.v, line }; }
+      if (x.t === 'KW') {
+        switch (x.v) {
+          case 'INPUT': next(); s = { k: 'input', targets: parseTargets('INPUT'), line }; break;
+          case 'OUTPUT': next(); if (endOfStmt()) throw new LabError(line, 'OUTPUT perlu diikuti nilai yang ditampilkan, misalnya OUTPUT "Halo".'); s = { k: 'output', exprs: parseExprList(), line }; break;
+          case 'JIKA': s = parseIf(); break;
+          case 'SELAMA': s = parseWhile(); break;
+          case 'UNTUK': s = parseFor(); break;
+          case 'KEMBALIKAN': next(); s = { k: 'return', exprs: (endOfStmt() || isKW('AKHIR') || isKW('JIKA')) ? [] : parseExprList(), line }; break;
+          case 'TAMBAH': {
+            next(); const e = parseExpr();
+            expect('KW', 'KE', 'Format penambahan: TAMBAH nilai KE nama_array');
+            s = { k: 'append', expr: e, target: parseLValue(), line }; break;
+          }
+          case 'AKHIR': throw new LabError(line, `AKHIR ${describe(peek(1))} tidak punya pasangan pembuka.`);
+          case 'MULAI': throw new LabError(line, 'MULAI tidak boleh berada di dalam blok lain.');
+          case 'SELESAI': throw new LabError(line, 'SELESAI muncul sebelum semua blok ditutup.');
+          case 'FUNGSI': case 'PROSEDUR': throw new LabError(line, `${x.v} ditulis di luar MULAI … SELESAI, tidak di dalam blok lain.`);
+          case 'MAKA': throw new LabError(line, 'MAKA hanya dipakai setelah kondisi JIKA.');
+          case 'LAIN': throw new LabError(line, 'LAIN hanya dipakai dalam JIKA LAIN.');
+          default: throw new LabError(line, `Kata ${x.v} tidak bisa mengawali langkah.`);
+        }
+      } else if (x.t === 'ID') {
+        const up = x.v.toUpperCase();
+        if (STMT_KW.includes(up) && !isOP('←', 1) && !isOP(',', 1) && !isOP('[', 1) && !isOP('(', 1))
+          throw new LabError(line, `Kata kunci ditulis dengan huruf KAPITAL: tulis ${up}, bukan ${x.v}.`);
+        s = parseAssignOrCall();
+      } else if (x.t === 'OP' && x.v === ':') {
+        throw new LabError(line, 'Tanda titik dua (:) tidak dipakai di pseudocode. Itu aturan Python.');
+      } else {
+        throw new LabError(line, `Langkah tidak boleh diawali ${describe(x)}.`);
+      }
+      if (is('COMMENT')) s.comment = next().v;
+      noColon();
+      return s;
+    }
+
+    function parseTargets(kw) {
+      if (endOfStmt()) throw new LabError(peek().line, `${kw} perlu diikuti nama variabel, misalnya ${kw} nilai.`);
+      const t = [parseLValue()];
+      while (accept('OP', ',')) t.push(parseLValue());
+      return t;
+    }
+    function parseLValue() {
+      const x = peek();
+      if (x.t !== 'ID') throw new LabError(x.line, `Seharusnya ada nama variabel di sini, tetapi ditemukan ${describe(x)}.`);
+      next();
+      let e = { k: 'var', name: x.v, line: x.line };
+      while (isOP('[')) { next(); const idx = parseExpr(); expect('OP', ']', 'Kurung siku [ belum ditutup dengan ].'); e = { k: 'index', base: e, index: idx, line: x.line }; }
+      return e;
+    }
+    function parseAssignOrCall() {
+      const start = p; const line = peek().line;
+      let targets = null;
+      try {
+        targets = [parseLValue()];
+        while (accept('OP', ',')) targets.push(parseLValue());
+      } catch (e) { targets = null; }
+      if (targets && isOP('←')) {
+        next();
+        if (endOfStmt()) throw new LabError(line, 'Setelah tanda ← harus ada nilai yang disimpan.');
+        const ex = parseExprList();
+        const expr = ex.length > 1 ? { k: 'list', items: ex, tuple: true, line } : ex[0];
+        return { k: 'assign', targets, expr, line };
+      }
+      if (targets && (isOP('=') || isOP('=='))) throw new LabError(line, 'Untuk menyimpan nilai, gunakan tanda panah ← (atau ketik <-). Tanda = dipakai untuk membandingkan.');
+      p = start;
+      const e = parseExpr();
+      if (e.k !== 'call') {
+        if (isOP('=')) throw new LabError(line, 'Untuk menyimpan nilai, gunakan tanda panah ← (atau ketik <-). Tanda = dipakai untuk membandingkan.');
+        throw new LabError(line, `Langkah "${pp(e)}" belum lengkap. Mungkin maksudnya ${pp(e)} ← … ?`);
+      }
+      return { k: 'call', expr: e, line };
+    }
+    function parseIf() {
+      const t = expect('KW', 'JIKA');
+      if (isKW('LAIN')) throw new LabError(t.line, 'JIKA LAIN tidak punya JIKA pembuka. Periksa apakah ada AKHIR SELAMA/AKHIR UNTUK yang belum ditulis.');
+      const ifStop = () => closerAhead() || (isKW('JIKA') && isKW('LAIN', 1));
+      const branches = [];
+      const cond = parseExpr(); noColon();
+      expect('KW', 'MAKA', 'Setelah kondisi JIKA tulis MAKA.');
+      branches.push({ cond, body: parseBlock(ifStop, 'JIKA', t.line, 'AKHIR JIKA'), line: t.line });
+      let elseBody = null, elseLine = null;
+      while (isKW('JIKA') && isKW('LAIN', 1)) {
+        const l = next(); next();
+        if (isKW('JIKA')) {
+          next(); const c = parseExpr(); noColon();
+          expect('KW', 'MAKA', 'Setelah kondisi JIKA LAIN JIKA tulis MAKA.');
+          branches.push({ cond: c, body: parseBlock(ifStop, 'JIKA', t.line, 'AKHIR JIKA'), line: l.line });
+        } else {
+          elseLine = l.line;
+          elseBody = parseBlock(closerAhead, 'JIKA', t.line, 'AKHIR JIKA');
+          if (isKW('JIKA') && isKW('LAIN', 1)) throw new LabError(peek().line, 'JIKA LAIN (tanpa kondisi) harus menjadi cabang terakhir sebelum AKHIR JIKA.');
+          break;
+        }
+      }
+      const endLine = expectCloser('JIKA', 'JIKA', t.line);
+      return { k: 'if', branches, elseBody, elseLine, line: t.line, endLine };
+    }
+    function parseWhile() {
+      const t = expect('KW', 'SELAMA');
+      const cond = parseExpr(); noColon();
+      const body = parseBlock(closerAhead, 'SELAMA', t.line, 'AKHIR SELAMA');
+      const endLine = expectCloser('SELAMA', 'SELAMA', t.line);
+      return { k: 'while', cond, body, line: t.line, endLine };
+    }
+    function parseFor() {
+      const t = expect('KW', 'UNTUK');
+      if (accept('KW', 'SETIAP')) {
+        const v = expect('ID', undefined, 'Setelah UNTUK SETIAP tulis nama variabel, misalnya UNTUK SETIAP n DALAM data.');
+        expect('KW', 'DALAM', 'Format: UNTUK SETIAP item DALAM nama_array');
+        const iter = parseExpr(); noColon();
+        const body = parseBlock(closerAhead, 'UNTUK', t.line, 'AKHIR UNTUK');
+        const endLine = expectCloser('UNTUK', 'UNTUK', t.line);
+        return { k: 'foreach', var: v.v, iter, body, line: t.line, endLine };
+      }
+      const v = expect('ID', undefined, 'Setelah UNTUK tulis nama variabel penghitung, misalnya UNTUK i DARI 1 HINGGA 10.');
+      expect('KW', 'DARI', 'Format: UNTUK i DARI awal HINGGA akhir');
+      const from = parseExpr();
+      expect('KW', 'HINGGA', 'Format: UNTUK i DARI awal HINGGA akhir');
+      const to = parseExpr();
+      const step = accept('KW', 'LANGKAH') ? parseExpr() : null;
+      noColon();
+      const body = parseBlock(closerAhead, 'UNTUK', t.line, 'AKHIR UNTUK');
+      const endLine = expectCloser('UNTUK', 'UNTUK', t.line);
+      return { k: 'for', var: v.v, from, to, step, body, line: t.line, endLine };
+    }
+    function parseFunc() {
+      const t = next(); const kind = t.v;
+      const n = expect('ID', undefined, `Setelah ${kind} tulis nama subprogram, misalnya ${kind} hitung_luas(p, l).`);
+      const params = [];
+      expect('OP', '(', `Nama ${kind} harus diikuti tanda kurung, misalnya ${n.v}(a, b) atau ${n.v}().`);
+      if (!isOP(')')) {
+        do { const q = expect('ID', undefined, 'Parameter harus berupa nama variabel.'); params.push(q.v); } while (accept('OP', ','));
+      }
+      expect('OP', ')', 'Tanda kurung parameter belum ditutup dengan ).');
+      noColon();
+      const body = parseBlock(closerAhead, kind, t.line, `AKHIR ${kind}`);
+      if (isKW('SELESAI')) throw new LabError(t.line, `${kind} ${n.v} di baris ${t.line} belum ditutup dengan AKHIR ${kind}.`);
+      const endLine = expectCloser(kind, kind, t.line);
+      const f = { k: 'func', kind, name: n.v, params, body, line: t.line, endLine };
+      if (kind === 'PROSEDUR') walk(body, s => { if (s.k === 'return' && s.exprs.length) throw new LabError(s.line, `PROSEDUR tidak mengembalikan nilai. Ganti ${n.v} menjadi FUNGSI jika perlu KEMBALIKAN nilai.`); });
+      f.locals = new Set(params); walk(body, s => { if (s.k === 'assign' || s.k === 'input') s.targets.forEach(tg => { if (tg.k === 'var') f.locals.add(tg.name); }); if (s.k === 'for' || s.k === 'foreach') f.locals.add(s.var); });
+      return f;
+    }
+
+    /* expressions */
+    function parseExprList() { const a = [parseExpr()]; while (accept('OP', ',')) a.push(parseExpr()); return a; }
+    function parseExpr() { return parseOr(); }
+    function parseOr() { let l = parseAnd(); while (isKW('ATAU')) { const t = next(); l = { k: 'bin', op: 'ATAU', l, r: parseAnd(), line: t.line }; } return l; }
+    function parseAnd() { let l = parseNot(); while (isKW('DAN')) { const t = next(); l = { k: 'bin', op: 'DAN', l, r: parseNot(), line: t.line }; } return l; }
+    function parseNot() { if (isKW('BUKAN')) { const t = next(); return { k: 'un', op: 'BUKAN', e: parseNot(), line: t.line }; } return parseCmp(); }
+    const CMP = { '=': '=', '==': '=', '≠': '≠', '<': '<', '>': '>', '≤': '≤', '≥': '≥' };
+    function parseCmp() {
+      const l = parseAdd();
+      if (is('OP') && CMP[peek().v]) {
+        const t = next(); const r = parseAdd();
+        if (is('OP') && CMP[peek().v]) throw new LabError(t.line, 'Perbandingan berantai (seperti 0 < x < 10) tidak bisa dipakai. Pisahkan dengan DAN: x > 0 DAN x < 10.');
+        return { k: 'bin', op: CMP[t.v], l, r, line: t.line };
+      }
+      return l;
+    }
+    function parseAdd() { let l = parseMul(); while (isOP('+') || isOP('-')) { const t = next(); l = { k: 'bin', op: t.v, l, r: parseMul(), line: t.line }; } return l; }
+    const MUL = { '×': '×', '*': '×', '÷': '÷', '/': '÷', '%': 'MOD', '//': 'DIV' };
+    function parseMul() {
+      let l = parseUnary();
+      for (;;) {
+        if (is('OP') && MUL[peek().v]) { const t = next(); l = { k: 'bin', op: MUL[t.v], l, r: parseUnary(), line: t.line }; continue; }
+        if (isKW('MOD') || isKW('DIV')) { const t = next(); l = { k: 'bin', op: t.v, l, r: parseUnary(), line: t.line }; continue; }
+        return l;
+      }
+    }
+    function parseUnary() {
+      if (isOP('-')) { const t = next(); const e = parseUnary(); if (e.k === 'num') return { k: 'num', v: -e.v, line: t.line }; return { k: 'un', op: '-', e, line: t.line }; }
+      if (isOP('+')) { next(); return parseUnary(); }
+      return parsePow();
+    }
+    function parsePow() { const b = parsePostfix(); if (isOP('**')) { const t = next(); return { k: 'bin', op: '**', l: b, r: parseUnary(), line: t.line }; } return b; }
+    function parsePostfix() {
+      let e = parsePrimary();
+      for (;;) {
+        if (isOP('[')) { const t = next(); const idx = parseExpr(); expect('OP', ']', 'Kurung siku [ belum ditutup dengan ].'); e = { k: 'index', base: e, index: idx, line: t.line }; continue; }
+        if (isOP('(') && e.k === 'var') {
+          const t = next(); const args = [];
+          if (!isOP(')')) { do { args.push(parseExpr()); } while (accept('OP', ',')); }
+          expect('OP', ')', `Tanda kurung pada ${e.name}( belum ditutup dengan ).`);
+          e = { k: 'call', name: e.name, args, line: t.line }; continue;
+        }
+        return e;
+      }
+    }
+    function parsePrimary() {
+      const x = peek();
+      if (x.t === 'NUM') { next(); return { k: 'num', v: x.v, line: x.line }; }
+      if (x.t === 'STR') { next(); return { k: 'str', v: x.v, line: x.line }; }
+      if (x.t === 'ID') { next(); return { k: 'var', name: x.v, line: x.line }; }
+      if (x.t === 'KW' && (x.v === 'BENAR' || x.v === 'SALAH')) { next(); return { k: 'bool', v: x.v === 'BENAR', line: x.line }; }
+      if (x.t === 'KW' && x.v === 'ARRAY') {
+        next();
+        if (is('ID') && /^kosong$/i.test(peek().v)) { next(); return { k: 'list', items: [], kosong: true, line: x.line }; }
+        if (isOP('[')) { next(); const size = parseExpr(); expect('OP', ']', 'Kurung siku [ belum ditutup dengan ].'); return { k: 'arrnew', size, line: x.line }; }
+        return { k: 'list', items: [], kosong: true, line: x.line };
+      }
+      if (x.t === 'OP' && x.v === '(') { next(); const e = parseExpr(); expect('OP', ')', 'Tanda kurung ( belum ditutup dengan ).'); return { k: 'group', e, line: x.line }; }
+      if (x.t === 'OP' && x.v === '[') {
+        next(); const items = [];
+        if (!isOP(']')) { do { items.push(parseExpr()); } while (accept('OP', ',')); }
+        expect('OP', ']', 'Kurung siku [ belum ditutup dengan ].');
+        return { k: 'list', items, line: x.line };
+      }
+      if (x.t === 'NL' || x.t === 'EOF' || x.t === 'COMMENT') throw new LabError(x.line, 'Ekspresi belum lengkap: seharusnya ada nilai atau nama variabel di sini.');
+      if (x.t === 'KW') throw new LabError(x.line, `Seharusnya ada nilai sebelum ${x.v}.`);
+      if (x.t === 'OP' && x.v === '←') throw new LabError(x.line, 'Tanda ← hanya untuk menyimpan nilai ke variabel, di awal langkah.');
+      throw new LabError(x.line, `Ekspresi tidak bisa diawali ${describe(x)}.`);
+    }
+
+    /* program */
+    const prog = { funcs: {}, order: [], main: null, warnings: [], src: normalize(src) };
+    const hasMulai = toks.some(x => x.t === 'KW' && x.v === 'MULAI');
+    for (;;) {
+      skipNL();
+      if (is('EOF')) break;
+      if (is('COMMENT')) { const x = next(); prog.order.push({ k: 'comment', text: x.v, line: x.line }); continue; }
+      if (isKW('FUNGSI') || isKW('PROSEDUR')) {
+        const f = parseFunc();
+        if (prog.funcs[f.name]) throw new LabError(f.line, `Nama ${f.name} sudah dipakai oleh subprogram lain.`);
+        if (BUILTINS.includes(f.name.toUpperCase())) throw new LabError(f.line, `${f.name} adalah nama fungsi bawaan. Pilih nama lain.`);
+        prog.funcs[f.name] = f; prog.order.push(f); continue;
+      }
+      if (isKW('MULAI')) {
+        if (prog.main && !prog.main.implicit) throw new LabError(peek().line, 'MULAI hanya boleh ada satu kali.');
+        const t = next();
+        const body = parseBlock(closerAhead, 'MULAI', t.line, 'SELESAI');
+        if (isKW('AKHIR')) throw new LabError(peek().line, `AKHIR ${describe(peek(1))} tidak punya pasangan pembuka.`);
+        const e = expect('KW', 'SELESAI');
+        prog.main = { k: 'main', body, line: t.line, endLine: e.line }; prog.order.push(prog.main); continue;
+      }
+      if (!hasMulai) {
+        const body = parseBlock(() => isKW('FUNGSI') || isKW('PROSEDUR') || closerAhead(), null);
+        if (closerAhead()) throw new LabError(peek().line, isKW('SELESAI') ? 'SELESAI tidak punya pasangan MULAI.' : `AKHIR ${describe(peek(1))} tidak punya pasangan pembuka.`);
+        if (body.length) {
+          if (!prog.main) { prog.main = { k: 'main', body: [], line: body[0].line, endLine: body[body.length - 1].line, implicit: true }; prog.order.push(prog.main); }
+          prog.main.body.push(...body);
+        }
+        continue;
+      }
+      const x = peek();
+      if (isKW('SELESAI')) throw new LabError(x.line, 'SELESAI tidak punya pasangan MULAI.');
+      if (isKW('AKHIR')) throw new LabError(x.line, `AKHIR ${describe(peek(1))} tidak punya pasangan pembuka.`);
+      throw new LabError(x.line, 'Langkah program harus berada di antara MULAI dan SELESAI (atau di dalam FUNGSI/PROSEDUR).');
+    }
+    if (prog.main && prog.main.implicit && prog.main.body.some(s => s.k !== 'comment')) prog.warnings.push('Program belum diawali MULAI dan diakhiri SELESAI.');
+    if (!prog.main) prog.main = { k: 'main', body: [], line: 1, endLine: 1, empty: true };
+    // static check: calls to unknown subprograms
+    const checkCalls = e => walkExpr(e, x => {
+      if (x.k === 'call' && !prog.funcs[x.name] && !BUILTINS.includes(x.name.toUpperCase()))
+        throw new LabError(x.line, `Subprogram ${x.name}(…) belum dibuat. Tulis FUNGSI atau PROSEDUR ${x.name} terlebih dahulu.`);
+    });
+    const allBodies = [prog.main.body, ...Object.values(prog.funcs).map(f => f.body)];
+    allBodies.forEach(b => walk(b, s => stmtExprs(s).forEach(checkCalls)));
+    return prog;
+  }
+
+  /* ───────────────────── AST helpers ───────────────────── */
+  function walk(stmts, fn) {
+    (stmts || []).forEach(s => {
+      fn(s);
+      if (s.k === 'if') { s.branches.forEach(b => walk(b.body, fn)); if (s.elseBody) walk(s.elseBody, fn); }
+      if (s.k === 'while' || s.k === 'for' || s.k === 'foreach') walk(s.body, fn);
+    });
+  }
+  function walkExpr(e, fn) {
+    if (!e) return; fn(e);
+    switch (e.k) {
+      case 'bin': walkExpr(e.l, fn); walkExpr(e.r, fn); break;
+      case 'un': case 'group': walkExpr(e.e, fn); break;
+      case 'index': walkExpr(e.base, fn); walkExpr(e.index, fn); break;
+      case 'call': e.args.forEach(a => walkExpr(a, fn)); break;
+      case 'list': e.items.forEach(a => walkExpr(a, fn)); break;
+      case 'arrnew': walkExpr(e.size, fn); break;
+    }
+  }
+  function stmtExprs(s) {
+    switch (s.k) {
+      case 'assign': return [s.expr, ...s.targets];
+      case 'input': return s.targets;
+      case 'output': case 'return': return s.exprs;
+      case 'if': return s.branches.map(b => b.cond);
+      case 'while': return [s.cond];
+      case 'for': return [s.from, s.to, s.step].filter(Boolean);
+      case 'foreach': return [s.iter];
+      case 'append': return [s.expr, s.target];
+      case 'call': return [s.expr];
+      default: return [];
+    }
+  }
+  function stats(prog) {
+    const st = { if: 0, elif: 0, while: 0, for: 0, foreach: 0, input: 0, output: 0, assign: 0, funcs: 0, procs: 0, mainStmts: 0, names: {} };
+    const count = s => {
+      if (st[s.k] !== undefined) st[s.k]++;
+      if (s.k === 'if' && s.branches.length > 1) st.elif++;
+    };
+    walk(prog.main.body, s => { count(s); if (s.k !== 'comment') st.mainStmts++; });
+    Object.values(prog.funcs).forEach(f => { if (f.kind === 'FUNGSI') st.funcs++; else st.procs++; st.names[f.name] = f; walk(f.body, count); });
+    st.loops = st.while + st.for + st.foreach;
+    st.hasMulai = !prog.main.implicit && !prog.main.empty;
+    return st;
+  }
+
+  /* ───────────────────── values ───────────────────── */
+  function fmtNum(n) {
+    if (!isFinite(n)) return String(n);
+    if (Number.isInteger(n)) return String(n);
+    return String(parseFloat(n.toPrecision(12)));
+  }
+  function fmt(v, inner) {
+    if (v === NONE || v === undefined || v === null) return 'TIDAK ADA';
+    if (typeof v === 'boolean') return v ? 'BENAR' : 'SALAH';
+    if (typeof v === 'number') return fmtNum(v);
+    if (typeof v === 'string') return inner ? '"' + v + '"' : v;
+    if (Array.isArray(v)) { const s = v.map(x => fmt(x, true)).join(', '); return v.tuple ? '(' + s + ')' : '[' + s + ']'; }
+    return String(v);
+  }
+  function typeName(v) {
+    if (typeof v === 'number') return Number.isInteger(v) ? 'bilangan bulat' : 'bilangan desimal';
+    if (typeof v === 'string') return 'teks';
+    if (typeof v === 'boolean') return 'logika';
+    if (Array.isArray(v)) return v.tuple ? 'beberapa nilai' : 'array';
+    return 'tidak ada nilai';
+  }
+  function coerceInput(s) {
+    if (typeof s !== 'string') return s;
+    const t = s.trim();
+    if (/^-?(0|[1-9]\d*)(\.\d+)?$/.test(t)) return parseFloat(t);
+    if (/^-?(0|[1-9]\d*),\d+$/.test(t)) return parseFloat(t.replace(',', '.'));
+    if (t === 'BENAR') return true;
+    if (t === 'SALAH') return false;
+    return t;
+  }
+  function deepEq(a, b) {
+    if (Array.isArray(a) && Array.isArray(b)) return a.length === b.length && a.every((x, i) => deepEq(x, b[i]));
+    if (typeof a === 'number' && typeof b === 'string') return fmtNum(a) === b.trim();
+    if (typeof a === 'string' && typeof b === 'number') return a.trim() === fmtNum(b);
+    return a === b;
+  }
+  function lev(a, b) {
+    const m = a.length, n = b.length; if (Math.abs(m - n) > 2) return 9;
+    const d = Array.from({ length: m + 1 }, (_, i) => [i]);
+    for (let j = 1; j <= n; j++) d[0][j] = j;
+    for (let i = 1; i <= m; i++) for (let j = 1; j <= n; j++) d[i][j] = Math.min(d[i - 1][j] + 1, d[i][j - 1] + 1, d[i - 1][j - 1] + (a[i - 1] === b[j - 1] ? 0 : 1));
+    return d[m][n];
+  }
+  function suggest(name, known) {
+    let best = null, bd = 3;
+    for (const k of known) { if (k === name) continue; const d = lev(name.toLowerCase(), k.toLowerCase()); if (d < bd && (d <= 1 || name.length > 3)) { bd = d; best = k; } }
+    return best;
+  }
+
+  /* ───────────────────── interpreter ───────────────────── */
+  function createRun(prog, opts) {
+    opts = opts || {};
+    const rt = { prog, inputs: (opts.inputs || []).slice(), out: [], steps: 0, maxSteps: opts.maxSteps || 200000, frames: [], depth: 0,
+      onOut: opts.onOut || null, rand: opts.rand || Math.random, types: {}, global: null };
+    rt.gen = runMain(prog, rt);
+    return rt;
+  }
+  function emit(rt, kind, text) { const o = { kind, text }; rt.out.push(o); if (rt.onOut) rt.onOut(o); }
+  function* runMain(prog, rt) {
+    const g = { name: 'Program utama', key: 'main', vars: new Map(), fn: null };
+    rt.frames = [g]; rt.global = g;
+    if (!prog.main.implicit && !prog.main.empty) yield { ev: 'step', line: prog.main.line, frame: g, kind: 'start' };
+    yield* execBlock(prog.main.body, g, rt);
+    if (!prog.main.implicit && !prog.main.empty) yield { ev: 'step', line: prog.main.endLine, frame: g, kind: 'end' };
+  }
+  function* execBlock(stmts, f, rt) {
+    for (const s of stmts) {
+      if (s.k === 'comment') continue;
+      const r = yield* execStmt(s, f, rt);
+      if (r) return r;
+    }
+    return null;
+  }
+  function tick(rt, line) {
+    rt.steps++;
+    if (rt.steps > rt.maxSteps) throw new LabError(line, `Program sudah berjalan ${rt.maxSteps.toLocaleString('id-ID')} langkah. Kemungkinan terjebak pengulangan tanpa akhir: periksa apakah variabel pada kondisi SELAMA berubah di dalam pengulangan.`, 'jalan');
+  }
+  function* ev(e, f, rt) {
+    const v = yield* evalExpr(e, f, rt);
+    if (v === NONE) throw new LabError(e.line, `${pp(e)} tidak menghasilkan nilai. PROSEDUR (atau FUNGSI tanpa KEMBALIKAN) tidak bisa dipakai sebagai nilai.`, 'jalan');
+    return v;
+  }
+  function* cond(e, f, rt, line) {
+    const v = yield* ev(e, f, rt);
+    if (typeof v !== 'boolean') throw new LabError(line, `Kondisi "${pp(e)}" harus bernilai BENAR atau SALAH, tetapi hasilnya ${fmt(v, true)}. Gunakan perbandingan seperti =, <, atau >.`, 'jalan');
+    return v;
+  }
+  function* execStmt(s, f, rt) {
+    tick(rt, s.line);
+    yield { ev: 'step', line: s.line, node: s, frame: f };
+    switch (s.k) {
+      case 'assign': {
+        const v = yield* ev(s.expr, f, rt);
+        if (s.targets.length > 1) {
+          if (!Array.isArray(v) || v.length !== s.targets.length) throw new LabError(s.line, `Ada ${s.targets.length} variabel di kiri ←, tetapi nilai di kanan ${Array.isArray(v) ? 'berisi ' + v.length + ' nilai' : 'hanya satu nilai'}.`, 'jalan');
+          for (let i = 0; i < s.targets.length; i++) yield* assignTo(s.targets[i], v[i], f, rt, s.line);
+        } else yield* assignTo(s.targets[0], v, f, rt, s.line);
+        return null;
+      }
+      case 'input': {
+        for (const tg of s.targets) {
+          const label = pp(tg);
+          let raw;
+          if (rt.inputs.length) raw = rt.inputs.shift();
+          else raw = yield { ev: 'input', line: s.line, name: label, frame: f };
+          if (raw === undefined || raw === null) throw new LabError(s.line, `INPUT ${label} tidak mendapat data.`, 'jalan');
+          const v = coerceInput(raw);
+          emit(rt, 'in', `${label} = ${fmt(v, true)}`);
+          if (tg.k === 'var') rt.types[tg.name] = typeof v === 'number' ? (Number.isInteger(v) ? 'int' : 'float') : (typeof v === 'string' ? 'str' : rt.types[tg.name]);
+          yield* assignTo(tg, v, f, rt, s.line);
+        }
+        return null;
+      }
+      case 'output': {
+        const parts = [];
+        for (const e of s.exprs) parts.push(fmt(yield* ev(e, f, rt)));
+        emit(rt, 'out', parts.join(' '));
+        return null;
+      }
+      case 'if': {
+        for (let i = 0; i < s.branches.length; i++) {
+          const b = s.branches[i];
+          if (i > 0) { tick(rt, b.line); yield { ev: 'step', line: b.line, node: s, frame: f, kind: 'elif' }; }
+          const c = yield* cond(b.cond, f, rt, b.line);
+          yield { ev: 'cond', line: b.line, text: pp(b.cond), value: c };
+          if (c) return yield* execBlock(b.body, f, rt);
+        }
+        if (s.elseBody) { yield { ev: 'step', line: s.elseLine, node: s, frame: f, kind: 'else' }; return yield* execBlock(s.elseBody, f, rt); }
+        return null;
+      }
+      case 'while': {
+        let first = true;
+        for (;;) {
+          if (!first) { tick(rt, s.line); yield { ev: 'step', line: s.line, node: s, frame: f, kind: 'loop' }; }
+          first = false;
+          const c = yield* cond(s.cond, f, rt, s.line);
+          yield { ev: 'cond', line: s.line, text: pp(s.cond), value: c };
+          if (!c) return null;
+          const r = yield* execBlock(s.body, f, rt);
+          if (r) return r;
+        }
+      }
+      case 'for': {
+        const a = yield* ev(s.from, f, rt), b = yield* ev(s.to, f, rt);
+        const st = s.step ? yield* ev(s.step, f, rt) : 1;
+        if (typeof a !== 'number' || typeof b !== 'number' || typeof st !== 'number') throw new LabError(s.line, 'Nilai DARI, HINGGA, dan LANGKAH pada UNTUK harus berupa bilangan.', 'jalan');
+        if (st === 0) throw new LabError(s.line, 'LANGKAH tidak boleh 0.', 'jalan');
+        let i = a, first = true;
+        for (;;) {
+          if (!first) { tick(rt, s.line); yield { ev: 'step', line: s.line, node: s, frame: f, kind: 'loop' }; }
+          first = false;
+          const ok = st > 0 ? i <= b : i >= b;
+          yield { ev: 'cond', line: s.line, text: `${s.var} ${st > 0 ? '≤' : '≥'} ${pp(s.to)}`, value: ok, detail: `${s.var} = ${fmtNum(i)}` };
+          if (!ok) return null;
+          f.vars.set(s.var, i);
+          const r = yield* execBlock(s.body, f, rt);
+          if (r) return r;
+          i += st;
+        }
+      }
+      case 'foreach': {
+        const it = yield* ev(s.iter, f, rt);
+        if (!Array.isArray(it) && typeof it !== 'string') throw new LabError(s.line, `UNTUK SETIAP hanya bisa menelusuri array atau teks, bukan ${typeName(it)}.`, 'jalan');
+        const items = Array.from(it);
+        for (let k = 0; k <= items.length; k++) {
+          if (k > 0) { tick(rt, s.line); yield { ev: 'step', line: s.line, node: s, frame: f, kind: 'loop' }; }
+          const ok = k < items.length;
+          yield { ev: 'cond', line: s.line, text: `masih ada ${s.var} DALAM ${pp(s.iter)}`, value: ok };
+          if (!ok) return null;
+          f.vars.set(s.var, items[k]);
+          const r = yield* execBlock(s.body, f, rt);
+          if (r) return r;
+        }
+        return null;
+      }
+      case 'return': {
+        if (!f.fn) throw new LabError(s.line, 'KEMBALIKAN hanya boleh dipakai di dalam FUNGSI.', 'jalan');
+        const vals = [];
+        for (const e of s.exprs) vals.push(yield* ev(e, f, rt));
+        let v = NONE;
+        if (vals.length === 1) v = vals[0];
+        else if (vals.length > 1) { v = vals; v.tuple = true; }
+        return { ret: v };
+      }
+      case 'append': {
+        const v = yield* ev(s.expr, f, rt);
+        const arr = yield* ev(s.target, f, rt);
+        if (!Array.isArray(arr) || arr.tuple) throw new LabError(s.line, `TAMBAH … KE … hanya untuk ARRAY, sedangkan ${pp(s.target)} berisi ${typeName(arr)}.`, 'jalan');
+        arr.push(v);
+        return null;
+      }
+      case 'call': {
+        yield* evalExpr(s.expr, f, rt);
+        return null;
+      }
+    }
+    return null;
+  }
+  function* assignTo(tg, v, f, rt, line) {
+    if (tg.k === 'var') {
+      if (rt.prog.funcs[tg.name]) throw new LabError(line, `${tg.name} sudah dipakai sebagai nama subprogram. Pilih nama variabel lain.`, 'jalan');
+      if (Array.isArray(v) && v.tuple) { /* keep */ }
+      f.vars.set(tg.name, v); return;
+    }
+    const arr = yield* ev(tg.base, f, rt);
+    const idx = yield* ev(tg.index, f, rt);
+    if (typeof arr === 'string') throw new LabError(line, 'Isi teks tidak bisa diubah per huruf. Buat teks baru dengan +.', 'jalan');
+    if (!Array.isArray(arr) || arr.tuple) throw new LabError(line, `${pp(tg.base)} bukan ARRAY, jadi tidak bisa diberi indeks.`, 'jalan');
+    checkIndex(arr, idx, line, pp(tg.base));
+    arr[idx - 1] = v;
+  }
+  function checkIndex(arr, idx, line, name) {
+    if (typeof idx !== 'number' || !Number.isInteger(idx)) throw new LabError(line, `Indeks ${name}[…] harus bilangan bulat, bukan ${fmt(idx, true)}.`, 'jalan');
+    if (idx < 1 || idx > arr.length) {
+      let m = `Indeks ${idx} di luar jangkauan ${name}. Indeks yang tersedia: 1 sampai ${arr.length}.`;
+      if (idx === 0) m += ' Di pseudocode modul ini elemen pertama adalah [1] (di Python [0]).';
+      if (arr.length === 0) m = `${name} masih kosong, jadi belum punya elemen untuk diambil.`;
+      throw new LabError(line, m, 'jalan');
+    }
+  }
+  function getVar(rt, f, name, line) {
+    if (f.vars.has(name)) return f.vars.get(name);
+    if (f !== rt.global && rt.global.vars.has(name)) return rt.global.vars.get(name);
+    if (rt.prog.funcs[name]) throw new LabError(line, `${name} adalah nama subprogram. Untuk memakainya, panggil dengan ${name}(…).`, 'jalan');
+    const owner = Object.values(rt.prog.funcs).find(fn => fn.locals && fn.locals.has(name) && (!f.fn || fn !== f.fn));
+    if (owner && (!f.fn || !f.fn.locals.has(name))) throw new LabError(line, `${name} adalah variabel lokal milik ${owner.kind} ${owner.name}. Di luar subprogram itu, ${name} tidak dikenal. Kirim nilainya lewat KEMBALIKAN atau parameter.`, 'jalan');
+    const known = [...f.vars.keys(), ...(f !== rt.global ? rt.global.vars.keys() : [])];
+    const sug = suggest(name, known);
+    let msg = `Variabel ${name} belum diberi nilai.`;
+    if (sug) msg += ` Mungkin maksudnya ${sug}?`;
+    else msg += ` Beri nilai awal dulu, misalnya ${name} ← 0.`;
+    throw new LabError(line, msg, 'jalan');
+  }
+  function num(v, line, what) {
+    if (typeof v !== 'number') throw new LabError(line, `${what} hanya bisa untuk bilangan, tetapi mendapat ${typeName(v)} ${fmt(v, true)}.`, 'jalan');
+    return v;
+  }
+  function* evalExpr(e, f, rt) {
+    switch (e.k) {
+      case 'num': case 'str': case 'bool': return e.v;
+      case 'group': return yield* evalExpr(e.e, f, rt);
+      case 'var': return getVar(rt, f, e.name, e.line);
+      case 'list': { const a = []; for (const x of e.items) a.push(yield* ev(x, f, rt)); if (e.tuple) a.tuple = true; return a; }
+      case 'arrnew': { const n = yield* ev(e.size, f, rt); if (typeof n !== 'number' || n < 0 || !Number.isInteger(n)) throw new LabError(e.line, 'Ukuran ARRAY harus bilangan bulat positif.', 'jalan'); return new Array(n).fill(0); }
+      case 'index': {
+        const b = yield* ev(e.base, f, rt), i = yield* ev(e.index, f, rt);
+        if (typeof b === 'string') { checkIndex(b, i, e.line, pp(e.base)); return b[i - 1]; }
+        if (!Array.isArray(b)) throw new LabError(e.line, `${pp(e.base)} berisi ${typeName(b)}, jadi tidak bisa diberi indeks [ ].`, 'jalan');
+        checkIndex(b, i, e.line, pp(e.base));
+        return b[i - 1];
+      }
+      case 'un': {
+        const v = yield* ev(e.e, f, rt);
+        if (e.op === '-') return -num(v, e.line, 'Tanda minus');
+        if (typeof v !== 'boolean') throw new LabError(e.line, `BUKAN hanya untuk nilai BENAR/SALAH, bukan ${fmt(v, true)}.`, 'jalan');
+        return !v;
+      }
+      case 'bin': {
+        if (e.op === 'DAN' || e.op === 'ATAU') {
+          const l = yield* ev(e.l, f, rt);
+          if (typeof l !== 'boolean') throw new LabError(e.line, `${e.op} hanya menggabungkan nilai BENAR/SALAH, tetapi sisi kiri bernilai ${fmt(l, true)}.`, 'jalan');
+          if (e.op === 'DAN' && !l) return false;
+          if (e.op === 'ATAU' && l) return true;
+          const r = yield* ev(e.r, f, rt);
+          if (typeof r !== 'boolean') throw new LabError(e.line, `${e.op} hanya menggabungkan nilai BENAR/SALAH, tetapi sisi kanan bernilai ${fmt(r, true)}.`, 'jalan');
+          return r;
+        }
+        const l = yield* ev(e.l, f, rt), r = yield* ev(e.r, f, rt);
+        switch (e.op) {
+          case '+':
+            if (typeof l === 'string' || typeof r === 'string') return fmt(l) + fmt(r);
+            if (Array.isArray(l) && Array.isArray(r)) return l.concat(r);
+            return num(l, e.line, 'Penjumlahan') + num(r, e.line, 'Penjumlahan');
+          case '-': return num(l, e.line, 'Pengurangan') - num(r, e.line, 'Pengurangan');
+          case '×': return num(l, e.line, 'Perkalian') * num(r, e.line, 'Perkalian');
+          case '÷': num(l, e.line, 'Pembagian'); if (num(r, e.line, 'Pembagian') === 0) throw new LabError(e.line, 'Pembagian dengan nol tidak bisa dihitung.', 'jalan'); return l / r;
+          case 'DIV': num(l, e.line, 'DIV'); if (num(r, e.line, 'DIV') === 0) throw new LabError(e.line, 'Pembagian dengan nol tidak bisa dihitung.', 'jalan'); return Math.floor(l / r);
+          case 'MOD': num(l, e.line, 'MOD'); if (num(r, e.line, 'MOD') === 0) throw new LabError(e.line, 'MOD dengan 0 tidak bisa dihitung.', 'jalan'); return l - r * Math.floor(l / r);
+          case '**': return Math.pow(num(l, e.line, 'Pangkat'), num(r, e.line, 'Pangkat'));
+          case '=': return deepEq(l, r);
+          case '≠': return !deepEq(l, r);
+          case '<': case '>': case '≤': case '≥': {
+            if (!((typeof l === 'number' && typeof r === 'number') || (typeof l === 'string' && typeof r === 'string')))
+              throw new LabError(e.line, `Tidak bisa membandingkan ${typeName(l)} dengan ${typeName(r)} memakai ${e.op}.`, 'jalan');
+            return e.op === '<' ? l < r : e.op === '>' ? l > r : e.op === '≤' ? l <= r : l >= r;
+          }
+        }
+        throw new LabError(e.line, `Operator ${e.op} tidak dikenal.`, 'jalan');
+      }
+      case 'call': {
+        const fn = rt.prog.funcs[e.name];
+        const args = [];
+        for (const a of e.args) args.push(yield* ev(a, f, rt));
+        if (fn) return yield* callUser(rt, fn, args, e.line);
+        return builtin(rt, e.name, args, e.line);
+      }
+    }
+    throw new LabError(e.line, 'Ekspresi tidak dikenal.', 'jalan');
+  }
+  function* callUser(rt, fn, args, line) {
+    if (args.length !== fn.params.length) throw new LabError(line, `${fn.kind} ${fn.name} membutuhkan ${fn.params.length} nilai (${fn.params.join(', ') || 'tanpa parameter'}), tetapi diberi ${args.length}.`, 'jalan');
+    if (rt.depth > 200) throw new LabError(line, 'Terlalu banyak pemanggilan subprogram bertumpuk. Mungkin subprogram memanggil dirinya sendiri tanpa henti.', 'jalan');
+    const fr = { name: `${fn.kind} ${fn.name}`, key: fn.name + '#' + (++rt.callSeq || (rt.callSeq = 1)), vars: new Map(), fn };
+    fn.params.forEach((p, i) => fr.vars.set(p, args[i]));
+    rt.frames.push(fr); rt.depth++;
+    tick(rt, fn.line);
+    yield { ev: 'step', line: fn.line, node: fn, frame: fr, kind: 'enter' };
+    let r;
+    try { r = yield* execBlock(fn.body, fr, rt); }
+    finally { rt.frames.pop(); rt.depth--; }
+    if (!r) { yield { ev: 'step', line: fn.endLine, node: fn, frame: fr, kind: 'leave' }; return NONE; }
+    return r.ret;
+  }
+  function builtin(rt, name, a, line) {
+    const N = name.toUpperCase();
+    const need = (n) => { if (a.length !== n) throw new LabError(line, `${N} membutuhkan ${n} nilai, tetapi diberi ${a.length}.`, 'jalan'); };
+    switch (N) {
+      case 'PANJANG': need(1); if (typeof a[0] !== 'string' && !Array.isArray(a[0])) throw new LabError(line, 'PANJANG hanya untuk teks atau array.', 'jalan'); return a[0].length;
+      case 'AKAR': need(1); if (num(a[0], line, 'AKAR') < 0) throw new LabError(line, 'AKAR bilangan negatif tidak bisa dihitung.', 'jalan'); return Math.sqrt(a[0]);
+      case 'BULATKAN': if (a.length === 1) return Math.round(num(a[0], line, 'BULATKAN')); need(2); { const k = Math.pow(10, a[1]); return Math.round(num(a[0], line, 'BULATKAN') * k) / k; }
+      case 'ACAK': need(2); num(a[0], line, 'ACAK'); num(a[1], line, 'ACAK'); return Math.floor(rt.rand() * (a[1] - a[0] + 1)) + a[0];
+      case 'TEKS': need(1); return fmt(a[0]);
+      case 'ANGKA': { need(1); const v = typeof a[0] === 'number' ? a[0] : parseFloat(String(a[0]).replace(',', '.')); if (isNaN(v)) throw new LabError(line, `"${a[0]}" tidak bisa diubah menjadi angka.`, 'jalan'); return v; }
+      case 'MUTLAK': need(1); return Math.abs(num(a[0], line, 'MUTLAK'));
+      case 'POTONG': need(3); if (typeof a[0] !== 'string') throw new LabError(line, 'POTONG hanya untuk teks.', 'jalan'); return a[0].slice(num(a[1], line, 'POTONG') - 1, num(a[2], line, 'POTONG'));
+    }
+    throw new LabError(line, `Subprogram ${name}(…) belum dibuat.`, 'jalan');
+  }
+
+  /* headless helpers for missions & tests */
+  function drive(gen) {
+    let r, send;
+    for (;;) {
+      r = gen.next(send); send = undefined;
+      if (r.done) return r.value;
+      if (r.value.ev === 'input') throw new LabError(r.value.line, 'Data masukan untuk pengujian sudah habis, tetapi program masih meminta INPUT.', 'jalan');
+    }
+  }
+  function runHeadless(prog, inputs, opts) {
+    const rt = createRun(prog, Object.assign({ inputs: (inputs || []).map(String), maxSteps: 300000 }, opts || {}));
+    try { drive(rt.gen); return { ok: true, out: rt.out, rt }; }
+    catch (err) { if (!(err instanceof LabError)) err = new LabError(0, 'Terjadi kesalahan: ' + err.message, 'jalan'); return { ok: false, error: err, out: rt.out, rt }; }
+  }
+  function callHeadless(prog, name, args) {
+    const fn = prog.funcs[name];
+    if (!fn) return { ok: false, error: new LabError(0, `Subprogram ${name} belum dibuat.`, 'jalan') };
+    const rt = createRun(prog, { inputs: [], maxSteps: 300000 });
+    const g = { name: 'Program utama', key: 'main', vars: new Map(), fn: null }; rt.frames = [g]; rt.global = g;
+    const clone = v => Array.isArray(v) ? v.map(clone) : v;
+    try { const v = drive(callUser(rt, fn, args.map(clone), fn.line)); return { ok: true, value: v, out: rt.out }; }
+    catch (err) { if (!(err instanceof LabError)) err = new LabError(0, 'Terjadi kesalahan: ' + err.message, 'jalan'); return { ok: false, error: err, out: rt.out }; }
+  }
+
+  /* ───────────────────── pseudocode printer ───────────────────── */
+  const PREC = { 'ATAU': 1, 'DAN': 2, '=': 4, '≠': 4, '<': 4, '>': 4, '≤': 4, '≥': 4, '+': 5, '-': 5, '×': 6, '÷': 6, 'MOD': 6, 'DIV': 6, '**': 8 };
+  function pp(e, minPrec) {
+    minPrec = minPrec || 0;
+    switch (e.k) {
+      case 'num': return fmtNum(e.v);
+      case 'str': return '"' + e.v + '"';
+      case 'bool': return e.v ? 'BENAR' : 'SALAH';
+      case 'var': return e.name;
+      case 'group': return '(' + pp(e.e) + ')';
+      case 'list': return e.kosong ? 'ARRAY kosong' : (e.tuple ? e.items.map(x => pp(x)).join(', ') : '[' + e.items.map(x => pp(x)).join(', ') + ']');
+      case 'arrnew': return 'ARRAY[' + pp(e.size) + ']';
+      case 'index': return pp(e.base, 9) + '[' + pp(e.index) + ']';
+      case 'call': return e.name + '(' + e.args.map(x => pp(x)).join(', ') + ')';
+      case 'un': { const pr = e.op === 'BUKAN' ? 3 : 7; const s = e.op === 'BUKAN' ? 'BUKAN ' + pp(e.e, pr) : '-' + pp(e.e, pr); return pr < minPrec ? '(' + s + ')' : s; }
+      case 'bin': {
+        const pr = PREC[e.op], ra = e.op === '**';
+        const s = pp(e.l, ra ? pr + 1 : pr) + ' ' + e.op + ' ' + pp(e.r, ra ? pr : pr + 1);
+        return pr < minPrec ? '(' + s + ')' : s;
+      }
+    }
+    return '?';
+  }
+  function stmtText(s) {
+    switch (s.k) {
+      case 'assign': return s.targets.map(t => pp(t)).join(', ') + ' ← ' + pp(s.expr);
+      case 'input': return 'INPUT ' + s.targets.map(t => pp(t)).join(', ');
+      case 'output': return 'OUTPUT ' + s.exprs.map(x => pp(x)).join(', ');
+      case 'return': return 'KEMBALIKAN' + (s.exprs.length ? ' ' + s.exprs.map(x => pp(x)).join(', ') : '');
+      case 'append': return 'TAMBAH ' + pp(s.expr) + ' KE ' + pp(s.target);
+      case 'call': return pp(s.expr);
+      case 'if': return 'JIKA ' + pp(s.branches[0].cond) + ' MAKA';
+      case 'while': return 'SELAMA ' + pp(s.cond);
+      case 'for': return `UNTUK ${s.var} DARI ${pp(s.from)} HINGGA ${pp(s.to)}` + (s.step ? ' LANGKAH ' + pp(s.step) : '');
+      case 'foreach': return `UNTUK SETIAP ${s.var} DALAM ${pp(s.iter)}`;
+    }
+    return '';
+  }
+
+  /* ───────────────────── Python translator ───────────────────── */
+  const PYOP = { 'ATAU': 'or', 'DAN': 'and', '=': '==', '≠': '!=', '<': '<', '>': '>', '≤': '<=', '≥': '>=', '+': '+', '-': '-', '×': '*', '÷': '/', 'MOD': '%', 'DIV': '//', '**': '**' };
+  function toPython(prog, hints) {
+    hints = hints || {};
+    let needMath = false, needRandom = false;
+    const q2 = '"';
+    function pyStr(v, q) { return q + v.replace(/\\/g, '\\\\').split(q).join('\\' + q) + q; }
+    function flatPlus(e) { return e.k === 'bin' && e.op === '+' ? [...flatPlus(e.l), e.r] : [e]; }
+    function idx(i) {
+      if (i.k === 'num') return fmtNum(i.v - 1);
+      if (i.k === 'bin' && i.op === '+' && i.r.k === 'num') { const n = i.r.v - 1; return n === 0 ? py(i.l, 5) : py(i.l, 5) + ' + ' + fmtNum(n); }
+      if (i.k === 'bin' && i.op === '-' && i.r.k === 'num') return py(i.l, 5) + ' - ' + fmtNum(i.r.v + 1);
+      return py(i, 5) + ' - 1';
+    }
+    function py(e, minPrec, q) {
+      minPrec = minPrec || 0; q = q || q2;
+      switch (e.k) {
+        case 'num': return fmtNum(e.v);
+        case 'str': return pyStr(e.v, q);
+        case 'bool': return e.v ? 'True' : 'False';
+        case 'var': return e.name;
+        case 'group': return '(' + py(e.e, 0, q) + ')';
+        case 'list': return e.tuple ? e.items.map(x => py(x, 0, q)).join(', ') : '[' + e.items.map(x => py(x, 0, q)).join(', ') + ']';
+        case 'arrnew': return '[0] * ' + py(e.size, 6, q);
+        case 'index': return py(e.base, 9, q) + '[' + idx(e.index) + ']';
+        case 'call': {
+          const N = e.name.toUpperCase(); const A = e.args.map(x => py(x, 0, q));
+          if (!rtFuncs[e.name]) {
+            switch (N) {
+              case 'PANJANG': return `len(${A[0]})`;
+              case 'AKAR': needMath = true; return `math.sqrt(${A[0]})`;
+              case 'BULATKAN': return `round(${A.join(', ')})`;
+              case 'ACAK': needRandom = true; return `random.randint(${A.join(', ')})`;
+              case 'TEKS': return `str(${A[0]})`;
+              case 'ANGKA': return `float(${A[0]})`;
+              case 'MUTLAK': return `abs(${A[0]})`;
+              case 'POTONG': return `${py(e.args[0], 9, q)}[${idx(e.args[1])}:${A[2]}]`;
+            }
+          }
+          return e.name + '(' + A.join(', ') + ')';
+        }
+        case 'un': {
+          const pr = e.op === 'BUKAN' ? 3 : 7;
+          const s = e.op === 'BUKAN' ? 'not ' + py(e.e, pr, q) : '-' + py(e.e, pr, q);
+          return pr < minPrec ? '(' + s + ')' : s;
+        }
+        case 'bin': {
+          if (e.op === '+') {
+            const parts = flatPlus(e);
+            const k = parts.findIndex(x => x.k === 'str');
+            if (k >= 0 && parts.some(x => x.k !== 'str')) {
+              let segs = parts.slice(k);
+              if (k > 0) { let pre = parts[0]; for (let i = 1; i < k; i++) pre = { k: 'bin', op: '+', l: pre, r: parts[i] }; segs = [pre, ...segs]; }
+              const inner = q === '"' ? "'" : '"';
+              let body = '';
+              segs.forEach(sg => { body += sg.k === 'str' ? sg.v.replace(/\\/g, '\\\\').replace(/\{/g, '{{').replace(/\}/g, '}}').split(q).join('\\' + q) : '{' + py(sg, 0, inner) + '}'; });
+              return 'f' + q + body + q;
+            }
+          }
+          const pr = PREC[e.op], ra = e.op === '**';
+          const s = py(e.l, ra ? pr + 1 : pr, q) + ' ' + PYOP[e.op] + ' ' + py(e.r, ra ? pr : pr + 1, q);
+          return pr < minPrec ? '(' + s + ')' : s;
+        }
+      }
+      return '?';
+    }
+    const rtFuncs = prog.funcs;
+    const out = [];
+    const I = n => '    '.repeat(n);
+    const mayFloat = e => { let f = false; walkExpr(e, x => { if ((x.k === 'call' && /^(AKAR)$/i.test(x.name)) || (x.k === 'bin' && x.op === '÷')) f = true; }); return f; };
+    function rangeEnd(to, step) {
+      const neg = step && ((step.k === 'num' && step.v < 0));
+      if (to.k === 'num') return fmtNum(to.v + (neg ? -1 : 1));
+      if (!neg && to.k === 'bin' && (to.op === '-' || to.op === '+') && to.r.k === 'num' && !mayFloat(to)) {
+        const k = to.op === '-' ? to.r.v - 1 : -(to.r.v + 1);
+        const base = py(to.l, 5);
+        return k === 0 ? base : k > 0 ? `${base} - ${fmtNum(k)}` : `${base} + ${fmtNum(-k)}`;
+      }
+      const base = mayFloat(to) ? `int(${py(to)})` : py(to, 5);
+      return base + (neg ? ' - 1' : ' + 1');
+    }
+    function block(stmts, n) {
+      const real = stmts.filter(s => s.k !== 'comment');
+      if (!real.length) { stmts.forEach(s => stmt(s, n)); out.push(I(n) + 'pass'); return; }
+      stmts.forEach(s => stmt(s, n));
+    }
+    function tc(s) { return s.comment ? '  # ' + s.comment : ''; }
+    function lv(t) { return py(t); }
+    function stmt(s, n) {
+      switch (s.k) {
+        case 'comment': out.push(I(n) + '# ' + s.text); break;
+        case 'assign': out.push(I(n) + s.targets.map(lv).join(', ') + ' = ' + py(s.expr) + tc(s)); break;
+        case 'input': s.targets.forEach((t, i) => {
+          const name = t.k === 'var' ? t.name : pp(t);
+          const ty = t.k === 'var' ? (hints[t.name] || 'int') : 'int';
+          const call = `input(${pyStr(name + ': ', '"')})`;
+          out.push(I(n) + lv(t) + ' = ' + (ty === 'str' ? call : `${ty}(${call})`) + (i === s.targets.length - 1 ? tc(s) : ''));
+        }); break;
+        case 'output': out.push(I(n) + 'print(' + s.exprs.map(x => py(x)).join(', ') + ')' + tc(s)); break;
+        case 'return': out.push(I(n) + 'return' + (s.exprs.length ? ' ' + s.exprs.map(x => py(x)).join(', ') : '') + tc(s)); break;
+        case 'append': out.push(I(n) + py(s.target, 9) + '.append(' + py(s.expr) + ')' + tc(s)); break;
+        case 'call': out.push(I(n) + py(s.expr) + tc(s)); break;
+        case 'if':
+          s.branches.forEach((b, i) => { out.push(I(n) + (i === 0 ? 'if ' : 'elif ') + py(b.cond) + ':' + (i === 0 ? tc(s) : '')); block(b.body, n + 1); });
+          if (s.elseBody) { out.push(I(n) + 'else:'); block(s.elseBody, n + 1); }
+          break;
+        case 'while': out.push(I(n) + 'while ' + py(s.cond) + ':' + tc(s)); block(s.body, n + 1); break;
+        case 'for': {
+          const end = rangeEnd(s.to, s.step);
+          let args;
+          if (s.step) args = `${py(s.from)}, ${end}, ${py(s.step)}`;
+          else if (s.from.k === 'num' && s.from.v === 0) args = end;
+          else args = `${py(s.from)}, ${end}`;
+          out.push(I(n) + `for ${s.var} in range(${args}):` + tc(s));
+          block(s.body, n + 1); break;
+        }
+        case 'foreach': out.push(I(n) + `for ${s.var} in ${py(s.iter)}:` + tc(s)); block(s.body, n + 1); break;
+      }
+    }
+    let first = true;
+    prog.order.forEach(item => {
+      if (item.k === 'comment') { out.push('# ' + item.text); return; }
+      if (item.k === 'func') {
+        if (!first && out.length && out[out.length - 1] !== '') out.push('');
+        out.push(`def ${item.name}(${item.params.join(', ')}):` + (item.kind === 'PROSEDUR' ? '  # prosedur: tanpa return' : ''));
+        block(item.body, 1); out.push(''); first = false; return;
+      }
+      if (item.k === 'main') {
+        if (!first && out.length && out[out.length - 1] !== '') out.push('');
+        const prev = out.length ? out[out.length - 1] : '';
+        if (Object.keys(prog.funcs).length && !/^#/.test(prev)) out.push('# Program utama');
+        block(item.body, 0); first = false;
+      }
+    });
+    while (out.length && out[out.length - 1] === '') out.pop();
+    const head = [];
+    if (needMath) head.push('import math');
+    if (needRandom) head.push('import random');
+    if (head.length) head.push('');
+    return head.concat(out).join('\n') + '\n';
+  }
+
+  /* ───────────────────── flowchart (SVG) ───────────────────── */
+  const CW = 7.25, NH = 38, DH = 66, G = 26, GX = 34;
+  const esc = s => String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+  function nsize(type, text) {
+    const len = text.length;
+    if (type === 'dec') return { w: Math.round(Math.min(330, Math.max(140, len * CW + 70))), h: DH };
+    const pad = type === 'io' ? 46 : type === 'sub' ? 42 : 30;
+    const min = (type === 'term' || type === 'ret') ? 104 : 120;
+    return { w: Math.round(Math.min(300, Math.max(min, len * CW + pad))), h: NH };
+  }
+  function fitText(text, w, type) {
+    const pad = type === 'dec' ? 64 : type === 'io' ? 40 : type === 'sub' ? 36 : 24;
+    const max = Math.max(4, Math.floor((w - pad) / CW));
+    return text.length > max ? text.slice(0, max - 1) + '…' : text;
+  }
+  function shape(type, x, y, w, h, text, line) {
+    let s = '';
+    const r = n => Math.round(n * 10) / 10;
+    if (type === 'term' || type === 'ret') s = `<rect x="${r(x)}" y="${r(y)}" width="${w}" height="${h}" rx="${h / 2}" class="fc-shape fc-${type}"/>`;
+    else if (type === 'proc') s = `<rect x="${r(x)}" y="${r(y)}" width="${w}" height="${h}" rx="2" class="fc-shape fc-proc"/>`;
+    else if (type === 'io') { const k = 13; s = `<polygon points="${r(x + k)},${r(y)} ${r(x + w)},${r(y)} ${r(x + w - k)},${r(y + h)} ${r(x)},${r(y + h)}" class="fc-shape fc-io"/>`; }
+    else if (type === 'dec') s = `<polygon points="${r(x + w / 2)},${r(y)} ${r(x + w)},${r(y + h / 2)} ${r(x + w / 2)},${r(y + h)} ${r(x)},${r(y + h / 2)}" class="fc-shape fc-dec"/>`;
+    else if (type === 'sub') s = `<rect x="${r(x)}" y="${r(y)}" width="${w}" height="${h}" rx="2" class="fc-shape fc-sub"/><line x1="${r(x + 9)}" y1="${r(y)}" x2="${r(x + 9)}" y2="${r(y + h)}" class="fc-subline"/><line x1="${r(x + w - 9)}" y1="${r(y)}" x2="${r(x + w - 9)}" y2="${r(y + h)}" class="fc-subline"/>`;
+    const t = fitText(text, w, type);
+    return `<g class="fc-node" data-line="${line}"><title>${esc(text)}</title>${s}<text x="${r(x + w / 2)}" y="${r(y + h / 2 + 4)}" text-anchor="middle" class="fc-text fc-text-${type}">${esc(t)}</text></g>`;
+  }
+  function path(out, pts, arrow, cls) {
+    const d = pts.map((p, i) => (i ? 'L' : 'M') + Math.round(p[0] * 10) / 10 + ',' + Math.round(p[1] * 10) / 10).join(' ');
+    out.push(`<path d="${d}" class="${cls || 'fc-edge'}"${arrow ? ' marker-end="url(#AH)"' : ''}/>`);
+  }
+  function label(out, x, y, t, anchor) { out.push(`<text x="${Math.round(x)}" y="${Math.round(y)}" class="fc-lab"${anchor ? ` text-anchor="${anchor}"` : ''}>${t}</text>`); }
+  function leaf(type, text, line) {
+    const { w, h } = nsize(type, text);
+    return { w, h, cx: w / 2, term: type === 'ret', draw(ox, oy, out) { out.push(shape(type, ox, oy, w, h, text, line)); } };
+  }
+  function seq(chs) {
+    chs = chs.filter(Boolean);
+    if (!chs.length) return null;
+    if (chs.length === 1) return chs[0];
+    const cx = Math.max(...chs.map(c => c.cx));
+    const pos = []; let y = 0, w = 0, term = false;
+    chs.forEach((c, i) => { const x = cx - c.cx; pos.push([x, y]); w = Math.max(w, x + c.w); y += c.h; if (c.term) term = true; if (i < chs.length - 1) y += G; });
+    return {
+      w, h: y, cx, term,
+      draw(ox, oy, out) {
+        chs.forEach((c, i) => {
+          const [x, yy] = pos[i];
+          c.draw(ox + x, oy + yy, out);
+          if (i < chs.length - 1 && !c.term) path(out, [[ox + cx, oy + yy + c.h], [ox + cx, oy + pos[i + 1][1]]], true);
+        });
+      }
+    };
+  }
+  function ifChunk(text, line, T, E, elseIsIf) {
+    const D = nsize('dec', text);
+    const leftT = Math.max(D.w / 2, T ? T.cx : 0);
+    const rightT = Math.max(D.w / 2, T ? T.w - T.cx : 0);
+    const cx = leftT;
+    const ex = E ? cx + rightT + GX + E.cx : cx + rightT + GX;
+    const tTop = D.h + G;
+    const eTop = E ? (elseIsIf ? 0 : D.h / 2 + G) : 0;
+    const tBottom = T ? tTop + T.h : D.h;
+    const eBottom = E ? eTop + E.h : D.h / 2;
+    const term = !!(T && T.term && E && E.term);
+    const mergeY = Math.max(tBottom, eBottom) + G;
+    const w = Math.max(cx + rightT, E ? ex - E.cx + E.w : ex + 6);
+    const h = term ? Math.max(tBottom, eBottom) : mergeY;
+    return {
+      w, h, cx, term, dw: D.w,
+      draw(ox, oy, out) {
+        out.push(shape('dec', ox + cx - D.w / 2, oy, D.w, D.h, text, line));
+        const rx = ox + cx + D.w / 2, my = oy + D.h / 2;
+        // Ya
+        if (T) { path(out, [[ox + cx, oy + D.h], [ox + cx, oy + tTop]], true); T.draw(ox + cx - T.cx, oy + tTop, out); }
+        label(out, ox + cx + 6, oy + D.h + 15, 'Ya');
+        // Tidak
+        label(out, rx + 6, my - 6, 'Tidak');
+        if (E && elseIsIf) { path(out, [[rx, my], [ox + ex - E.dw / 2, my]], true); E.draw(ox + ex - E.cx, oy + eTop, out); }
+        else if (E) { path(out, [[rx, my], [ox + ex, my], [ox + ex, oy + eTop]], true); E.draw(ox + ex - E.cx, oy + eTop, out); }
+        if (term) return;
+        const MY = oy + mergeY;
+        if (!T) path(out, [[ox + cx, oy + D.h], [ox + cx, MY]], false);
+        else if (!T.term) path(out, [[ox + cx, oy + tBottom], [ox + cx, MY]], false);
+        if (!E) path(out, [[rx, my], [ox + ex, my], [ox + ex, MY], [ox + cx + 4, MY]], true);
+        else if (!E.term) path(out, [[ox + ex, oy + eBottom], [ox + ex, MY], [ox + cx + 4, MY]], true);
+        out.push(`<circle cx="${Math.round(ox + cx)}" cy="${Math.round(MY)}" r="3.2" class="fc-dot"/>`);
+      }
+    };
+  }
+  function loopChunk(text, line, B) {
+    const D = nsize('dec', text);
+    const LG = 30, RG = 30;
+    const cx = Math.max(D.w / 2, B ? B.cx : 0) + LG;
+    const right = Math.max(D.w / 2, B ? B.w - B.cx : 0) + RG;
+    const bTop = D.h + G;
+    const bBottom = B ? bTop + B.h : D.h;
+    const backY = bBottom + 18;
+    const exitY = backY + 22;
+    return {
+      w: cx + right, h: exitY, cx, term: false,
+      draw(ox, oy, out) {
+        out.push(shape('dec', ox + cx - D.w / 2, oy, D.w, D.h, text, line));
+        const my = oy + D.h / 2, lx = ox + 10, rx = ox + cx + right - 10;
+        if (B) { path(out, [[ox + cx, oy + D.h], [ox + cx, oy + bTop]], true); B.draw(ox + cx - B.cx, oy + bTop, out); }
+        label(out, ox + cx + 6, oy + D.h + 15, 'Ya');
+        if (!B || !B.term) path(out, [[ox + cx, oy + bBottom], [ox + cx, oy + backY], [lx, oy + backY], [lx, my], [ox + cx - D.w / 2, my]], true, 'fc-edge fc-back');
+        label(out, ox + cx + D.w / 2 + 6, my - 6, 'Tidak');
+        path(out, [[ox + cx + D.w / 2, my], [rx, my], [rx, oy + exitY], [ox + cx + 4, oy + exitY]], true);
+        out.push(`<circle cx="${Math.round(ox + cx)}" cy="${Math.round(oy + exitY)}" r="3.2" class="fc-dot"/>`);
+      }
+    };
+  }
+  function hasUserCall(e, funcs) { let f = false; walkExpr(e, x => { if (x.k === 'call' && funcs[x.name]) f = true; }); return f; }
+  function chunkOf(stmts, funcs) {
+    const parts = [];
+    for (const s of stmts) { if (s.k === 'comment') continue; parts.push(stmtChunk(s, funcs)); }
+    return seq(parts);
+  }
+  function stmtChunk(s, funcs) {
+    switch (s.k) {
+      case 'assign': return leaf(hasUserCall(s.expr, funcs) ? 'sub' : 'proc', stmtText(s), s.line);
+      case 'append': return leaf('proc', stmtText(s), s.line);
+      case 'call': return leaf('sub', stmtText(s), s.line);
+      case 'input': case 'output': return leaf('io', stmtText(s), s.line);
+      case 'return': return leaf('ret', stmtText(s), s.line);
+      case 'if': return ifFrom(s, 0, funcs);
+      case 'while': return loopChunk(pp(s.cond) + '?', s.line, chunkOf(s.body, funcs));
+      case 'for': {
+        const neg = s.step && s.step.k === 'num' && s.step.v < 0;
+        const stepTxt = s.step ? (neg ? `- ${fmtNum(-s.step.v)}` : `+ ${pp(s.step)}`) : '+ 1';
+        return seq([leaf('proc', `${s.var} ← ${pp(s.from)}`, s.line),
+          loopChunk(`${s.var} ${neg ? '≥' : '≤'} ${pp(s.to)}?`, s.line, seq([chunkOf(s.body, funcs), leaf('proc', `${s.var} ← ${s.var} ${stepTxt}`, s.line)]))]);
+      }
+      case 'foreach': return loopChunk(`ada ${s.var} lagi DALAM ${pp(s.iter)}?`, s.line, chunkOf(s.body, funcs));
+    }
+    return null;
+  }
+  function ifFrom(s, i, funcs) {
+    const b = s.branches[i];
+    const T = chunkOf(b.body, funcs);
+    let E = null, elseIsIf = false;
+    if (i + 1 < s.branches.length) { E = ifFrom(s, i + 1, funcs); elseIsIf = true; }
+    else if (s.elseBody && s.elseBody.some(x => x.k !== 'comment')) E = chunkOf(s.elseBody, funcs);
+    return ifChunk(pp(b.cond) + '?', b.line, T, E, elseIsIf);
+  }
+  let svgSeq = 0;
+  function renderChart(chunk) {
+    const pad = 18;
+    const W = Math.ceil(chunk.w + pad * 2), H = Math.ceil(chunk.h + pad * 2);
+    const out = [];
+    chunk.draw(pad, pad, out);
+    const id = 'ah' + (++svgSeq);
+    const body = out.join('').replace(/url\(#AH\)/g, `url(#${id})`);
+    return { w: W, h: H, svg: `<svg xmlns="http://www.w3.org/2000/svg" class="fc-svg" viewBox="0 0 ${W} ${H}" width="${W}" height="${H}" role="img"><defs><marker id="${id}" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,1 L9,5 L0,9 z" class="fc-ah"/></marker></defs>${body}</svg>` };
+  }
+  function flowcharts(prog) {
+    const charts = [];
+    if (!prog.main.empty) {
+      const body = chunkOf(prog.main.body, prog.funcs);
+      const c = seq([leaf('term', 'MULAI', prog.main.line), body, (body && body.term) ? null : leaf('term', 'SELESAI', prog.main.endLine)]);
+      charts.push(Object.assign({ title: 'Program utama', kind: 'main' }, renderChart(c)));
+    }
+    prog.order.filter(x => x.k === 'func').forEach(fn => {
+      const body = chunkOf(fn.body, prog.funcs);
+      const head = `${fn.kind} ${fn.name}(${fn.params.join(', ')})`;
+      const c = seq([leaf('term', head, fn.line), body, (body && body.term) ? null : leaf('term', 'AKHIR ' + fn.kind, fn.endLine)]);
+      charts.push(Object.assign({ title: head, kind: 'func' }, renderChart(c)));
+    });
+    return charts;
+  }
+
+  /* ───────────────────── syntax highlight ───────────────────── */
+  const PY_KW = new Set('def return if elif else for in while import and or not True False None break from pass'.split(' '));
+  const PY_BI = new Set('print input len range int float str abs round math random'.split(' '));
+  function highlight(src, lang) {
+    const lines = normalize(src).split('\n');
+    const e = s => s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+    return lines.map(L => {
+      let out = '', i = 0;
+      while (i < L.length) {
+        const c = L[i];
+        if (c === '#') { out += `<span class="t-com">${e(L.slice(i))}</span>`; break; }
+        if (c === '"' || c === "'") { let j = L.indexOf(c, i + 1); if (j < 0) j = L.length - 1; out += `<span class="t-str">${e(L.slice(i, j + 1))}</span>`; i = j + 1; continue; }
+        if (lang === 'py' && (c === 'f') && (L[i + 1] === '"' || L[i + 1] === "'")) { const qq = L[i + 1]; let j = L.indexOf(qq, i + 2); if (j < 0) j = L.length - 1; out += `<span class="t-str">${e(L.slice(i, j + 1))}</span>`; i = j + 1; continue; }
+        const rest = L.slice(i);
+        let m = /^\d+(\.\d+)?/.exec(rest);
+        if (m && !/[A-Za-z_]/.test(L[i - 1] || '')) { out += `<span class="t-num">${m[0]}</span>`; i += m[0].length; continue; }
+        m = /^[A-Za-z_À-ÖØ-öø-ɏ][A-Za-z0-9_À-ÖØ-öø-ɏ]*/.exec(rest);
+        if (m) {
+          const w = m[0];
+          let cls = '';
+          if (lang === 'py') cls = PY_KW.has(w) ? 't-kw' : PY_BI.has(w) ? 't-fn' : '';
+          else cls = KEYWORDS.has(w) ? 't-kw' : BUILTINS.includes(w.toUpperCase()) && rest[w.length] === '(' ? 't-fn' : '';
+          out += cls ? `<span class="${cls}">${w}</span>` : w; i += w.length; continue;
+        }
+        if (c === '←' || (c === '<' && L[i + 1] === '-' && lang !== 'py')) { const t = c === '←' ? '←' : '&lt;-'; out += `<span class="t-op">${t}</span>`; i += c === '←' ? 1 : 2; continue; }
+        out += e(c); i++;
+      }
+      return out;
+    }).join('\n');
+  }
+
+  const API = { lex, parse, createRun, runHeadless, callHeadless, toPython, flowcharts, highlight, pp, stmtText, fmt, fmtNum, coerceInput, deepEq, stats, walk, LabError, NONE, KEYWORDS, BUILTINS };
+  if (typeof module !== 'undefined' && module.exports) module.exports = API; else root.LabCore = API;
+})(typeof window !== 'undefined' ? window : globalThis);
+
+</script>
+<script>
+/* ALUR (Lab Maya Pseudocode) — contoh dari modul dan misi LKPD */
+(function (root) {
+  'use strict';
+
+  const EXAMPLES = [
+    { id: 'faktorial', title: 'Faktorial n (Tabel jejak LKPD 1C)', tp: 'BK.9.9', inputs: '4', code:
+`# Menghitung faktorial n dengan SELAMA
+MULAI
+  INPUT n
+  hasil ← 1
+  i ← 1
+  SELAMA i ≤ n
+    hasil ← hasil × i
+    i ← i + 1
+  AKHIR SELAMA
+  OUTPUT hasil
+SELESAI` },
+    { id: 'rata', title: 'Rata-rata nilai (nilai sentinel -1)', tp: 'BK.9.8', inputs: '80, 90, 70, -1', code:
+`# Menghitung rata-rata nilai dari daftar siswa
+MULAI
+  # Deklarasi variabel
+  total ← 0
+  jumlah ← 0
+  nilai ← 0
+  rata_rata ← 0
+  # Input data: masukkan nilai satu per satu, -1 untuk berhenti
+  INPUT nilai
+  SELAMA nilai ≠ -1
+    total ← total + nilai
+    jumlah ← jumlah + 1
+    INPUT nilai
+  AKHIR SELAMA
+  # Hitung dan tampilkan rata-rata
+  JIKA jumlah > 0 MAKA
+    rata_rata ← total ÷ jumlah
+    OUTPUT "Rata-rata: " + rata_rata
+    OUTPUT "Total siswa: " + jumlah
+  JIKA LAIN
+    OUTPUT "Tidak ada data yang diinput."
+  AKHIR JIKA
+SELESAI` },
+    { id: 'login', title: 'Algoritma login (ada bug, temukan!)', tp: 'BK.9.7', inputs: 'budi, 0000', code:
+`# Algoritma login sederhana (dari modul)
+PROSEDUR tampilkan_halaman_utama()
+  OUTPUT "=== Halaman Utama ==="
+AKHIR PROSEDUR
+
+MULAI
+  INPUT username, password
+  JIKA username = "admin" DAN password = "1234" MAKA
+    OUTPUT "Login berhasil!"
+    tampilkan_halaman_utama()
+  JIKA LAIN
+    OUTPUT "Username atau password salah."
+    counter_gagal ← counter_gagal + 1
+    JIKA counter_gagal >= 3 MAKA
+      OUTPUT "Akun dikunci. Hubungi admin."
+    AKHIR JIKA
+  AKHIR JIKA
+SELESAI` },
+    { id: 'predikat', title: 'Kalkulator predikat nilai', tp: 'BK.9.9', inputs: '95, 85, 72, 64, 40', code:
+`# Kalkulator Predikat Nilai (Kurikulum Merdeka)
+FUNGSI tentukan_predikat(nilai)
+  JIKA nilai >= 90 MAKA
+    KEMBALIKAN "A (Sangat Baik)"
+  JIKA LAIN JIKA nilai >= 80 MAKA
+    KEMBALIKAN "B (Baik)"
+  JIKA LAIN JIKA nilai >= 70 MAKA
+    KEMBALIKAN "C (Cukup)"
+  JIKA LAIN JIKA nilai >= 60 MAKA
+    KEMBALIKAN "D (Perlu Perbaikan)"
+  JIKA LAIN
+    KEMBALIKAN "E (Tidak Lulus)"
+  AKHIR JIKA
+AKHIR FUNGSI
+
+# Program Utama
+MULAI
+  UNTUK i DARI 1 HINGGA 5
+    INPUT nilai
+    predikat ← tentukan_predikat(nilai)
+    OUTPUT "Nilai " + nilai + " → " + predikat
+  AKHIR UNTUK
+SELESAI` },
+    { id: 'validasi', title: 'Validasi input (SELAMA) & akumulasi (UNTUK)', tp: 'BK.9.9', inputs: '150, -5, 87', code:
+`# Contoh SELAMA untuk validasi input
+MULAI
+  INPUT angka
+  SELAMA angka < 0 ATAU angka > 100
+    OUTPUT "Input tidak valid! Masukkan 0–100:"
+    INPUT angka
+  AKHIR SELAMA
+  OUTPUT "Input valid: " + angka
+  # Contoh UNTUK untuk kalkulasi akumulasi
+  total ← 0
+  UNTUK i DARI 1 HINGGA 10
+    total ← total + i
+  AKHIR UNTUK
+  OUTPUT "Jumlah 1+2+...+10 = " + total
+SELESAI` },
+    { id: 'modular', title: 'Program modular: sistem nilai lengkap', tp: 'BK.9.10', inputs: '3, 80, 90, 70', code:
+`# Program terstruktur dengan beberapa subprogram
+FUNGSI baca_nilai(n_siswa)
+  nilai_list ← ARRAY kosong
+  UNTUK i DARI 1 HINGGA n_siswa
+    INPUT nilai
+    TAMBAH nilai KE nilai_list
+  AKHIR UNTUK
+  KEMBALIKAN nilai_list
+AKHIR FUNGSI
+
+FUNGSI hitung_statistik(data)
+  total ← 0
+  maks ← data[1]
+  min_val ← data[1]
+  UNTUK SETIAP n DALAM data
+    total ← total + n
+    JIKA n > maks MAKA maks ← n AKHIR JIKA
+    JIKA n < min_val MAKA min_val ← n AKHIR JIKA
+  AKHIR UNTUK
+  KEMBALIKAN total/panjang(data), maks, min_val
+AKHIR FUNGSI
+
+PROSEDUR cetak_laporan(rata, maks, min_val)
+  OUTPUT "=== LAPORAN NILAI ==="
+  OUTPUT "Rata-rata : " + rata
+  OUTPUT "Tertinggi : " + maks
+  OUTPUT "Terendah  : " + min_val
+AKHIR PROSEDUR
+
+# Program Utama
+MULAI
+  INPUT jumlah_siswa
+  data ← baca_nilai(jumlah_siswa)
+  rata, maks, min_val ← hitung_statistik(data)
+  cetak_laporan(rata, maks, min_val)
+SELESAI` },
+    { id: 'scope', title: 'Ruang lingkup variabel (scope)', tp: 'BK.9.10', inputs: '', code:
+`# Variabel lokal hanya hidup di dalam fungsinya
+FUNGSI hitung()
+  temp ← 5
+  KEMBALIKAN temp × 2
+AKHIR FUNGSI
+
+MULAI
+  hasil ← hitung()
+  OUTPUT hasil
+  OUTPUT temp
+SELESAI` },
+    { id: 'suhu', title: 'Cek suhu tubuh (seleksi)', tp: 'BK.9.11', inputs: '38.2', code:
+`MULAI
+  INPUT suhu
+  JIKA suhu > 37.5 MAKA
+    OUTPUT "Demam"
+  JIKA LAIN
+    OUTPUT "Normal"
+  AKHIR JIKA
+SELESAI` },
+    { id: 'fizzbuzz', title: 'FizzBuzz 1–100', tp: 'BK.9.11', inputs: '', code:
+`# PSEUDOCODE FizzBuzz
+MULAI
+  UNTUK i DARI 1 HINGGA 100
+    JIKA i MOD 15 = 0 MAKA
+      OUTPUT "FizzBuzz"
+    JIKA LAIN JIKA i MOD 3 = 0 MAKA
+      OUTPUT "Fizz"
+    JIKA LAIN JIKA i MOD 5 = 0 MAKA
+      OUTPUT "Buzz"
+    JIKA LAIN
+      OUTPUT i
+    AKHIR JIKA
+  AKHIR UNTUK
+SELESAI` },
+    { id: 'prima', title: 'Mencari bilangan prima', tp: 'BK.9.12', inputs: '', code:
+`FUNGSI cari_bilangan_prima(batas)
+  prima ← ARRAY kosong
+  UNTUK n DARI 2 HINGGA batas
+    adalah_prima ← BENAR
+    UNTUK i DARI 2 HINGGA AKAR(n)
+      JIKA n MOD i = 0 MAKA
+        adalah_prima ← SALAH
+      AKHIR JIKA
+    AKHIR UNTUK
+    JIKA adalah_prima MAKA
+      TAMBAH n KE prima
+    AKHIR JIKA
+  AKHIR UNTUK
+  KEMBALIKAN prima
+AKHIR FUNGSI
+
+MULAI
+  OUTPUT cari_bilangan_prima(50)
+SELESAI` },
+    { id: 'bubble', title: 'Bubble Sort (ulang Modul 1)', tp: 'BK.9.9', inputs: '', code:
+`# Bubble Sort: tukar dua elemen bertetangga yang urutannya salah
+MULAI
+  data ← [5, 3, 8, 1, 9, 2]
+  n ← PANJANG(data)
+  UNTUK i DARI 1 HINGGA n - 1
+    UNTUK j DARI 1 HINGGA n - i
+      JIKA data[j] > data[j + 1] MAKA
+        sementara ← data[j]
+        data[j] ← data[j + 1]
+        data[j + 1] ← sementara
+      AKHIR JIKA
+    AKHIR UNTUK
+  AKHIR UNTUK
+  OUTPUT "Hasil urut: " + data
+SELESAI` },
+    { id: 'binary', title: 'Binary Search (soal uraian 5)', tp: 'BK.9.9', inputs: '23', code:
+`# Binary search pada data yang sudah terurut
+MULAI
+  data ← [3, 8, 12, 17, 23, 31, 42, 56]
+  INPUT dicari
+  lo ← 1
+  hi ← PANJANG(data)
+  posisi ← -1
+  SELAMA lo ≤ hi DAN posisi = -1
+    mid ← (lo + hi) DIV 2
+    JIKA data[mid] = dicari MAKA
+      posisi ← mid
+    JIKA LAIN JIKA data[mid] < dicari MAKA
+      lo ← mid + 1
+    JIKA LAIN
+      hi ← mid - 1
+    AKHIR JIKA
+  AKHIR SELAMA
+  JIKA posisi = -1 MAKA
+    OUTPUT dicari + " tidak ditemukan"
+  JIKA LAIN
+    OUTPUT dicari + " ditemukan di posisi " + posisi
+  AKHIR JIKA
+SELESAI` },
+  ];
+
+  /* ───────── MISI (label LKPD mengikuti modul Informatika IX SMP Labschool Jakarta) ───────── */
+  const MISSIONS = [
+    { id: 'm1', lkpd: 'LKPD 1 · Bagian A', title: 'Menyeduh teh', skill: 'Sekuensial', tp: 'BK.9.7',
+      task: 'Ubah algoritma sehari-hari menjadi pseudocode: panaskan air, masukkan teh celup, tuang air, tunggu 3 menit, angkat teh celup, tambah gula sesuai selera, lalu sajikan. Tanyakan takaran gula dengan INPUT.',
+      hint: 'Tulis setiap langkah sebagai OUTPUT berurutan. Pastikan teksnya memuat kata: air, teh, 3 menit, gula, sajikan.',
+      inputs: '2',
+      starter: `# Misi: Menyeduh teh\nMULAI\n  OUTPUT "Panaskan air"\n  \nSELESAI`,
+      reqs: [{ t: 'mulai' }, { t: 'input' }, { t: 'minStmts', n: 7 }],
+      tests: [{ inputs: ['2'], all: ['air', 'teh', '3 menit', 'gula', 'saji'], note: 'urutan langkah benar' }] },
+    { id: 'm2', lkpd: 'LKPD 1 · Bagian A', title: 'Genap atau ganjil', skill: 'Seleksi', tp: 'BK.9.8',
+      task: 'Buat pseudocode yang menerima satu bilangan, lalu menampilkan "Genap" atau "Ganjil".',
+      hint: 'Sisa bagi 2 dari bilangan genap selalu 0. Gunakan JIKA n MOD 2 = 0 MAKA.',
+      inputs: '7',
+      starter: `# Misi: Genap atau ganjil\nMULAI\n  INPUT n\n  \nSELESAI`,
+      reqs: [{ t: 'mulai' }, { t: 'if' }],
+      tests: [{ inputs: ['4'], all: ['genap'], none: ['ganjil'] }, { inputs: ['7'], all: ['ganjil'], none: ['genap'] }, { inputs: ['0'], all: ['genap'], none: ['ganjil'] }, { inputs: ['-3'], all: ['ganjil'], none: ['genap'] }] },
+    { id: 'm3', lkpd: 'LKPD 1 · Bagian A', title: 'Total belanja 5 item', skill: 'Pengulangan', tp: 'BK.9.8',
+      task: 'Hitung total belanja dari 5 item dengan harga berbeda. Harga diinput satu per satu, lalu tampilkan totalnya.',
+      hint: 'Siapkan total ← 0 sebelum pengulangan, lalu UNTUK i DARI 1 HINGGA 5: INPUT harga, total ← total + harga.',
+      inputs: '15000, 8000, 3500, 12000, 6500',
+      starter: `# Misi: Total belanja\nMULAI\n  total ← 0\n  \nSELESAI`,
+      reqs: [{ t: 'mulai' }, { t: 'loop' }],
+      tests: [{ inputs: ['15000', '8000', '3500', '12000', '6500'], all: ['45000'] }, { inputs: ['1000', '2000', '3000', '4000', '5000'], all: ['15000'] }] },
+    { id: 'm4', lkpd: 'LKPD 1 · Bagian B', title: 'Maksimum & minimum', skill: 'Pengulangan + seleksi', tp: 'BK.9.9',
+      task: 'Cari nilai MAKSIMUM dan MINIMUM dari n bilangan. Input pertama adalah n, lalu n bilangan berikutnya. Tampilkan maksimum lebih dulu, baru minimum.',
+      hint: 'Ambil bilangan pertama sebagai maks dan min. Lalu ulangi dengan SELAMA counter < n: INPUT x, bandingkan dengan maks dan min.',
+      inputs: '5, 3, 9, 1, 7, 4',
+      starter: `# Misi: Maksimum dan minimum\nMULAI\n  INPUT n\n  INPUT x\n  maks ← x\n  min ← x\n  counter ← 1\n  \nSELESAI`,
+      reqs: [{ t: 'mulai' }, { t: 'loop' }, { t: 'if' }],
+      tests: [{ inputs: ['5', '3', '9', '1', '7', '4'], all: ['9', '1'] }, { inputs: ['3', '-2', '-8', '-5'], all: ['-2', '-8'] }, { inputs: ['1', '42'], all: ['42', '42'] }] },
+    { id: 'm5', lkpd: 'LKPD 1 · Bagian B', title: 'Palindrom', skill: 'Indeks teks', tp: 'BK.9.9',
+      task: 'Cek apakah sebuah kata adalah PALINDROM, yaitu sama dibaca dari kiri maupun kanan (misalnya "katak"). Tampilkan "Palindrom" atau "Bukan palindrom".',
+      hint: 'kata[1] adalah huruf pertama dan kata[PANJANG(kata)] huruf terakhir. Bandingkan huruf kiri dan kanan sambil bergerak ke tengah.',
+      inputs: 'katak',
+      starter: `# Misi: Palindrom\nMULAI\n  INPUT kata\n  kiri ← 1\n  kanan ← PANJANG(kata)\n  \nSELESAI`,
+      reqs: [{ t: 'mulai' }, { t: 'loop' }],
+      tests: [{ inputs: ['katak'], any: ['palindrom', 'benar', 'ya'], none: ['bukan', 'salah', 'tidak'] }, { inputs: ['kodok'], any: ['palindrom', 'benar', 'ya'], none: ['bukan', 'salah', 'tidak'] },
+        { inputs: ['buku'], any: ['bukan', 'salah', 'tidak'] }, { inputs: ['malam'], any: ['palindrom', 'benar', 'ya'], none: ['bukan', 'salah', 'tidak'] }] },
+    { id: 'm6', lkpd: 'LKPD 1 · Bagian B', title: 'Faktorial dengan UNTUK', skill: 'Pengulangan', tp: 'BK.9.9',
+      task: 'Hitung FAKTORIAL n memakai pengulangan UNTUK (bukan rekursi). Contoh: 5! = 5 × 4 × 3 × 2 × 1 = 120.',
+      hint: 'Mulai dari hasil ← 1, lalu UNTUK i DARI 1 HINGGA n: hasil ← hasil × i.',
+      inputs: '5',
+      starter: `# Misi: Faktorial\nMULAI\n  INPUT n\n  hasil ← 1\n  \nSELESAI`,
+      reqs: [{ t: 'mulai' }, { t: 'for' }],
+      tests: [{ inputs: ['5'], all: ['120'] }, { inputs: ['4'], all: ['24'] }, { inputs: ['1'], all: ['1'] }, { inputs: ['0'], all: ['1'] }] },
+    { id: 'm7', lkpd: 'LKPD 1 · Bagian C', title: 'Tabel jejak faktorial', skill: 'Tracing', tp: 'BK.9.7', kind: 'trace',
+      task: 'Lakukan tracing untuk pseudocode faktorial dengan input n = 4. Isi nilai hasil dan i setelah setiap iterasi, lalu tentukan OUTPUT-nya.',
+      hint: 'Pada setiap putaran, hasil dikali i dulu, baru i bertambah 1.',
+      code: 'faktorial',
+      rows: [{ label: 'Iterasi 1', hasil: 1, i: 2 }, { label: 'Iterasi 2', hasil: 2, i: 3 }, { label: 'Iterasi 3', hasil: 6, i: 4 }, { label: 'Iterasi 4', hasil: 24, i: 5 }],
+      output: 24 },
+    { id: 'm8', lkpd: 'LKPD 2 · Bagian A', title: 'Fungsi predikat', skill: 'Fungsi', tp: 'BK.9.10',
+      task: 'Lengkapi FUNGSI tentukan_predikat(nilai) yang mengembalikan "A" (≥ 90), "B" (≥ 80), "C" (≥ 70), "D" (≥ 60), atau "E". Fungsi ini akan diuji langsung dengan beberapa nilai, termasuk nilai batas.',
+      hint: 'Gunakan JIKA … JIKA LAIN JIKA … dan cek dari batas tertinggi. Perhatikan nilai tepat 90 harus mendapat A.',
+      inputs: '85',
+      starter: `FUNGSI tentukan_predikat(nilai)\n  JIKA nilai >= 90 MAKA\n    KEMBALIKAN "A"\n  \n  AKHIR JIKA\nAKHIR FUNGSI\n\nMULAI\n  INPUT nilai\n  OUTPUT "Predikat: " + tentukan_predikat(nilai)\nSELESAI`,
+      reqs: [{ t: 'named', name: 'tentukan_predikat', kind: 'FUNGSI' }, { t: 'elif' }],
+      tests: [95, 90, 89, 80, 75, 70, 65, 60, 59, 40].map(v => ({ call: 'tentukan_predikat', args: [v], startsWith: v >= 90 ? 'A' : v >= 80 ? 'B' : v >= 70 ? 'C' : v >= 60 ? 'D' : 'E' })) },
+    { id: 'm9', lkpd: 'LKPD 2 · Bagian A–C', title: 'Sistem konversi nilai', skill: 'Modularitas', tp: 'BK.9.10–12',
+      task: 'Rancang sistem modular: baca nama dan nilai n siswa, hitung rata-rata, tertinggi, dan terendah, tentukan predikat tiap siswa, lalu cetak laporan. Gunakan 3 FUNGSI dan 1 PROSEDUR dengan nama sesuai kerangka.',
+      hint: 'Urutan input: n, lalu nama dan nilai tiap siswa. Laporan mencetak per baris: nama, nilai, predikat. Setelah itu cetak rata-rata, nilai tertinggi, lalu terendah.',
+      inputs: '3, Andi, 95, Budi, 72, Cici, 58',
+      starter: `FUNGSI baca_nilai_siswa(n)\n  nama_list ← ARRAY kosong\n  nilai_list ← ARRAY kosong\n  UNTUK i DARI 1 HINGGA n\n    INPUT nama\n    INPUT nilai\n    TAMBAH nama KE nama_list\n    TAMBAH nilai KE nilai_list\n  AKHIR UNTUK\n  KEMBALIKAN nama_list, nilai_list\nAKHIR FUNGSI\n\nFUNGSI hitung_statistik(data)\n  # lengkapi: hitung rata-rata, maks, min\n  KEMBALIKAN 0, 0, 0\nAKHIR FUNGSI\n\nFUNGSI tentukan_predikat(nilai)\n  # lengkapi: A/B/C/D/E\n  KEMBALIKAN "E"\nAKHIR FUNGSI\n\nPROSEDUR cetak_laporan(nama_list, nilai_list, rata, maks, min_val)\n  # lengkapi: cetak nama, nilai, predikat tiap siswa, lalu statistik\nAKHIR PROSEDUR\n\nMULAI\n  INPUT n\n  nama_list, nilai_list ← baca_nilai_siswa(n)\n  rata, maks, min_val ← hitung_statistik(nilai_list)\n  cetak_laporan(nama_list, nilai_list, rata, maks, min_val)\nSELESAI`,
+      reqs: [{ t: 'mulai' }, { t: 'funcs', n: 3 }, { t: 'procs', n: 1 }, { t: 'named', name: 'hitung_statistik', kind: 'FUNGSI' }, { t: 'named', name: 'tentukan_predikat', kind: 'FUNGSI' }, { t: 'named', name: 'cetak_laporan', kind: 'PROSEDUR' }],
+      tests: [
+        { inputs: ['3', 'Andi', '95', 'Budi', '72', 'Cici', '58'], all: ['Andi', '95', 'A', 'Budi', '72', 'C', 'Cici', '58', 'E', '75', '95', '58'], note: 'laporan 3 siswa + statistik' },
+        { inputs: ['2', 'Dewi', '84', 'Eko', '66'], all: ['Dewi', '84', 'B', 'Eko', '66', 'D', '75', '84', '66'], note: 'laporan 2 siswa + statistik' },
+        { call: 'hitung_statistik', args: [[80, 90, 70]], equals: [80, 90, 70], note: 'hitung_statistik([80, 90, 70]) → 80, 90, 70' },
+      ] },
+    { id: 'm10', lkpd: 'LKPD 2 · Bagian C', title: 'FizzBuzz', skill: 'Seleksi bertingkat', tp: 'BK.9.11',
+      task: 'Cetak angka 1 sampai 100. Kelipatan 3 diganti "Fizz", kelipatan 5 diganti "Buzz", dan kelipatan keduanya diganti "FizzBuzz". Setelah lulus, lihat flowchart dan versi Python-nya.',
+      hint: 'Cek i MOD 15 = 0 paling awal. Mengapa? Coba tukar urutannya dan lihat output angka 15.',
+      inputs: '',
+      starter: `MULAI\n  UNTUK i DARI 1 HINGGA 100\n    \n  AKHIR UNTUK\nSELESAI`,
+      reqs: [{ t: 'mulai' }, { t: 'for' }, { t: 'elif' }],
+      tests: [{ inputs: [], lines: ['1', '2', 'Fizz', '4', 'Buzz', 'Fizz', '7', '8', 'Fizz', 'Buzz', '11', 'Fizz', '13', '14', 'FizzBuzz'], count: 100, note: '15 baris pertama + total 100 baris' }] },
+    { id: 'm11', lkpd: 'Pengayaan · BK.9.12', title: 'Bilangan prima', skill: 'Fungsi + pengulangan bersarang', tp: 'BK.9.12',
+      task: 'Buat FUNGSI cari_bilangan_prima(batas) yang mengembalikan ARRAY berisi semua bilangan prima dari 2 sampai batas.',
+      hint: 'Bilangan n prima jika tidak habis dibagi i untuk semua i dari 2 hingga AKAR(n).',
+      inputs: '',
+      starter: `FUNGSI cari_bilangan_prima(batas)\n  prima ← ARRAY kosong\n  \n  KEMBALIKAN prima\nAKHIR FUNGSI\n\nMULAI\n  OUTPUT cari_bilangan_prima(30)\nSELESAI`,
+      reqs: [{ t: 'named', name: 'cari_bilangan_prima', kind: 'FUNGSI' }, { t: 'loop' }],
+      tests: [{ call: 'cari_bilangan_prima', args: [20], equals: [2, 3, 5, 7, 11, 13, 17, 19] }, { call: 'cari_bilangan_prima', args: [2], equals: [2] }, { call: 'cari_bilangan_prima', args: [1], equals: [] }, { call: 'cari_bilangan_prima', args: [50], equals: [2, 3, 5, 7, 11, 13, 17, 19, 23, 29, 31, 37, 41, 43, 47] }] },
+    { id: 'm12', lkpd: 'LKPD 3 · Kelompok', title: 'Proyek sistem kelompok', skill: 'Rancang sistem', tp: 'BK.9.7–12', kind: 'project',
+      task: 'Pilih satu skenario, lalu rancang sistemnya bersama kelompok. Setiap anggota menulis minimal satu subprogram. Uji otomatis memeriksa jumlah subprogram, seleksi, pengulangan, dan MULAI/SELESAI. Jalankan sendiri untuk memastikan hasilnya benar.',
+      hint: 'Uji setiap subprogram sendiri-sendiri dulu (panggil dari program utama dengan data contoh) sebelum digabungkan.',
+      scenarios: [
+        { id: 'A', title: 'ATM Sederhana', min: 5, desc: 'Cek saldo, tarik tunai, setor, transfer, ganti PIN (dengan validasi).', inputs: '1234, 1, 2, 50000, 1, 0',
+          starter: `# Skenario A: ATM Sederhana\nFUNGSI validasi_pin(pin, pin_benar)\n  KEMBALIKAN pin = pin_benar\nAKHIR FUNGSI\n\nPROSEDUR cek_saldo(saldo)\n  OUTPUT "Saldo Anda: " + saldo\nAKHIR PROSEDUR\n\nFUNGSI tarik_tunai(saldo, jumlah)\n  # lengkapi: tolak jika saldo kurang\n  KEMBALIKAN saldo - jumlah\nAKHIR FUNGSI\n\n# tambahkan: setor, transfer, ganti_pin\n\nMULAI\n  saldo ← 500000\n  pin_benar ← 1234\n  INPUT pin\n  JIKA validasi_pin(pin, pin_benar) MAKA\n    INPUT menu\n    SELAMA menu ≠ 0\n      JIKA menu = 1 MAKA\n        cek_saldo(saldo)\n      JIKA LAIN JIKA menu = 2 MAKA\n        INPUT jumlah\n        saldo ← tarik_tunai(saldo, jumlah)\n      AKHIR JIKA\n      INPUT menu\n    AKHIR SELAMA\n  JIKA LAIN\n    OUTPUT "PIN salah"\n  AKHIR JIKA\nSELESAI` },
+        { id: 'B', title: 'Toko Online Mini', min: 5, desc: 'Tampilkan produk, tambah ke keranjang, checkout, hitung total, konfirmasi.', inputs: '1, 2, 0',
+          starter: `# Skenario B: Toko Online Mini\nPROSEDUR tampilkan_produk(nama, harga)\n  UNTUK i DARI 1 HINGGA PANJANG(nama)\n    OUTPUT i + ". " + nama[i] + " - Rp" + harga[i]\n  AKHIR UNTUK\nAKHIR PROSEDUR\n\nFUNGSI hitung_total(keranjang, harga)\n  total ← 0\n  UNTUK SETIAP k DALAM keranjang\n    total ← total + harga[k]\n  AKHIR UNTUK\n  KEMBALIKAN total\nAKHIR FUNGSI\n\n# tambahkan: tambah_ke_keranjang, checkout, konfirmasi\n\nMULAI\n  nama ← ["Buku tulis", "Pensil", "Penghapus"]\n  harga ← [5000, 3000, 2000]\n  keranjang ← ARRAY kosong\n  tampilkan_produk(nama, harga)\n  INPUT pilih\n  SELAMA pilih ≠ 0\n    TAMBAH pilih KE keranjang\n    INPUT pilih\n  AKHIR SELAMA\n  OUTPUT "Total: Rp" + hitung_total(keranjang, harga)\nSELESAI` },
+        { id: 'C', title: 'Sistem Absensi', min: 4, desc: 'Input kehadiran, hitung persentase, beri status, cetak rekap, cari siswa.', inputs: 'H, H, S, H, A',
+          starter: `# Skenario C: Sistem Absensi\nFUNGSI input_kehadiran(n)\n  data ← ARRAY kosong\n  UNTUK i DARI 1 HINGGA n\n    INPUT status\n    TAMBAH status KE data\n  AKHIR UNTUK\n  KEMBALIKAN data\nAKHIR FUNGSI\n\nFUNGSI hitung_persentase(data)\n  hadir ← 0\n  UNTUK SETIAP s DALAM data\n    JIKA s = "H" MAKA hadir ← hadir + 1 AKHIR JIKA\n  AKHIR UNTUK\n  KEMBALIKAN hadir ÷ PANJANG(data) × 100\nAKHIR FUNGSI\n\n# tambahkan: beri_status, cetak_rekap, cari_siswa\n\nMULAI\n  data ← input_kehadiran(5)\n  OUTPUT "Kehadiran: " + hitung_persentase(data) + "%"\nSELESAI` },
+        { id: 'D', title: 'Kalkulator Ilmiah', min: 5, desc: '+, −, ×, ÷, pangkat, akar, log, mod, dan riwayat kalkulasi.', inputs: '12, 4, 1, 0',
+          starter: `# Skenario D: Kalkulator Ilmiah\nFUNGSI tambah(a, b)\n  KEMBALIKAN a + b\nAKHIR FUNGSI\n\nFUNGSI bagi(a, b)\n  JIKA b = 0 MAKA\n    OUTPUT "Tidak bisa membagi dengan nol"\n    KEMBALIKAN 0\n  AKHIR JIKA\n  KEMBALIKAN a ÷ b\nAKHIR FUNGSI\n\n# tambahkan: kurang, kali, pangkat, akar, riwayat\n\nMULAI\n  riwayat ← ARRAY kosong\n  INPUT a\n  INPUT b\n  INPUT menu\n  SELAMA menu ≠ 0\n    JIKA menu = 1 MAKA\n      hasil ← tambah(a, b)\n    JIKA LAIN\n      hasil ← bagi(a, b)\n    AKHIR JIKA\n    OUTPUT "Hasil: " + hasil\n    TAMBAH hasil KE riwayat\n    INPUT menu\n  AKHIR SELAMA\n  OUTPUT "Riwayat: " + riwayat\nSELESAI` },
+        { id: 'E', title: 'Game Tebak Angka', min: 4, desc: 'Buat angka acak, terima tebakan, beri petunjuk, hitung skor, simpan skor tertinggi.', inputs: '50, 25, 37, 31, 34',
+          starter: `# Skenario E: Game Tebak Angka\nFUNGSI buat_angka()\n  KEMBALIKAN ACAK(1, 100)\nAKHIR FUNGSI\n\nPROSEDUR beri_petunjuk(tebakan, rahasia)\n  JIKA tebakan < rahasia MAKA\n    OUTPUT "Terlalu kecil"\n  JIKA LAIN\n    OUTPUT "Terlalu besar"\n  AKHIR JIKA\nAKHIR PROSEDUR\n\n# tambahkan: hitung_skor, simpan_skor_tertinggi\n\nMULAI\n  rahasia ← buat_angka()\n  percobaan ← 0\n  INPUT tebakan\n  percobaan ← percobaan + 1\n  SELAMA tebakan ≠ rahasia DAN percobaan < 7\n    beri_petunjuk(tebakan, rahasia)\n    INPUT tebakan\n    percobaan ← percobaan + 1\n  AKHIR SELAMA\n  JIKA tebakan = rahasia MAKA\n    OUTPUT "Benar! Dalam " + percobaan + " percobaan"\n  JIKA LAIN\n    OUTPUT "Kesempatan habis. Angkanya " + rahasia\n  AKHIR JIKA\nSELESAI` },
+      ] },
+  ];
+
+  const API = { EXAMPLES, MISSIONS };
+  if (typeof module !== 'undefined' && module.exports) module.exports = API; else root.LabData = API;
+})(typeof window !== 'undefined' ? window : globalThis);
+
+</script>
+<script>
+/* ALUR (Lab Maya Pseudocode) — pemeriksa misi (uji otomatis) */
+(function (root) {
+  'use strict';
+  const Core = root.LabCore || (typeof require !== 'undefined' ? require('./core.js') : null);
+
+  const REQ_LABEL = {
+    mulai: () => 'Program diawali MULAI dan diakhiri SELESAI',
+    input: () => 'Memakai INPUT',
+    minStmts: r => `Minimal ${r.n} langkah di program utama`,
+    if: () => 'Memakai seleksi JIKA',
+    elif: () => 'Memakai seleksi bertingkat JIKA LAIN JIKA',
+    loop: () => 'Memakai pengulangan (SELAMA atau UNTUK)',
+    for: () => 'Memakai pengulangan UNTUK',
+    while: () => 'Memakai pengulangan SELAMA',
+    funcs: r => `Minimal ${r.n} FUNGSI`,
+    procs: r => `Minimal ${r.n} PROSEDUR`,
+    subs: r => `Minimal ${r.n} subprogram (FUNGSI/PROSEDUR)`,
+    named: r => `Ada ${r.kind} ${r.name}(…)`,
+  };
+  function reqOk(r, st) {
+    switch (r.t) {
+      case 'mulai': return st.hasMulai;
+      case 'input': return st.input > 0;
+      case 'minStmts': return st.mainStmts >= r.n;
+      case 'if': return st.if > 0;
+      case 'elif': return st.elif > 0;
+      case 'loop': return st.loops > 0;
+      case 'for': return st.for > 0;
+      case 'while': return st.while > 0;
+      case 'funcs': return st.funcs >= r.n;
+      case 'procs': return st.procs >= r.n;
+      case 'subs': return st.funcs + st.procs >= r.n;
+      case 'named': return !!(st.names[r.name] && st.names[r.name].kind === r.kind);
+    }
+    return false;
+  }
+  function tokenRe(tok) {
+    const e = tok.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+    if (/^-?\d+(\.\d+)?$/.test(tok)) return new RegExp('(?<![\\d.])' + e + '(?![\\d]|\\.\\d)');
+    if (/^[A-Z]$/.test(tok)) return new RegExp('(?<![A-Za-z0-9])' + e + '(?![A-Za-z0-9])');
+    return new RegExp(e, 'i');
+  }
+  function findOrdered(text, tokens) {
+    let pos = 0;
+    for (const t of tokens) {
+      const re = tokenRe(t);
+      const m = re.exec(text.slice(pos));
+      if (!m) return { ok: false, missing: t };
+      pos += m.index + m[0].length;
+    }
+    return { ok: true };
+  }
+  const outText = out => out.filter(o => o.kind === 'out').map(o => o.text).join('\n');
+  const short = (s, n) => { s = String(s); return s.length > n ? s.slice(0, n - 1) + '…' : s; };
+
+  function runTest(prog, t) {
+    if (t.call) {
+      const label = t.note || `${t.call}(${t.args.map(a => Core.fmt(a, true)).join(', ')})`;
+      const r = Core.callHeadless(prog, t.call, t.args);
+      if (!r.ok) return { label, ok: false, detail: r.error.message };
+      const v = r.value;
+      if (t.startsWith) {
+        const ok = typeof v === 'string' && v.trim().toUpperCase().startsWith(t.startsWith);
+        return { label: `${label} → "${t.startsWith}…"`, ok, detail: ok ? '' : `Hasilnya ${Core.fmt(v, true)}` };
+      }
+      const ok = Core.deepEq(Array.isArray(v) ? Array.from(v) : v, t.equals);
+      return { label: t.note ? label : `${label} → ${Core.fmt(t.equals, true)}`, ok, detail: ok ? '' : `Hasilnya ${Core.fmt(v, true)}` };
+    }
+    const label = (t.inputs && t.inputs.length ? `Data: ${t.inputs.join(', ')}` : 'Tanpa data masukan') + (t.note ? ` · ${t.note}` : '');
+    const r = Core.runHeadless(prog, t.inputs || []);
+    if (!r.ok) return { label, ok: false, detail: `Galat baris ${r.error.line}: ${r.error.message}` };
+    const text = outText(r.out);
+    if (t.lines) {
+      const lines = r.out.filter(o => o.kind === 'out').map(o => o.text.trim().toLowerCase());
+      for (let i = 0; i < t.lines.length; i++) {
+        if (lines[i] !== t.lines[i].toLowerCase()) return { label, ok: false, detail: `Baris ke-${i + 1} seharusnya "${t.lines[i]}", tetapi "${lines[i] === undefined ? '(kosong)' : r.out.filter(o => o.kind === 'out')[i].text}".` };
+      }
+      if (t.count && lines.length !== t.count) return { label, ok: false, detail: `Seharusnya ada ${t.count} baris output, tetapi ada ${lines.length}.` };
+      return { label, ok: true, detail: '' };
+    }
+    if (t.all) { const f = findOrdered(text, t.all); if (!f.ok) return { label, ok: false, detail: `Output belum memuat "${f.missing}" pada urutan yang tepat. Output: ${short(text.replace(/\n/g, ' | ') || '(kosong)', 120)}` }; }
+    if (t.any && !t.any.some(x => tokenRe(x).test(text))) return { label, ok: false, detail: `Output seharusnya memuat salah satu dari: ${t.any.join(', ')}. Output: ${short(text.replace(/\n/g, ' | ') || '(kosong)', 120)}` };
+    if (t.none) { const bad = t.none.find(x => tokenRe(x).test(text)); if (bad) return { label, ok: false, detail: `Output tidak boleh memuat "${bad}" untuk data ini. Output: ${short(text.replace(/\n/g, ' | '), 120)}` }; }
+    return { label, ok: true, detail: '' };
+  }
+
+  function checkMission(m, src, scenario) {
+    let prog;
+    try { prog = Core.parse(src); }
+    catch (e) { return { parseError: e, reqs: [], tests: [], passed: false }; }
+    const st = Core.stats(prog);
+    let reqs = m.reqs || [];
+    let tests = m.tests || [];
+    if (m.kind === 'project') {
+      const sc = scenario || m.scenarios[0];
+      reqs = [{ t: 'mulai' }, { t: 'subs', n: sc.min }, { t: 'if' }, { t: 'loop' }];
+      tests = [];
+    }
+    const rr = reqs.map(r => ({ label: REQ_LABEL[r.t](r), ok: reqOk(r, st) }));
+    const tr = tests.map(t => runTest(prog, t));
+    const passed = rr.every(x => x.ok) && tr.every(x => x.ok);
+    return { reqs: rr, tests: tr, passed };
+  }
+
+  const API = { checkMission, findOrdered };
+  if (typeof module !== 'undefined' && module.exports) module.exports = API; else root.LabCheck = API;
+})(typeof window !== 'undefined' ? window : globalThis);
+
+</script>
+<script>
+/* ALUR (Lab Maya Pseudocode) — antarmuka */
+(function () {
+  'use strict';
+  const Core = window.LabCore, Data = window.LabData, Check = window.LabCheck;
+  const $ = (s, r) => (r || document).querySelector(s);
+  const $$ = (s, r) => Array.from((r || document).querySelectorAll(s));
+  const esc = s => String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+  const LH = 22, PADTOP = 14;
+
+  /* ───────── storage (aman bila diblokir) ───────── */
+  const store = {
+    get(k, d) { try { const v = localStorage.getItem('lmp.' + k); return v === null ? d : JSON.parse(v); } catch (e) { return d; } },
+    set(k, v) { try { localStorage.setItem('lmp.' + k, JSON.stringify(v)); } catch (e) { /* abaikan */ } },
+  };
+
+  /* ───────── elemen ───────── */
+  const el = {
+    code: $('#code'), hl: $('#hl'), hlCode: $('#hl-code'), gutter: $('#gutter'), flag: $('#lineflag'), errbar: $('#errbar'),
+    inputs: $('#inputs'), run: $('#btn-run'), step: $('#btn-step'), pause: $('#btn-pause'), reset: $('#btn-reset'), speed: $('#speed'),
+    status: $('#status'), console: $('#console'), ask: $('#ask'), askLabel: $('#ask-label'), askInput: $('#ask-input'),
+    vars: $('#p-vars'), trace: $('#p-trace'), flow: $('#flow'), py: $('#py-code'), example: $('#sel-example'), toast: $('#toast'),
+  };
+  const SPEEDS = [900, 420, 110, 0];
+
+  /* ───────── state ───────── */
+  const S = {
+    view: 'lab', sub: 'vars', prog: null, parseErr: null, rt: null, gen: null, mode: 'idle', send: undefined, timer: null,
+    resume: null, trace: null, quiet: false, curLine: null, errLine: null, zoom: store.get('zoom', 1), types: {},
+    mission: null, scenario: null, lastVarSnap: new Map(), editTimer: null, saveTimer: null, missionResults: {},
+  };
+
+  /* ═════════════ EDITOR ═════════════ */
+  function renderEditor() {
+    const src = el.code.value;
+    el.hlCode.innerHTML = Core.highlight(src, 'pseudo') + '\n ';
+    const n = src.split('\n').length;
+    let g = '';
+    for (let i = 1; i <= n; i++) g += `<div data-n="${i}">${i}</div>`;
+    el.gutter.innerHTML = g;
+    markGutter();
+    syncScroll();
+  }
+  function markGutter() {
+    $$('.g-cur, .g-err', el.gutter).forEach(d => d.classList.remove('g-cur', 'g-err'));
+    if (S.curLine) { const d = el.gutter.children[S.curLine - 1]; if (d) d.classList.add('g-cur'); }
+    if (S.errLine) { const d = el.gutter.children[S.errLine - 1]; if (d) d.classList.add('g-err'); }
+  }
+  function syncScroll() {
+    el.hl.scrollTop = el.code.scrollTop; el.hl.scrollLeft = el.code.scrollLeft;
+    el.gutter.style.transform = `translateY(${-el.code.scrollTop}px)`;
+  }
+  function showFlag(line, isErr) {
+    if (!line) { el.flag.hidden = true; return; }
+    el.flag.hidden = false;
+    el.flag.classList.toggle('err', !!isErr);
+    el.flag.style.top = (PADTOP + (line - 1) * LH) + 'px';
+    el.flag.style.width = Math.max(el.code.scrollWidth, el.code.clientWidth) + 'px';
+    // gulir agar baris terlihat
+    const top = PADTOP + (line - 1) * LH, view = el.code.clientHeight;
+    if (top < el.code.scrollTop + 10 || top + LH > el.code.scrollTop + view - 30) { el.code.scrollTop = Math.max(0, top - view / 3); syncScroll(); }
+  }
+  function setCode(src, keepRun) {
+    el.code.value = src;
+    renderEditor();
+    S.errLine = null;
+    if (!keepRun) resetRun(false);
+    compile();
+  }
+  function insertAtCursor(txt) {
+    const ta = el.code, a = ta.selectionStart, b = ta.selectionEnd;
+    ta.setRangeText(txt, a, b, 'end');
+    ta.focus();
+    onEdit();
+  }
+  const OPENERS = /^\s*(MULAI|SELAMA\b|UNTUK\b|FUNGSI\b|PROSEDUR\b|JIKA LAIN\b|.*\bMAKA\s*$)/;
+  el.code.addEventListener('keydown', e => {
+    const ta = el.code;
+    if ((e.ctrlKey || e.metaKey) && e.key === 'Enter') { e.preventDefault(); if (e.shiftKey) doStep(); else doRun(); return; }
+    if (e.key === 'Tab') {
+      e.preventDefault();
+      const a = ta.selectionStart, b = ta.selectionEnd, v = ta.value;
+      if (a === b && !e.shiftKey) { ta.setRangeText('  ', a, b, 'end'); onEdit(); return; }
+      const ls = v.lastIndexOf('\n', a - 1) + 1, le = v.indexOf('\n', b - (b > a && v[b - 1] === '\n' ? 1 : 0)); const end = le < 0 ? v.length : le;
+      const block = v.slice(ls, end).split('\n').map(l => e.shiftKey ? l.replace(/^ {1,2}/, '') : '  ' + l).join('\n');
+      ta.setRangeText(block, ls, end, 'select'); onEdit(); return;
+    }
+    if (e.key === 'Enter' && !e.shiftKey && !e.altKey) {
+      const a = ta.selectionStart, v = ta.value;
+      const ls = v.lastIndexOf('\n', a - 1) + 1; const line = v.slice(ls, a);
+      let ind = (/^\s*/.exec(line) || [''])[0];
+      if (OPENERS.test(line) && !/AKHIR/.test(line)) ind += '  ';
+      e.preventDefault(); ta.setRangeText('\n' + ind, a, ta.selectionEnd, 'end'); onEdit();
+    }
+  });
+  el.code.addEventListener('input', () => {
+    const ta = el.code, a = ta.selectionStart;
+    if (a >= 2 && ta.value.slice(a - 2, a) === '<-' && ta.selectionEnd === a) { ta.setRangeText('←', a - 2, a, 'end'); }
+    onEdit();
+  });
+  el.code.addEventListener('scroll', syncScroll);
+  function onEdit() {
+    renderEditor();
+    if (S.mode !== 'idle') { resetRun(true); logInfo('Kode diubah. Tekan Jalankan untuk mencoba lagi.'); }
+    S.errLine = null; showFlag(null); markGutter();
+    clearTimeout(S.editTimer); S.editTimer = setTimeout(compile, 300);
+    clearTimeout(S.saveTimer); S.saveTimer = setTimeout(saveCode, 400);
+    if (S.mission) setMissionState(S.mission.id, 'wip');
+  }
+  function codeKey() { return S.mission ? 'code.' + S.mission.id + (S.scenario ? '.' + S.scenario.id : '') : 'code.free'; }
+  function inputKey() { return S.mission ? 'inputs.' + S.mission.id + (S.scenario ? '.' + S.scenario.id : '') : 'inputs.free'; }
+  function saveCode() { store.set(codeKey(), el.code.value); store.set(inputKey(), el.inputs.value); }
+  el.inputs.addEventListener('input', () => { clearTimeout(S.saveTimer); S.saveTimer = setTimeout(saveCode, 400); });
+  $$('.palette button').forEach(b => b.addEventListener('click', () => insertAtCursor(b.dataset.ins)));
+
+  /* ═════════════ COMPILE ═════════════ */
+  function compile() {
+    try {
+      S.prog = Core.parse(el.code.value);
+      S.parseErr = null;
+      if (S.prog.warnings.length) showErr({ message: S.prog.warnings[0] }, true); else showErr(null);
+      renderFlow(); renderPython();
+      return S.prog;
+    } catch (e) {
+      S.prog = null; S.parseErr = e;
+      showErr(e);
+      S.errLine = e.line || null; markGutter(); showFlag(e.line, true);
+      return null;
+    }
+  }
+  function showErr(e, warn) {
+    if (!e) { el.errbar.hidden = true; return; }
+    el.errbar.hidden = false;
+    el.errbar.classList.toggle('warn', !!warn);
+    el.errbar.innerHTML = (e.line ? `<b>Baris ${e.line}</b>` : '<b>Catatan</b>') + `<span>${esc(e.message)}</span>`;
+  }
+
+  /* ═════════════ RUN ENGINE ═════════════ */
+  function parseInputs() {
+    const v = el.inputs.value.trim();
+    if (!v) return [];
+    return v.split(/[\n,;]/).map(s => s.trim()).filter(s => s.length);
+  }
+  function setMode(m, label) {
+    S.mode = m;
+    const map = { idle: 'Siap', ready: 'Siap', running: 'Berjalan', paused: 'Dijeda', input: 'Menunggu INPUT', done: 'Selesai', error: 'Galat' };
+    el.status.dataset.state = m === 'ready' ? 'idle' : m;
+    el.status.textContent = label || map[m];
+    el.pause.disabled = m !== 'running';
+    el.run.lastChild.textContent = m === 'paused' ? 'Lanjutkan' : 'Jalankan';
+  }
+  function resetRun(silent) {
+    clearTimeout(S.timer); S.timer = null;
+    S.gen = null; S.rt = null; S.send = undefined; S.curLine = null;
+    el.ask.hidden = true;
+    clearActive();
+    showFlag(S.errLine, true);
+    markGutter();
+    setMode('idle');
+    if (!silent) { el.console.innerHTML = ''; S.trace = null; renderVars(); renderTrace(); }
+  }
+  function prepare() {
+    clearTimeout(S.timer);
+    S.errLine = null;
+    const prog = compile();
+    if (!prog) { setMode('error', 'Galat sintaks'); el.console.innerHTML = ''; logErr(S.parseErr); return false; }
+    el.console.innerHTML = '';
+    el.ask.hidden = true;
+    S.trace = { cols: [], label: {}, rows: [], cur: null, prev: new Map(), count: 0, capped: false };
+    S.lastVarSnap = new Map();
+    S.rt = Core.createRun(prog, { inputs: parseInputs(), onOut: onOut, maxSteps: 200000 });
+    S.gen = S.rt.gen; S.send = undefined;
+    setMode('ready');
+    return true;
+  }
+  function pump(stopAtStep, budget) {
+    let n = 0;
+    for (;;) {
+      let r;
+      try { r = S.gen.next(S.send); S.send = undefined; }
+      catch (err) { finishError(err); return 'error'; }
+      if (r.done) { finishDone(); return 'done'; }
+      const e = r.value;
+      if (e.ev === 'step') { onStep(e); if (stopAtStep) return 'step'; if (++n >= budget) return 'budget'; }
+      else if (e.ev === 'cond') onCond(e);
+      else if (e.ev === 'input') { askInput(e); return 'input'; }
+    }
+  }
+  function doRun() {
+    if (S.mode === 'running') return;
+    if (S.mode === 'input') { el.askInput.focus(); return; }
+    if (!(S.mode === 'paused' || S.mode === 'ready')) { if (!prepare()) return; }
+    setMode('running');
+    tick();
+  }
+  function tick() {
+    if (S.mode !== 'running') return;
+    const ms = SPEEDS[+el.speed.value];
+    if (ms === 0) {
+      S.quiet = true;
+      const t0 = performance.now();
+      let res;
+      do { res = pump(false, 4000); } while (res === 'budget' && performance.now() - t0 < 40);
+      S.quiet = false;
+      if (res === 'budget') { setMode('running', `Berjalan · ${S.rt.steps.toLocaleString('id-ID')} langkah`); S.timer = setTimeout(tick, 0); return; }
+      refreshAll();
+      return;
+    }
+    const res = pump(true);
+    if (res === 'step') { refreshAll(); S.timer = setTimeout(tick, ms); }
+    else if (res !== 'input') refreshAll();
+  }
+  function doStep() {
+    if (S.mode === 'input') { el.askInput.focus(); return; }
+    if (S.mode === 'running') { pauseRun(); return; }
+    if (!(S.mode === 'paused' || S.mode === 'ready')) { if (!prepare()) return; }
+    setMode('paused');
+    const res = pump(true);
+    if (res === 'step') setMode('paused', `Langkah ${S.trace.count} · baris ${S.curLine}`);
+    refreshAll();
+  }
+  function pauseRun() { clearTimeout(S.timer); S.timer = null; setMode('paused', `Dijeda · baris ${S.curLine || '-'}`); refreshAll(); }
+  function askInput(e) {
+    S.resume = S.mode === 'running' ? 'running' : 'paused';
+    clearTimeout(S.timer);
+    setMode('input');
+    el.ask.hidden = false;
+    el.askLabel.textContent = `INPUT ${e.name}`;
+    el.askInput.value = '';
+    refreshAll();
+    setTimeout(() => el.askInput.focus(), 30);
+  }
+  el.ask.addEventListener('submit', ev => {
+    ev.preventDefault();
+    if (S.mode !== 'input') return;
+    const v = el.askInput.value;
+    if (!v.trim()) { el.askInput.focus(); return; }
+    el.ask.hidden = true;
+    S.send = v;
+    if (S.resume === 'running') { setMode('running'); tick(); }
+    else { setMode('paused'); const r = pump(true); if (r === 'step') setMode('paused', `Langkah ${S.trace.count} · baris ${S.curLine}`); refreshAll(); }
+  });
+  function finishDone() {
+    closeRow();
+    clearTimeout(S.timer);
+    S.types = Object.assign({}, S.rt.types);
+    setMode('done', `Selesai · ${S.rt.steps.toLocaleString('id-ID')} langkah`);
+    S.curLine = null; clearActive(); showFlag(null); markGutter();
+    logOk(`Program selesai dalam ${S.rt.steps.toLocaleString('id-ID')} langkah.`);
+    renderPython();
+  }
+  function finishError(err) {
+    closeRow();
+    clearTimeout(S.timer);
+    if (!(err instanceof Core.LabError)) err = new Core.LabError(S.curLine || 0, 'Terjadi kesalahan tak terduga: ' + err.message, 'jalan');
+    S.errLine = err.line || S.curLine;
+    S.curLine = null;
+    setMode('error', 'Galat saat berjalan');
+    logErr(err);
+    showFlag(S.errLine, true); markGutter();
+    clearActive();
+    if (S.errLine) $$(`.fc-node[data-line="${S.errLine}"]`, el.flow).forEach(n => n.classList.add('is-err'));
+  }
+  function onStep(e) {
+    closeRow();
+    S.trace.cur = { n: ++S.trace.count, line: e.line, notes: [] };
+    S.curLine = e.line;
+  }
+  function onCond(e) {
+    if (S.trace.cur) S.trace.cur.notes.push({ t: 'c', text: e.text, v: e.value, detail: e.detail });
+  }
+  function onOut(o) {
+    if (S.trace && S.trace.cur) S.trace.cur.notes.push({ t: o.kind, text: o.text });
+    const d = document.createElement('div');
+    d.className = 'o ' + (o.kind === 'in' ? 'o-in' : 'o-out');
+    d.textContent = o.text;
+    el.console.appendChild(d);
+    if (!S.quiet) el.console.scrollTop = el.console.scrollHeight;
+  }
+  function logErr(e) { const d = document.createElement('div'); d.className = 'o o-err'; d.textContent = (e.line ? `Baris ${e.line}: ` : '') + e.message; el.console.appendChild(d); el.console.scrollTop = el.console.scrollHeight; }
+  function logInfo(t) { const d = document.createElement('div'); d.className = 'o o-info'; d.textContent = t; el.console.appendChild(d); el.console.scrollTop = el.console.scrollHeight; }
+  function logOk(t) { const d = document.createElement('div'); d.className = 'o o-ok'; d.textContent = t; el.console.appendChild(d); el.console.scrollTop = el.console.scrollHeight; }
+
+  /* trace bookkeeping */
+  function snapshot() {
+    const m = new Map();
+    if (!S.rt) return m;
+    S.rt.frames.forEach(fr => fr.vars.forEach((v, k) => {
+      const key = fr.fn ? k + '@' + fr.fn.name : k;
+      m.set(key, { v: Core.fmt(v, true), label: fr.fn ? `${k} · ${fr.fn.name}` : k });
+    }));
+    return m;
+  }
+  function closeRow() {
+    const T = S.trace; if (!T || !T.cur) return;
+    const now = snapshot(); const ch = {};
+    now.forEach((o, key) => {
+      if (T.prev.get(key) !== o.v) {
+        ch[key] = o.v;
+        if (!T.label[key]) { T.cols.push(key); T.label[key] = o.label; }
+      }
+    });
+    T.prev = new Map(Array.from(now, ([k, o]) => [k, o.v]));
+    T.cur.ch = ch;
+    if (Object.keys(ch).length || T.cur.notes.length) { if (T.rows.length < 600) T.rows.push(T.cur); else T.capped = true; }
+    T.cur = null;
+  }
+
+  /* ═════════════ RENDER PANELS ═════════════ */
+  function refreshAll() {
+    showFlag(S.curLine || (S.mode === 'error' ? S.errLine : null), !S.curLine && S.mode === 'error');
+    markGutter();
+    renderVars();
+    if (S.sub === 'trace') renderTrace();
+    highlightFlow();
+  }
+  function typeLabel(v) {
+    if (typeof v === 'number') return Number.isInteger(v) ? 'bulat' : 'desimal';
+    if (typeof v === 'string') return 'teks';
+    if (typeof v === 'boolean') return 'logika';
+    if (Array.isArray(v)) return v.tuple ? 'beberapa nilai' : `array · ${v.length} elemen`;
+    return '';
+  }
+  function valueHtml(v) {
+    if (Array.isArray(v) && !v.tuple && v.length && v.length <= 24 && v.every(x => !Array.isArray(x))) {
+      return '<div class="cells">' + v.map((x, i) => `<span class="cell"><b>${esc(Core.fmt(x, true))}</b><i>${i + 1}</i></span>`).join('') + '</div>';
+    }
+    return esc(Core.fmt(v, true));
+  }
+  function renderVars() {
+    if (S.sub !== 'vars') return;
+    if (!S.rt) {
+      el.vars.innerHTML = `<p class="empty">Variabel akan muncul di sini saat program berjalan. Tekan <strong>Langkah</strong> untuk mengamati perubahan nilainya satu per satu.</p>`;
+      return;
+    }
+    const prev = S.lastVarSnap, next = new Map();
+    const frames = S.rt.frames.slice().reverse();
+    let html = '<div class="frames">';
+    frames.forEach((fr, idx) => {
+      const local = !!fr.fn;
+      html += `<section class="frame${local ? ' local' : ''}"><div class="frame-h"><span>${esc(local ? fr.name : 'Program utama')}</span><span class="scope">${local ? (idx === 0 ? 'variabel lokal · sedang berjalan' : 'variabel lokal · menunggu') : 'variabel program utama'}</span></div>`;
+      if (!fr.vars.size) html += `<div class="vrow"><span class="vname">—</span><span class="vval hint">belum ada variabel</span></div>`;
+      fr.vars.forEach((v, k) => {
+        const key = (fr.fn ? fr.key + ':' : '') + k, f = Core.fmt(v, true);
+        next.set(key, f);
+        const chg = prev.has(key) ? prev.get(key) !== f : prev.size > 0 || S.trace.count > 1;
+        html += `<div class="vrow${chg ? ' chg' : ''}"><span class="vname">${esc(k)}<span class="vtype">${typeLabel(v)}</span></span><span class="vval">${valueHtml(v)}</span></div>`;
+      });
+      html += '</section>';
+    });
+    html += '</div>';
+    el.vars.innerHTML = html;
+    S.lastVarSnap = next;
+    requestAnimationFrame(() => $$('.vrow.chg', el.vars).forEach(r => r.classList.remove('chg')));
+  }
+  function renderTrace() {
+    const T = S.trace;
+    if (!T || (!T.rows.length && !T.cur)) {
+      el.trace.innerHTML = `<p class="empty">Tabel jejak mencatat setiap perubahan nilai variabel, hasil kondisi, dan output, seperti tabel jejak di LKPD 1 Bagian C. Jalankan program untuk mengisinya.</p>`;
+      return;
+    }
+    const cols = T.cols;
+    let h = '<div class="trace-wrap"><table class="trace"><thead><tr><th scope="col">#</th><th scope="col">Baris</th>' + cols.map(c => `<th scope="col">${esc(T.label[c])}</th>`).join('') + '<th scope="col">Keterangan</th></tr></thead><tbody>';
+    const rows = T.rows.slice(-400);
+    rows.forEach((r, i) => {
+      const last = i === rows.length - 1 && (S.mode === 'paused' || S.mode === 'input');
+      h += `<tr${last ? ' class="cur"' : ''}><td class="ln">${r.n}</td><td class="ln">${r.line}</td>` + cols.map(c => `<td class="v">${r.ch && r.ch[c] !== undefined ? esc(r.ch[c]) : ''}</td>`).join('');
+      const notes = r.notes.map(nt => {
+        if (nt.t === 'c') return `${esc(nt.text)}${nt.detail ? ` <span class="hint">(${esc(nt.detail)})</span>` : ''} → <span class="${nt.v ? 't' : 'f'}">${nt.v ? 'BENAR' : 'SALAH'}</span>`;
+        if (nt.t === 'in') return `INPUT ${esc(nt.text)}`;
+        return `OUTPUT “${esc(nt.text)}”`;
+      }).join('<br>');
+      h += `<td class="note">${notes}</td></tr>`;
+    });
+    h += '</tbody></table></div>';
+    const total = T.rows.length;
+    h += `<p class="hint trace-foot">${total} baris tercatat${T.capped || total > 400 ? '; tabel menampilkan 400 baris terakhir' : ''}. Kolom variabel hanya diisi ketika nilainya berubah.</p>`;
+    el.trace.innerHTML = h;
+    const wrap = $('.trace-wrap', el.trace);
+    if (wrap) wrap.scrollTop = wrap.scrollHeight;
+  }
+
+  /* flowchart */
+  function renderFlow() {
+    if (!S.prog) return;
+    let charts;
+    try { charts = Core.flowcharts(S.prog); } catch (e) { el.flow.innerHTML = `<p class="empty">Flowchart belum bisa digambar: ${esc(e.message)}</p>`; return; }
+    if (!charts.length) { el.flow.innerHTML = '<p class="empty">Tulis program di antara MULAI dan SELESAI untuk melihat flowchart-nya.</p>'; return; }
+    el.flow.innerHTML = charts.map(c => `<figure class="chart" style="margin:0"><h3>${esc(c.title)}</h3><div data-w="${c.w}">${c.svg}</div></figure>`).join('');
+    applyZoom();
+    highlightFlow();
+  }
+  function applyZoom() {
+    $$('.chart [data-w]', el.flow).forEach(d => { const svg = d.firstElementChild; if (svg) svg.style.width = Math.round(+d.dataset.w * S.zoom) + 'px'; });
+    $('#z-val').textContent = Math.round(S.zoom * 100) + '%';
+  }
+  function clearActive() { $$('.fc-node.is-active, .fc-node.is-err', el.flow).forEach(n => n.classList.remove('is-active', 'is-err')); }
+  function highlightFlow() {
+    clearActive();
+    if (!S.curLine) return;
+    const nodes = $$(`.fc-node[data-line="${S.curLine}"]`, el.flow);
+    nodes.forEach(n => n.classList.add('is-active'));
+    if (S.sub === 'flow' && nodes.length) {
+      const box = el.flow.getBoundingClientRect(), r = nodes[nodes.length > 1 ? 1 : 0].getBoundingClientRect();
+      if (r.top < box.top + 20 || r.bottom > box.bottom - 20) el.flow.scrollTop += (r.top - box.top) - box.height / 3;
+      if (r.left < box.left + 20 || r.right > box.right - 20) el.flow.scrollLeft += (r.left - box.left) - box.width / 3;
+    }
+  }
+  $('#z-in').addEventListener('click', () => { S.zoom = Math.min(2, +(S.zoom + 0.1).toFixed(2)); store.set('zoom', S.zoom); applyZoom(); });
+  $('#z-out').addEventListener('click', () => { S.zoom = Math.max(0.4, +(S.zoom - 0.1).toFixed(2)); store.set('zoom', S.zoom); applyZoom(); });
+  $('#z-fit').addEventListener('click', () => {
+    const ws = $$('.chart [data-w]', el.flow).map(d => +d.dataset.w);
+    if (!ws.length) return;
+    const avail = el.flow.clientWidth - 30;
+    S.zoom = Math.max(0.4, Math.min(1.2, +(avail / Math.max(...ws)).toFixed(2)));
+    store.set('zoom', S.zoom); applyZoom();
+  });
+
+  /* python */
+  function renderPython() {
+    if (!S.prog) return;
+    let src;
+    try { src = Core.toPython(S.prog, S.types); } catch (e) { el.py.textContent = 'Konversi belum bisa dibuat: ' + e.message; return; }
+    el.py.innerHTML = Core.highlight(src, 'py');
+    el.py.dataset.src = src;
+  }
+  $('#btn-copy-py').addEventListener('click', () => copyText(el.py.dataset.src || '', 'Kode Python disalin.'));
+
+  /* sub tabs */
+  function setSub(name) {
+    S.sub = name;
+    $$('.subtabs button').forEach(b => b.setAttribute('aria-selected', String(b.dataset.sub === name)));
+    ['vars', 'trace', 'flow', 'py'].forEach(n => { $('#p-' + n).hidden = n !== name; });
+    store.set('sub', name);
+    if (name === 'vars') renderVars();
+    if (name === 'trace') renderTrace();
+    if (name === 'flow') highlightFlow();
+  }
+  $$('.subtabs button').forEach(b => b.addEventListener('click', () => setSub(b.dataset.sub)));
+  $('.subtabs').addEventListener('keydown', e => {
+    if (e.key !== 'ArrowRight' && e.key !== 'ArrowLeft') return;
+    const bs = $$('.subtabs button'); const i = bs.findIndex(b => b.dataset.sub === S.sub);
+    const nb = bs[(i + (e.key === 'ArrowRight' ? 1 : bs.length - 1)) % bs.length]; setSub(nb.dataset.sub); nb.focus();
+  });
+
+  /* controls */
+  el.run.addEventListener('click', doRun);
+  el.step.addEventListener('click', doStep);
+  el.pause.addEventListener('click', pauseRun);
+  el.reset.addEventListener('click', () => { S.errLine = null; resetRun(false); compile(); logInfo('Program diulang dari awal.'); });
+  $('#btn-clear').addEventListener('click', () => { el.console.innerHTML = ''; });
+  el.speed.addEventListener('change', () => store.set('speed', el.speed.value));
+
+  /* ═════════════ EXAMPLES ═════════════ */
+  function fillExamples() {
+    const groups = {};
+    Data.EXAMPLES.forEach(ex => { (groups[ex.tp] = groups[ex.tp] || []).push(ex); });
+    let h = '<option value="">Pilih contoh dari modul…</option>';
+    Object.keys(groups).sort().forEach(tp => { h += `<optgroup label="${tp}">` + groups[tp].map(ex => `<option value="${ex.id}">${esc(ex.title)}</option>`).join('') + '</optgroup>'; });
+    el.example.innerHTML = h;
+  }
+  el.example.addEventListener('change', () => {
+    const ex = Data.EXAMPLES.find(e => e.id === el.example.value);
+    if (!ex) return;
+    if (S.mission) exitMission(true);
+    const prevCode = el.code.value, prevIn = el.inputs.value;
+    el.inputs.value = ex.inputs;
+    setCode(ex.code);
+    saveCode();
+    el.example.value = '';
+    toast(`Contoh “${ex.title}” dimuat.`, 'Batalkan', () => { el.inputs.value = prevIn; setCode(prevCode); saveCode(); });
+  });
+
+  /* ═════════════ VIEWS ═════════════ */
+  function setView(v) {
+    S.view = v;
+    $$('.views button').forEach(b => b.setAttribute('aria-selected', String(b.dataset.view === v)));
+    ['lab', 'misi', 'notasi'].forEach(n => { $('#view-' + n).hidden = n !== v; });
+    store.set('view', v);
+    if (v === 'misi') renderMissionList();
+  }
+  $$('.views button').forEach(b => b.addEventListener('click', () => setView(b.dataset.view)));
+
+  /* ═════════════ MISSIONS ═════════════ */
+  const done = () => store.get('done', {});
+  function setMissionState(id, st) {
+    const d = done();
+    if (st === 'wip' && d[id] && d[id].state === 'done') return;
+    d[id] = Object.assign({}, d[id] || {}, { state: st, at: Date.now() });
+    store.set('done', d); updateCount();
+  }
+  function updateCount() {
+    const d = done(); const n = Data.MISSIONS.filter(m => d[m.id] && d[m.id].state === 'done').length;
+    $('#misi-count').textContent = `${n}/${Data.MISSIONS.length}`;
+    $('#progress-fill').style.width = (n / Data.MISSIONS.length * 100) + '%';
+  }
+  let selMission = store.get('selMission', 'm1');
+  function renderMissionList(skipDetail) {
+    const d = done(); let h = '', group = '';
+    Data.MISSIONS.forEach((m, i) => {
+      const g = m.lkpd.split(' · ')[0];
+      if (g !== group) { group = g; h += `<li class="misi-group">${esc(g)}</li>`; }
+      const st = d[m.id] ? d[m.id].state : '';
+      h += `<li><button class="mcard" type="button" data-id="${m.id}" aria-current="${m.id === selMission}"><span class="mnum">M${i + 1}</span><span><span class="mtitle">${esc(m.title)}</span><span class="mskill">${esc(m.lkpd)} · ${esc(m.skill)}</span></span><span class="mstate ${st === 'done' ? 'done' : st === 'wip' ? 'wip' : ''}">${st === 'done' ? 'Lulus' : st === 'wip' ? 'Dikerjakan' : 'Belum'}</span></button></li>`;
+    });
+    $('#misi-list').innerHTML = h;
+    $$('.mcard').forEach(b => b.addEventListener('click', () => { selMission = b.dataset.id; store.set('selMission', selMission); renderMissionList(); }));
+    if (!skipDetail) renderMissionDetail();
+  }
+  function reqPreview(m) {
+    if (m.kind === 'project') return [];
+    const L = { mulai: 'MULAI … SELESAI', input: 'memakai INPUT', minStmts: r => `≥ ${r.n} langkah`, if: 'seleksi JIKA', elif: 'JIKA LAIN JIKA', loop: 'pengulangan', for: 'pengulangan UNTUK', while: 'pengulangan SELAMA', funcs: r => `≥ ${r.n} FUNGSI`, procs: r => `≥ ${r.n} PROSEDUR`, named: r => `${r.kind} ${r.name}` };
+    return (m.reqs || []).map(r => typeof L[r.t] === 'function' ? L[r.t](r) : L[r.t]);
+  }
+  function renderMissionDetail() {
+    const m = Data.MISSIONS.find(x => x.id === selMission) || Data.MISSIONS[0];
+    const idx = Data.MISSIONS.indexOf(m) + 1;
+    const d = done(); const isDone = d[m.id] && d[m.id].state === 'done';
+    let h = `<div><div class="md-tag">M${idx} · ${esc(m.lkpd)} · ${esc(m.tp)}</div><h3>${esc(m.title)}</h3></div><p>${esc(m.task)}</p>`;
+    if (m.kind === 'trace') {
+      const ex = Data.EXAMPLES.find(e => e.id === m.code);
+      h += `<pre class="mini-code">${Core.highlight(ex.code, 'pseudo')}</pre>`;
+      h += `<div class="table-wrap" style="box-shadow:none"><table class="trace-quiz"><thead><tr><th scope="col">Iterasi</th><th scope="col">hasil</th><th scope="col">i</th></tr></thead><tbody><tr><td>Sebelum loop</td><td>1</td><td>1</td></tr>`;
+      m.rows.forEach((r, k) => { h += `<tr><td>${r.label}</td><td><input type="text" inputmode="numeric" id="tq-h${k}" aria-label="${r.label} hasil"></td><td><input type="text" inputmode="numeric" id="tq-i${k}" aria-label="${r.label} i"></td></tr>`; });
+      h += `<tr><td>Setelah loop</td><td colspan="2">OUTPUT <input type="text" inputmode="numeric" id="tq-out" aria-label="Output akhir"></td></tr></tbody></table></div>`;
+      h += `<details class="hintbox"><summary>Lihat petunjuk</summary><p>${esc(m.hint)}</p></details>`;
+      h += `<p class="result-line" id="tq-res" hidden></p>`;
+      h += `<div class="md-actions"><button class="btn btn-primary" id="tq-check" type="button">Periksa jawaban</button><button class="btn" id="tq-lab" type="button">Buktikan di Lab</button>${isDone ? '<button class="btn" id="md-proof" type="button">Salin bukti pengerjaan</button>' : ''}</div>`;
+    } else {
+      if (m.kind === 'project') {
+        const sid = store.get('scen', 'A');
+        h += `<div class="scen" role="group" aria-label="Pilih skenario">` + m.scenarios.map(s => `<button type="button" data-s="${s.id}" aria-pressed="${s.id === sid}"><span class="L">${s.id} · ${esc(s.title)}</span><span class="d">${esc(s.desc)}</span><span class="chip">min. ${s.min} subprogram</span></button>`).join('') + '</div>';
+      } else {
+        h += `<div class="md-meta">${reqPreview(m).map(x => `<span class="chip">${esc(x)}</span>`).join('')}<span class="chip">${(m.tests || []).length} data uji</span>${isDone ? '<span class="chip ok">Lulus</span>' : ''}</div>`;
+      }
+      h += `<details class="hintbox"><summary>Lihat petunjuk</summary><p>${esc(m.hint)}</p></details>`;
+      h += `<div class="md-actions"><button class="btn btn-primary" id="md-open" type="button">Kerjakan di Lab</button>${isDone ? '<button class="btn" id="md-proof" type="button">Salin bukti pengerjaan</button>' : ''}</div>`;
+      h += `<p class="hint">Kode untuk misi ini tersimpan otomatis di peramban, terpisah dari kode di Lab.</p>`;
+    }
+    h += `<textarea class="proof" id="proof-box" readonly hidden aria-label="Teks bukti pengerjaan"></textarea>`;
+    const box = $('#misi-detail'); box.innerHTML = h;
+    if (m.kind === 'project') $$('.scen button', box).forEach(b => b.addEventListener('click', () => { store.set('scen', b.dataset.s); renderMissionDetail(); }));
+    const open = $('#md-open', box); if (open) open.addEventListener('click', () => startMission(m));
+    const proof = $('#md-proof', box); if (proof) proof.addEventListener('click', () => copyProof(m));
+    if (m.kind === 'trace') {
+      $('#tq-check', box).addEventListener('click', () => checkTrace(m));
+      $('#tq-lab', box).addEventListener('click', () => {
+        const ex = Data.EXAMPLES.find(e => e.id === m.code);
+        if (S.mission) exitMission(true);
+        el.inputs.value = '4'; setCode(ex.code); saveCode(); setView('lab'); setSub('trace'); el.speed.value = '1'; doRun();
+      });
+    }
+  }
+  function checkTrace(m) {
+    let ok = 0, total = 0;
+    m.rows.forEach((r, k) => {
+      [['h', r.hasil], ['i', r.i]].forEach(([c, want]) => {
+        const inp = $(`#tq-${c}${k}`); total++;
+        const good = Core.coerceInput(inp.value) === want; if (good) ok++;
+        inp.classList.toggle('ok', good); inp.classList.toggle('no', !good);
+      });
+    });
+    const out = $('#tq-out'); total++; const g = Core.coerceInput(out.value) === m.output; if (g) ok++;
+    out.classList.toggle('ok', g); out.classList.toggle('no', !g);
+    const res = $('#tq-res'); res.hidden = false;
+    if (ok === total) { res.className = 'result-line ok'; res.textContent = `Semua ${total} isian benar. Algoritma ini menghitung faktorial: 4! = 24.`; setMissionState(m.id, 'done'); S.missionResults[m.id] = { reqs: [], tests: [{ ok: true }], passed: true, trace: `${ok}/${total}` }; renderMissionList(true); const acts = $('#misi-detail .md-actions'); if (acts && !$('#md-proof')) { const b = document.createElement('button'); b.className = 'btn'; b.type = 'button'; b.id = 'md-proof'; b.textContent = 'Salin bukti pengerjaan'; b.addEventListener('click', () => copyProof(m)); acts.appendChild(b); } }
+    else { res.className = 'result-line no'; res.textContent = `${ok} dari ${total} isian benar. Periksa kotak merah, lalu coba “Buktikan di Lab” untuk melihat tabel jejaknya.`; }
+  }
+  function startMission(m) {
+    S.mission = m;
+    S.scenario = m.kind === 'project' ? m.scenarios.find(s => s.id === store.get('scen', 'A')) : null;
+    const starter = S.scenario ? S.scenario.starter : m.starter;
+    const inputs = S.scenario ? S.scenario.inputs : m.inputs;
+    el.inputs.value = store.get(inputKey(), inputs);
+    setCode(store.get(codeKey(), starter));
+    const idx = Data.MISSIONS.indexOf(m) + 1;
+    $('#ms-tag').textContent = `M${idx} · ${m.lkpd}`;
+    $('#ms-title').textContent = m.title + (S.scenario ? ` · Skenario ${S.scenario.id}: ${S.scenario.title}` : '');
+    $('#ms-sub').textContent = m.tp;
+    $('#ms-task').textContent = m.task + (S.scenario ? ' ' + S.scenario.desc : '');
+    $('#ms-task').hidden = true;
+    $('#ms-results').hidden = true;
+    $('#mission-strip').hidden = false;
+    setMissionState(m.id, 'wip');
+    setView('lab');
+    el.code.focus();
+  }
+  function exitMission(silent) {
+    saveCode();
+    S.mission = null; S.scenario = null;
+    $('#mission-strip').hidden = true;
+    if (!silent) { el.inputs.value = store.get('inputs.free', ''); setCode(store.get('code.free', Data.EXAMPLES[1].code)); }
+  }
+  $('#btn-ms-exit').addEventListener('click', () => exitMission(false));
+  $('#btn-ms-task').addEventListener('click', () => { const t = $('#ms-task'); t.hidden = !t.hidden; });
+  $('#btn-test').addEventListener('click', () => {
+    const m = S.mission; if (!m) return;
+    saveCode();
+    const r = Check.checkMission(m, el.code.value, S.scenario);
+    S.missionResults[m.id] = r;
+    const box = $('#ms-results'); box.hidden = false;
+    if (r.parseError) {
+      box.innerHTML = `<div class="ms-summary no">Program belum bisa dibaca: baris ${r.parseError.line}, ${esc(r.parseError.message)}</div>`;
+      return;
+    }
+    const nOk = r.tests.filter(t => t.ok).length, rOk = r.reqs.filter(t => t.ok).length;
+    let h = `<div class="ms-summary ${r.passed ? 'ok' : 'no'}">${r.passed ? 'Lulus! Semua syarat terpenuhi' + (r.tests.length ? ` dan ${r.tests.length} data uji benar.` : '.') : `Belum lulus: syarat ${rOk}/${r.reqs.length}` + (r.tests.length ? `, data uji ${nOk}/${r.tests.length}.` : '.')}</div>`;
+    h += `<div><p class="col-title">Syarat</p><ul class="checklist">${r.reqs.map(x => `<li class="${x.ok ? 'ok' : 'no'}"><span class="mk">${x.ok ? '✓' : '✗'}</span><span>${esc(x.label)}</span></li>`).join('')}</ul></div>`;
+    if (r.tests.length) h += `<div><p class="col-title">Data uji</p><ul class="checklist">${r.tests.map(x => `<li class="${x.ok ? 'ok' : 'no'}"><span class="mk">${x.ok ? '✓' : '✗'}</span><span>${esc(x.label)}${x.detail ? `<span class="det">${esc(x.detail)}</span>` : ''}</span></li>`).join('')}</ul></div>`;
+    else if (m.kind === 'project') h += `<div><p class="col-title">Langkah berikutnya</p><p class="hint">Jalankan programmu dengan beberapa data masukan dan periksa sendiri hasilnya. Untuk mini-demo, tunjukkan tabel jejak dan flowchart-nya.</p></div>`;
+    if (r.passed) h += `<div style="grid-column:1/-1"><button class="btn" type="button" id="ms-proof">Salin bukti pengerjaan</button></div>`;
+    box.innerHTML = h;
+    const pb = $('#ms-proof', box); if (pb) pb.addEventListener('click', () => copyProof(m));
+    if (r.passed) { setMissionState(m.id, 'done'); toast('Misi lulus. Bukti pengerjaan bisa disalin untuk dikumpulkan.'); }
+  });
+
+  function copyProof(m) {
+    const d = done()[m.id] || {};
+    const r = S.missionResults[m.id];
+    const idx = Data.MISSIONS.indexOf(m) + 1;
+    const when = new Date(d.at || Date.now()).toLocaleString('id-ID', { dateStyle: 'long', timeStyle: 'short' });
+    const scen = m.kind === 'project' ? Data.MISSIONS[idx - 1].scenarios.find(s => s.id === store.get('scen', 'A')) : null;
+    const key = 'code.' + m.id + (scen ? '.' + scen.id : '');
+    let hasil = 'LULUS';
+    if (r && r.trace) hasil += ` · isian tabel jejak ${r.trace}`;
+    else if (r && !r.parseError) hasil += ` · syarat ${r.reqs.filter(x => x.ok).length}/${r.reqs.length}` + (r.tests.length ? ` · data uji ${r.tests.filter(x => x.ok).length}/${r.tests.length}` : '');
+    const lines = ['ALUR · Lab Maya Pseudocode · bukti pengerjaan', `Nama  : ${store.get('name', '') || '-'}`, `Kelas : ${store.get('kelas', '') || '-'}`,
+      `Misi  : M${idx} ${m.title}${scen ? ` (Skenario ${scen.id}: ${scen.title})` : ''} · ${m.lkpd}`, `Hasil : ${hasil}`, `Waktu : ${when}`];
+    if (m.kind !== 'trace') { lines.push('', '--- Pseudocode ---', store.get(key, '')); }
+    const txt = lines.join('\n');
+    copyText(txt, 'Bukti pengerjaan disalin. Tempelkan di tugas Google Classroom.', () => {
+      const box = $('#proof-box') || null;
+      if (box && S.view === 'misi') { box.hidden = false; box.value = txt; box.focus(); box.select(); }
+      else { setView('misi'); setTimeout(() => { const b = $('#proof-box'); if (b) { b.hidden = false; b.value = txt; b.select(); } }, 50); }
+    });
+  }
+  const whoName = $('#who-name'), whoClass = $('#who-class');
+  whoName.value = store.get('name', ''); whoClass.value = store.get('kelas', '');
+  whoName.addEventListener('input', () => store.set('name', whoName.value));
+  whoClass.addEventListener('input', () => store.set('kelas', whoClass.value));
+
+  /* ═════════════ NOTASI table ═════════════ */
+  function sym(kind) {
+    const a = 'fill="var(--sheet)" stroke="var(--ink)" stroke-width="1.4"';
+    const s = { term: `<rect x="1" y="3" width="34" height="14" rx="7" fill="var(--ink)"/>`, proc: `<rect x="2" y="3" width="32" height="14" ${a}/>`, io: `<polygon points="7,3 35,3 29,17 1,17" ${a}/>`,
+      dec: `<polygon points="18,1 35,10 18,19 1,10" fill="var(--amber-soft)" stroke="var(--ink)" stroke-width="1.4"/>`, sub: `<rect x="2" y="3" width="32" height="14" ${a}/><line x1="6" y1="3" x2="6" y2="17" stroke="var(--ink)"/><line x1="30" y1="3" x2="30" y2="17" stroke="var(--ink)"/>`, none: '' }[kind];
+    return s ? `<svg class="sym" width="36" height="20" viewBox="0 0 36 20" aria-hidden="true">${s}</svg>` : '<span class="hint">—</span>';
+  }
+  const REF = [
+    ['Awal / akhir', 'MULAI … SELESAI', '(tidak ada)', 'term'], ['Penugasan', 'total ← 0', 'total = 0', 'proc'], ['Input', 'INPUT nilai', 'nilai = int(input())', 'io'],
+    ['Output', 'OUTPUT "Halo " + nama', 'print(f"Halo {nama}")', 'io'], ['Seleksi', 'JIKA x > 0 MAKA … AKHIR JIKA', 'if x > 0:', 'dec'],
+    ['Seleksi ganda', 'JIKA LAIN JIKA x < 0 MAKA', 'elif x < 0:', 'dec'], ['Seleksi alternatif', 'JIKA LAIN', 'else:', 'none'],
+    ['Pengulangan kondisi', 'SELAMA i < 10 … AKHIR SELAMA', 'while i < 10:', 'dec'], ['Pengulangan hitung', 'UNTUK i DARI 1 HINGGA 10 … AKHIR UNTUK', 'for i in range(1, 11):', 'dec'],
+    ['Telusuri koleksi', 'UNTUK SETIAP n DALAM data', 'for n in data:', 'dec'], ['Tambah ke array', 'TAMBAH x KE data', 'data.append(x)', 'proc'],
+    ['Fungsi', 'FUNGSI luas(p, l) … KEMBALIKAN p × l … AKHIR FUNGSI', 'def luas(p, l): return p * l', 'sub'], ['Prosedur', 'PROSEDUR cetak(pesan) … AKHIR PROSEDUR', 'def cetak(pesan):', 'sub'],
+    ['Array', 'data ← [1, 2, 3]  ·  ARRAY kosong', 'data = [1, 2, 3]  ·  []', 'proc'], ['Komentar', '# keterangan', '# keterangan', 'none'],
+  ];
+  $('#ref-body').innerHTML = REF.map(r => `<tr><td>${r[0]}</td><td><code class="ps">${esc(r[1])}</code></td><td><code class="pyc">${esc(r[2])}</code></td><td>${sym(r[3])}</td></tr>`).join('');
+
+  /* ═════════════ misc ═════════════ */
+  let toastTimer = null;
+  function toast(msg, actLabel, act) {
+    el.toast.innerHTML = `<span>${esc(msg)}</span>` + (actLabel ? `<button type="button">${esc(actLabel)}</button>` : '');
+    el.toast.hidden = false;
+    if (actLabel) $('button', el.toast).addEventListener('click', () => { el.toast.hidden = true; act(); });
+    clearTimeout(toastTimer); toastTimer = setTimeout(() => { el.toast.hidden = true; }, actLabel ? 7000 : 3500);
+  }
+  function copyText(txt, okMsg, fallback) {
+    const fb = () => { if (fallback) fallback(); toast('Salin otomatis tidak tersedia. Teks sudah ditandai, tekan Ctrl + C.'); };
+    try {
+      if (navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(txt).then(() => toast(okMsg), fb);
+      else fb();
+    } catch (e) { fb(); }
+  }
+  function applyTheme(t) {
+    if (t) document.documentElement.setAttribute('data-theme', t); else document.documentElement.removeAttribute('data-theme');
+  }
+  $('#theme-btn').addEventListener('click', () => {
+    const cur = document.documentElement.getAttribute('data-theme') || (matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+    const nt = cur === 'dark' ? 'light' : 'dark'; applyTheme(nt); store.set('theme', nt);
+  });
+  document.addEventListener('keydown', e => {
+    if (S.view !== 'lab' || e.target === el.code) return;
+    if ((e.ctrlKey || e.metaKey) && e.key === 'Enter') { e.preventDefault(); if (e.shiftKey) doStep(); else doRun(); }
+  });
+
+  /* ═════════════ BOOT ═════════════ */
+  applyTheme(store.get('theme', null));
+  fillExamples();
+  el.speed.value = store.get('speed', '2');
+  const firstVisit = store.get('code.free', null) === null;
+  const def = Data.EXAMPLES.find(e => e.id === 'rata');
+  el.inputs.value = store.get('inputs.free', def.inputs);
+  el.code.value = store.get('code.free', def.code);
+  renderEditor();
+  compile();
+  setSub(store.get('sub', 'vars'));
+  updateCount();
+  setView('lab');
+  if (S.prog) {
+    // jalankan sekali secara instan agar panel langsung terisi
+    const sp = el.speed.value; el.speed.value = '3';
+    doRun();
+    el.speed.value = sp;
+    if (S.mode !== 'input' && firstVisit) logInfo('Ini contoh dari modul. Tekan Langkah untuk menelusuri baris demi baris, atau pilih contoh lain.');
+  }
+  if ('serviceWorker' in navigator && /^https?:$/.test(location.protocol) && !/claude|anthropic/.test(location.hostname)) {
+    window.addEventListener('load', () => { navigator.serviceWorker.register('sw.js').catch(() => {}); });
+  }
+})();
+
+</script>
+</body>
+</html>
