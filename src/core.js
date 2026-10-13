@@ -983,14 +983,14 @@
     if (chs.length === 1) return chs[0];
     const cx = Math.max(...chs.map(c => c.cx));
     const pos = []; let y = 0, w = 0, term = false;
-    chs.forEach((c, i) => { const x = cx - c.cx; pos.push([x, y]); w = Math.max(w, x + c.w); y += c.h; if (c.term) term = true; if (i < chs.length - 1) y += G; });
+    chs.forEach((c, i) => { const x = cx - c.cx; pos.push([x, y]); w = Math.max(w, x + c.w); y += c.h; if (c.term) term = true; if (i < chs.length - 1) y += (c.add || chs[i + 1].add) ? 9 : G; });
     return {
       w, h: y, cx, term,
       draw(ox, oy, out) {
         chs.forEach((c, i) => {
           const [x, yy] = pos[i];
           c.draw(ox + x, oy + yy, out);
-          if (i < chs.length - 1 && !c.term) path(out, [[ox + cx, oy + yy + c.h], [ox + cx, oy + pos[i + 1][1]]], true);
+          if (i < chs.length - 1 && !c.term) path(out, [[ox + cx, oy + yy + c.h], [ox + cx, oy + pos[i + 1][1]]], !chs[i + 1].add);
         });
       }
     };
@@ -1055,9 +1055,20 @@
     };
   }
   function hasUserCall(e, funcs) { let f = false; walkExpr(e, x => { if (x.k === 'call' && funcs[x.name]) f = true; }); return f; }
-  function chunkOf(stmts, funcs) {
-    const parts = [];
-    for (const s of stmts) { if (s.k === 'comment') continue; parts.push(stmtChunk(s, funcs)); }
+  /* EDIT: mode rakit, setiap sambungan diberi tombol + bernama "<konteks>@<posisi>" */
+  let EDIT = false;
+  function addLeaf(id) {
+    const w = 22, h = 22;
+    return { w, h, cx: w / 2, term: false, add: true, draw(ox, oy, out) {
+      const x = Math.round((ox + 11) * 10) / 10, y = Math.round((oy + 11) * 10) / 10;
+      out.push(`<g class="fc-add" data-add="${id}" role="button" tabindex="0" aria-label="Tambah simbol di sini"><title>Tambah simbol di sini</title><circle cx="${x}" cy="${y}" r="10"/><path d="M${x},${y - 5} v10 M${x - 5},${y} h10"/></g>`);
+    } };
+  }
+  function chunkOf(stmts, funcs, ctx) {
+    const parts = [], edit = EDIT && ctx;
+    if (edit) parts.push(addLeaf(ctx + '@0'));
+    let j = 0;
+    for (const s of stmts) { if (s.k === 'comment') continue; parts.push(stmtChunk(s, funcs)); j++; if (edit) parts.push(addLeaf(ctx + '@' + j)); }
     return seq(parts);
   }
   function stmtChunk(s, funcs) {
@@ -1068,23 +1079,23 @@
       case 'input': case 'output': return leaf('io', stmtText(s), s.line);
       case 'return': return leaf('ret', stmtText(s), s.line);
       case 'if': return ifFrom(s, 0, funcs);
-      case 'while': return loopChunk(pp(s.cond) + '?', s.line, chunkOf(s.body, funcs));
+      case 'while': return loopChunk(pp(s.cond) + '?', s.line, chunkOf(s.body, funcs, s.line + ':body'));
       case 'for': {
         const neg = s.step && s.step.k === 'num' && s.step.v < 0;
         const stepTxt = s.step ? (neg ? `- ${fmtNum(-s.step.v)}` : `+ ${pp(s.step)}`) : '+ 1';
         return seq([leaf('proc', `${s.var} ← ${pp(s.from)}`, s.line),
-          loopChunk(`${s.var} ${neg ? '≥' : '≤'} ${pp(s.to)}?`, s.line, seq([chunkOf(s.body, funcs), leaf('proc', `${s.var} ← ${s.var} ${stepTxt}`, s.line)]))]);
+          loopChunk(`${s.var} ${neg ? '≥' : '≤'} ${pp(s.to)}?`, s.line, seq([chunkOf(s.body, funcs, s.line + ':body'), leaf('proc', `${s.var} ← ${s.var} ${stepTxt}`, s.line)]))]);
       }
-      case 'foreach': return loopChunk(`ada ${s.var} lagi DALAM ${pp(s.iter)}?`, s.line, chunkOf(s.body, funcs));
+      case 'foreach': return loopChunk(`ada ${s.var} lagi DALAM ${pp(s.iter)}?`, s.line, chunkOf(s.body, funcs, s.line + ':body'));
     }
     return null;
   }
   function ifFrom(s, i, funcs) {
     const b = s.branches[i];
-    const T = chunkOf(b.body, funcs);
+    const T = chunkOf(b.body, funcs, b.line + ':yes');
     let E = null, elseIsIf = false;
     if (i + 1 < s.branches.length) { E = ifFrom(s, i + 1, funcs); elseIsIf = true; }
-    else if (s.elseBody && s.elseBody.some(x => x.k !== 'comment')) E = chunkOf(s.elseBody, funcs);
+    else if (EDIT || (s.elseBody && s.elseBody.some(x => x.k !== 'comment'))) E = chunkOf(s.elseBody || [], funcs, b.line + ':no');
     return ifChunk(pp(b.cond) + '?', b.line, T, E, elseIsIf);
   }
   let svgSeq = 0;
@@ -1112,10 +1123,15 @@
     });
     return { charts, slots };
   }
+  /* Flowchart program utama dengan tombol + di setiap sambungan (untuk tab Rakit) */
+  function flowEdit(prog) {
+    EDIT = true;
+    try { return flowcharts(prog).filter(c => c.kind === 'main'); } finally { EDIT = false; }
+  }
   function flowcharts(prog) {
     const charts = [];
-    if (!prog.main.empty) {
-      const body = chunkOf(prog.main.body, prog.funcs);
+    if (!prog.main.empty || EDIT) {
+      const body = chunkOf(prog.main.body, prog.funcs, 'main');
       const c = seq([leaf('term', 'MULAI', prog.main.line), body, (body && body.term) ? null : leaf('term', 'SELESAI', prog.main.endLine)]);
       charts.push(Object.assign({ title: 'Program utama', kind: 'main' }, renderChart(c)));
     }
@@ -1159,6 +1175,6 @@
     }).join('\n');
   }
 
-  const API = { lex, parse, createRun, runHeadless, callHeadless, toPython, flowcharts, flowPuzzle, shapeInner, fitText, highlight, pp, stmtText, fmt, fmtNum, coerceInput, deepEq, stats, walk, LabError, NONE, KEYWORDS, BUILTINS };
+  const API = { lex, parse, createRun, runHeadless, callHeadless, toPython, flowcharts, flowPuzzle, flowEdit, shapeInner, fitText, highlight, pp, stmtText, fmt, fmtNum, coerceInput, deepEq, stats, walk, LabError, NONE, KEYWORDS, BUILTINS };
   if (typeof module !== 'undefined' && module.exports) module.exports = API; else root.LabCore = API;
 })(typeof window !== 'undefined' ? window : globalThis);

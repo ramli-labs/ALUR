@@ -16,6 +16,7 @@ Bebas dipakai guru dan sekolah mana pun. Dirancang untuk kelas dengan internet t
 - **Mode langkah.** Baris yang sedang dijalankan disorot di editor dan di flowchart. Panel variabel memisahkan variabel program utama dan variabel lokal fungsi, sehingga konsep *scope* terlihat.
 - **Tabel jejak otomatis.** Setiap perubahan variabel, hasil kondisi (BENAR/SALAH), INPUT, dan OUTPUT tercatat seperti tabel jejak di LKPD.
 - **Flowchart otomatis** dengan simbol standar: terminal, proses, input/output, keputusan, subprogram, dan panah kembali untuk pengulangan.
+- **Lab Rakit Flowchart.** Murid membangun flowchart sendiri dengan mengetuk tanda + pada panah. Flowchart langsung bisa dijalankan langkah demi langkah, diubah ke pseudocode dan Python, dan dipakai mengerjakan misi.
 - **Mode Susun Flowchart.** Murid menyusun sendiri flowchart dari kartu langkah ke kerangka kosong, memilih simbolnya, lalu memeriksanya. Ada 8 soal bertahap, kartu pengecoh, dan tiga tingkat kesulitan.
 - **Konversi ke Python** yang menyesuaikan indeks (`data[1]` → `data[0]`), `range(1, n + 1)`, `elif`, `f-string`, `len`, `append`, dan `math.sqrt`.
 - **Pesan galat yang mendidik**, misalnya kata kunci yang ditulis huruf kecil, `=` yang dipakai untuk menyimpan nilai, blok yang belum ditutup, variabel yang belum diberi nilai awal, indeks 0, dan pengulangan tanpa akhir.
@@ -42,6 +43,20 @@ Misi disusun bertahap. Label LKPD dan kode TP (BK.9.7–BK.9.12) mengikuti modul
 | M12 | Proyek sistem kelompok (5 skenario) | LKPD 3 | Rancang sistem |
 
 ![Daftar misi LKPD dan rincian tugas](docs/tampilan-misi.png)
+
+## Rakit flowchart
+
+Tab **Rakit** adalah lab khusus flowchart. Murid mulai dari `MULAI` dan `SELESAI`, lalu:
+
+1. Mengetuk tanda **+** pada panah, kemudian memilih simbol: Input, Output, Proses, Keputusan (`JIKA`), Ulang `SELAMA`, atau Ulang `UNTUK`.
+2. Mengetuk simbol untuk mengisi atau mengubah isinya (misalnya kondisi `angka MOD 2 = 0`), memindahkannya naik/turun, atau menghapusnya. Tersedia tombol *Urungkan*.
+3. Menekan **Jalankan** atau **Langkah**. Simbol yang sedang berjalan disorot, nilai variabel ditampilkan, dan INPUT ditanyakan langsung.
+
+Tata letak, panah, serta cabang Ya/Tidak diatur otomatis, sehingga flowchart selalu rapi dan valid, juga di ponsel. Tab *Pseudocode* dan *Python* menampilkan hasil konversi flowchart secara langsung.
+
+Pilihan **Tantangan** memuat misi yang bisa dikerjakan dengan flowchart (M1–M6 dan M10) lengkap dengan uji otomatis. Misi yang lulus di sini ikut tercatat di tab Misi. Pilihan **Muat contoh** membuka contoh modul atau kode dari tab Lab sebagai flowchart yang bisa diubah.
+
+![Lab Rakit Flowchart: flowchart faktorial dengan tombol + di setiap panah, panel isian simbol, dan panel jalankan](docs/tampilan-rakit.png)
 
 ## Susun flowchart
 
@@ -98,7 +113,7 @@ Tiga aturan penting: kata kunci ditulis **KAPITAL**, nilai disimpan dengan **←
 1. Bagikan alamat lab ke murid. Minta mereka membukanya sekali saat ada internet agar tersimpan untuk dipakai offline.
 2. Pertemuan 1–3: pakai contoh bawaan (rata-rata, faktorial, predikat) dengan tombol **Langkah** untuk menelusuri baris demi baris, lalu kerjakan M1–M7.
 3. Pertemuan 4–6: kerjakan M8–M11, buka tab **Flowchart** dan **Python** untuk menjembatani ke implementasi.
-4. Pertemuan 5 (flowchart): murid mengerjakan soal di tab **Susun**, mulai dari tingkat Mudah lalu naik ke Sedang dan Sulit.
+4. Pertemuan 5 (flowchart): murid mengerjakan soal di tab **Susun** (Mudah → Sedang → Sulit), lalu merakit flowchart sendiri di tab **Rakit** untuk tantangan M2, M3, atau M10.
 5. LKPD 3: setiap kelompok memilih skenario di M12, menulis subprogram masing-masing, lalu memakai tabel jejak dan flowchart saat mini-demo.
 6. Murid mengisi nama dan kelas di tab *Misi*, lalu menempelkan *bukti pengerjaan* ke tugas Google Classroom.
 
@@ -130,7 +145,7 @@ manifest.webmanifest   data PWA
 fonts/                 IBM Plex Sans, JetBrains Mono, Newsreader (lisensi SIL OFL)
 docs/                  tangkapan layar untuk README
 src/
-  core.js              lexer, parser, interpreter langkah demi langkah, flowchart SVG (dan kerangka kosongnya), konversi Python
+  core.js              lexer, parser, interpreter langkah demi langkah, flowchart SVG (mode biasa, kerangka susun, dan mode rakit), konversi Python
   data.js              contoh dari modul, 12 misi, dan 8 soal susun flowchart
   check.js             pemeriksa misi (uji otomatis)
   app.js               antarmuka

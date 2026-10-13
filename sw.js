@@ -1,5 +1,5 @@
 /* ALUR (Lab Maya Pseudocode) — service worker: simpan aset agar lab tetap jalan tanpa internet */
-const CACHE = 'alur-v2';
+const CACHE = 'alur-v3';
 const FONTS = ['jetbrains-mono-400', 'jetbrains-mono-700', 'ibm-plex-sans-400', 'ibm-plex-sans-400-italic', 'ibm-plex-sans-500', 'ibm-plex-sans-600', 'newsreader-500', 'newsreader-600'].map(f => './fonts/' + f + '.woff2');
 const ASSETS = ['./', './index.html', './manifest.webmanifest', './icon.svg', './icon-192.png', './icon-512.png', ...FONTS];
 

@@ -45,4 +45,12 @@ PUZZLES.forEach(p => t(`${p.id} ${p.title}: kerangka utuh, pengecoh tidak bentro
 }));
 t('flowchart biasa tetap utuh setelah mode Susun dipakai', () => assert.ok(/fc-node/.test(Core.flowcharts(Core.parse(PUZZLES[0].code))[0].svg)));
 
+console.log('Rakit flowchart');
+t('mode rakit: tombol + di setiap sambungan, termasuk cabang Tidak yang kosong', () => {
+  const c = Core.flowEdit(Core.parse('MULAI\nINPUT n\nJIKA n > 0 MAKA\n  OUTPUT 1\nAKHIR JIKA\nSELAMA n > 0\nAKHIR SELAMA\nSELESAI'))[0];
+  const adds = (c.svg.match(/data-add="([^"]+)"/g) || []).map(x => x.slice(10, -1));
+  assert.deepStrictEqual(adds, ['main@0', 'main@1', '3:yes@0', '3:yes@1', '3:no@0', 'main@2', '6:body@0', 'main@3']);
+});
+t('mode rakit: program kosong tetap punya MULAI, +, SELESAI', () => assert.ok(/data-add="main@0"/.test(Core.flowEdit(Core.parse('MULAI\nSELESAI'))[0].svg)));
+
 console.log(`\n${ok} uji lulus.`);

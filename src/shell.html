@@ -31,8 +31,9 @@
     </div>
     <nav class="views" role="tablist" aria-label="Bagian lab">
       <button role="tab" id="tab-lab" aria-selected="true" aria-controls="view-lab" data-view="lab">Lab</button>
-      <button role="tab" id="tab-misi" aria-selected="false" aria-controls="view-misi" data-view="misi">Misi <span class="count" id="misi-count">0/12</span></button>
+      <button role="tab" id="tab-rakit" aria-selected="false" aria-controls="view-rakit" data-view="rakit">Rakit</button>
       <button role="tab" id="tab-susun" aria-selected="false" aria-controls="view-susun" data-view="susun">Susun <span class="count" id="susun-count">0/8</span></button>
+      <button role="tab" id="tab-misi" aria-selected="false" aria-controls="view-misi" data-view="misi">Misi <span class="count" id="misi-count">0/12</span></button>
       <button role="tab" id="tab-notasi" aria-selected="false" aria-controls="view-notasi" data-view="notasi">Notasi</button>
     </nav>
     <button class="icon-btn theme-btn" id="theme-btn" type="button" aria-label="Ganti tema terang/gelap" title="Ganti tema">
@@ -161,6 +162,73 @@
       <div class="misi-grid">
         <ol class="misi-list" id="misi-list"></ol>
         <article class="misi-detail" id="misi-detail" aria-live="polite"></article>
+      </div>
+    </section>
+
+    <!-- ───────────── RAKIT FLOWCHART ───────────── -->
+    <section id="view-rakit" role="tabpanel" aria-labelledby="tab-rakit" hidden>
+      <div class="misi-head">
+        <div>
+          <h2>Rakit flowchart</h2>
+          <p class="lede">Bangun flowchart sendiri. Ketuk tanda <b class="plus-ic">+</b> pada panah untuk menambah simbol, ketuk simbol untuk mengubah isinya. Lab mengubah flowchart-mu menjadi pseudocode dan Python, lalu menjalankannya langkah demi langkah.</p>
+        </div>
+        <div class="rk-pick">
+          <label for="rk-task"><span>Tantangan</span><select id="rk-task"></select></label>
+          <label for="rk-example"><span>Muat contoh</span><select id="rk-example"></select></label>
+        </div>
+      </div>
+      <div class="rk-taskbox" id="rk-taskbox" hidden></div>
+      <div class="pz-grid rk-grid">
+        <div class="pz-main">
+          <div class="pz-bar">
+            <div class="rk-tools">
+              <button type="button" class="btn" id="rk-undo" disabled>Urungkan</button>
+              <button type="button" class="btn btn-quiet" id="rk-clear">Kosongkan</button>
+            </div>
+            <div class="zoom" role="group" aria-label="Perbesaran">
+              <button type="button" class="icon-btn" id="rk-z-out" aria-label="Perkecil">−</button>
+              <span id="rk-z-val">100%</span>
+              <button type="button" class="icon-btn" id="rk-z-in" aria-label="Perbesar">+</button>
+              <button type="button" class="link-btn" id="rk-z-fit">Pas</button>
+            </div>
+          </div>
+          <div class="errbar" id="rk-err" role="status" hidden></div>
+          <div class="flow-canvas rk-canvas" id="rk-canvas"></div>
+        </div>
+        <aside class="pz-side rk-side">
+          <div class="pz-dock rk-dock" id="rk-dock" aria-live="polite"></div>
+          <div class="rk-panel">
+            <div class="subtabs" role="tablist" aria-label="Panel rakit">
+              <button role="tab" data-rk="run" aria-selected="true" id="rk-st-run" aria-controls="rk-p-run">Jalankan</button>
+              <button role="tab" data-rk="code" aria-selected="false" id="rk-st-code" aria-controls="rk-p-code">Pseudocode</button>
+              <button role="tab" data-rk="py" aria-selected="false" id="rk-st-py" aria-controls="rk-p-py">Python</button>
+            </div>
+            <div class="rk-sub" id="rk-p-run" role="tabpanel" aria-labelledby="rk-st-run">
+              <label class="rk-in" for="rk-inputs"><span>Data masukan <span class="hint">opsional, pisahkan dengan koma</span></span><input id="rk-inputs" type="text" spellcheck="false" autocomplete="off" placeholder="contoh: 5, 8"></label>
+              <div class="rk-ctrl">
+                <button class="btn btn-primary" id="rk-run" type="button"><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M4 2.5v11l9-5.5z" fill="currentColor"/></svg>Jalankan</button>
+                <button class="btn" id="rk-step" type="button">Langkah</button>
+                <button class="btn btn-quiet" id="rk-reset" type="button">Ulang</button>
+                <select id="rk-speed" aria-label="Kecepatan"><option value="700">Lambat</option><option value="320" selected>Sedang</option><option value="80">Cepat</option><option value="0">Instan</option></select>
+              </div>
+              <div class="rk-console" id="rk-console" aria-live="polite"></div>
+              <form class="ask" id="rk-ask" hidden>
+                <label for="rk-ask-input" id="rk-ask-label">INPUT</label>
+                <input id="rk-ask-input" type="text" autocomplete="off" spellcheck="false">
+                <button class="btn btn-primary" type="submit">Kirim</button>
+              </form>
+              <div class="rk-vars" id="rk-vars"></div>
+            </div>
+            <div class="rk-sub" id="rk-p-code" role="tabpanel" aria-labelledby="rk-st-code" hidden>
+              <pre class="mini-code" id="rk-code"></pre>
+              <div class="pz-actions"><button class="btn" id="rk-to-lab" type="button">Buka di tab Lab</button><button class="btn btn-quiet" id="rk-copy-code" type="button">Salin</button></div>
+            </div>
+            <div class="rk-sub" id="rk-p-py" role="tabpanel" aria-labelledby="rk-st-py" hidden>
+              <pre class="code-block" id="rk-py"></pre>
+              <div class="pz-actions"><button class="btn" id="rk-copy-py" type="button">Salin kode Python</button></div>
+            </div>
+          </div>
+        </aside>
       </div>
     </section>
 

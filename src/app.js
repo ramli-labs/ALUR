@@ -474,10 +474,11 @@
   function setView(v) {
     S.view = v;
     $$('.views button').forEach(b => b.setAttribute('aria-selected', String(b.dataset.view === v)));
-    ['lab', 'misi', 'susun', 'notasi'].forEach(n => { $('#view-' + n).hidden = n !== v; });
+    ['lab', 'rakit', 'susun', 'misi', 'notasi'].forEach(n => { $('#view-' + n).hidden = n !== v; });
     store.set('view', v);
     if (v === 'misi') renderMissionList();
     if (v === 'susun') renderSusun(false);
+    if (v === 'rakit') renderRakit();
   }
   $$('.views button').forEach(b => b.addEventListener('click', () => setView(b.dataset.view)));
 
@@ -969,6 +970,410 @@
     P.zoom = Math.max(0.4, Math.min(1.4, +((pzEl.canvas.clientWidth - 30) / Math.max(...ws)).toFixed(2)));
     store.set('fc.zoom', P.zoom); pzApplyZoom();
   });
+
+  /* ═════════════ RAKIT FLOWCHART ═════════════ */
+  const RK_KINDS = {
+    input: { name: 'Input', sym: 'io', make: () => ({ k: 'input', a: 'n' }) },
+    output: { name: 'Output', sym: 'io', make: () => ({ k: 'output', a: '"Selesai"' }) },
+    proc: { name: 'Proses', sym: 'proc', make: () => ({ k: 'proc', a: 'total ← 0' }) },
+    if: { name: 'Keputusan', sub: 'JIKA', sym: 'dec', make: () => ({ k: 'if', a: 'n > 0', yes: [], no: [] }) },
+    while: { name: 'Ulang', sub: 'SELAMA', sym: 'dec', make: () => ({ k: 'while', a: 'i ≤ 10', body: [] }) },
+    for: { name: 'Ulang', sub: 'UNTUK', sym: 'dec', make: () => ({ k: 'for', v: 'i', a: '1', b: '10', body: [] }) },
+  };
+  const RK_ORDER = ['input', 'output', 'proc', 'if', 'while', 'for'];
+  const RK = { key: store.get('rk.key', 'bebas'), prog: [], sel: null, lineOf: {}, blockAt: {}, ctxMap: {}, pseudo: '', parsed: null, err: null, chartOk: false, undo: [], zoom: store.get('rk.zoom', 1), sub: 'run', editSnap: false, seq: 0 };
+  const rkEl = { canvas: $('#rk-canvas'), err: $('#rk-err'), dock: $('#rk-dock'), code: $('#rk-code'), py: $('#rk-py'), console: $('#rk-console'), vars: $('#rk-vars'), inputs: $('#rk-inputs'), ask: $('#rk-ask'), askLabel: $('#rk-ask-label'), askInput: $('#rk-ask-input'), task: $('#rk-task'), example: $('#rk-example'), taskbox: $('#rk-taskbox') };
+  const rkMissions = () => Data.MISSIONS.filter(m => !m.kind && !(m.reqs || []).some(r => ['funcs', 'procs', 'named'].includes(r.t)));
+  const rkId = () => 'b' + (++RK.seq) + Math.random().toString(36).slice(2, 6);
+  function rkWithIds(list) { (list || []).forEach(b => { b.id = rkId(); ['yes', 'no', 'body'].forEach(k => { if (b[k]) rkWithIds(b[k]); }); }); return list; }
+  function rkLoad() { RK.prog = rkWithIds(store.get('rk.' + RK.key, null) || []); RK.sel = null; RK.undo = []; }
+  function rkStrip(list) { return list.map(b => { const o = Object.assign({}, b); delete o.id; ['yes', 'no', 'body'].forEach(k => { if (o[k]) o[k] = rkStrip(o[k]); }); return o; }); }
+  function rkSave() { store.set('rk.' + RK.key, rkStrip(RK.prog)); }
+  function rkSnap() { RK.undo.push(JSON.stringify(rkStrip(RK.prog))); if (RK.undo.length > 40) RK.undo.shift(); $('#rk-undo').disabled = false; }
+  function rkUndo() {
+    const s = RK.undo.pop(); if (!s) return;
+    RK.prog = rkWithIds(JSON.parse(s)); RK.sel = null; RK.editSnap = false;
+    $('#rk-undo').disabled = !RK.undo.length; rkSave(); rkRender();
+  }
+  /* blok → pseudocode, sekaligus peta baris ↔ blok dan konteks tombol + */
+  function rkGen() {
+    const lines = ['MULAI'], lineOf = {}, blockAt = {}, ctxMap = { main: RK.prog };
+    const L = () => lines.length + 1;
+    const mark = b => { lineOf[b.id] = L(); blockAt[L()] = b; };
+    const emit = (list, ind) => list.forEach(b => {
+      const pad = '  '.repeat(ind);
+      if (b.k === 'input') { mark(b); lines.push(pad + 'INPUT ' + b.a); }
+      else if (b.k === 'output') { mark(b); lines.push(pad + 'OUTPUT ' + b.a); }
+      else if (b.k === 'proc') { mark(b); lines.push(pad + b.a); }
+      else if (b.k === 'while') { mark(b); ctxMap[L() + ':body'] = b.body; lines.push(pad + 'SELAMA ' + b.a); emit(b.body, ind + 1); lines.push(pad + 'AKHIR SELAMA'); }
+      else if (b.k === 'for') { mark(b); ctxMap[L() + ':body'] = b.body; lines.push(`${pad}UNTUK ${b.v} DARI ${b.a} HINGGA ${b.b}`); emit(b.body, ind + 1); lines.push(pad + 'AKHIR UNTUK'); }
+      else if (b.k === 'if') {
+        let cur = b, head = 'JIKA ';
+        for (;;) {
+          mark(cur); ctxMap[L() + ':yes'] = cur.yes; ctxMap[L() + ':no'] = cur.no;
+          lines.push(pad + head + cur.a + ' MAKA'); emit(cur.yes, ind + 1);
+          if (cur.no.length === 1 && cur.no[0].k === 'if') { cur = cur.no[0]; head = 'JIKA LAIN JIKA '; continue; }
+          break;
+        }
+        if (cur.no.length) { lines.push(pad + 'JIKA LAIN'); emit(cur.no, ind + 1); }
+        lines.push(pad + 'AKHIR JIKA');
+      }
+    });
+    emit(RK.prog, 1);
+    lines.push('SELESAI');
+    RK.lineOf = lineOf; RK.blockAt = blockAt; RK.ctxMap = ctxMap;
+    RK.pseudo = lines.join('\n');
+  }
+  function rkFind(id, list, parent) {
+    list = list || RK.prog;
+    for (let i = 0; i < list.length; i++) {
+      const b = list[i];
+      if (b.id === id) return { b, list, i };
+      for (const k of ['yes', 'no', 'body']) if (b[k]) { const r = rkFind(id, b[k]); if (r) return r; }
+    }
+    return null;
+  }
+  /* pseudocode (AST) → blok, untuk contoh dan "ambil dari Lab" */
+  function rkFromAst(stmts) {
+    const out = [];
+    for (const s of stmts) {
+      if (s.k === 'comment') continue;
+      if (s.k === 'assign' || s.k === 'append') out.push({ k: 'proc', a: Core.stmtText(s) });
+      else if (s.k === 'input') out.push({ k: 'input', a: s.targets.map(t => Core.pp(t)).join(', ') });
+      else if (s.k === 'output') out.push({ k: 'output', a: s.exprs.map(x => Core.pp(x)).join(', ') });
+      else if (s.k === 'while') out.push({ k: 'while', a: Core.pp(s.cond), body: rkFromAst(s.body) });
+      else if (s.k === 'for') { if (s.step) throw new Error('UNTUK dengan LANGKAH'); out.push({ k: 'for', v: s.var, a: Core.pp(s.from), b: Core.pp(s.to), body: rkFromAst(s.body) }); }
+      else if (s.k === 'if') {
+        const mk = i => {
+          const br = s.branches[i];
+          const node = { k: 'if', a: Core.pp(br.cond), yes: rkFromAst(br.body), no: [] };
+          if (i + 1 < s.branches.length) node.no = [mk(i + 1)];
+          else if (s.elseBody) node.no = rkFromAst(s.elseBody);
+          return node;
+        };
+        out.push(mk(0));
+      } else throw new Error(s.k === 'foreach' ? 'UNTUK SETIAP' : s.k === 'call' || s.k === 'return' ? 'FUNGSI/PROSEDUR' : s.k);
+    }
+    return out;
+  }
+  function rkImport(src) {
+    const prog = Core.parse(src);
+    if (Object.keys(prog.funcs).length) throw new Error('FUNGSI/PROSEDUR');
+    return rkFromAst(prog.main.body);
+  }
+  function rkCompile() {
+    rkGen();
+    try { RK.parsed = Core.parse(RK.pseudo); RK.err = null; }
+    catch (e) { RK.parsed = null; RK.err = e; }
+  }
+  function rkRender() {
+    rkCompile();
+    if (RK.parsed) {
+      const c = Core.flowEdit(RK.parsed)[0];
+      rkEl.canvas.innerHTML = `<figure class="chart" style="margin:0"><div data-w="${c.w}">${c.svg}</div></figure>`;
+      rkApplyZoom();
+      rkEl.err.hidden = true;
+      rkEl.code.innerHTML = Core.highlight(RK.pseudo, 'pseudo');
+      try { rkEl.py.innerHTML = Core.highlight(Core.toPython(RK.parsed, {}), 'py'); rkEl.py.dataset.src = Core.toPython(RK.parsed, {}); } catch (e) { rkEl.py.textContent = e.message; }
+    } else {
+      const b = RK.blockAt[RK.err.line];
+      rkEl.err.hidden = false;
+      rkEl.err.innerHTML = `<b>${b ? 'Simbol ' + esc(rkLabel(b)) : 'Catatan'}</b><span>${esc(RK.err.message)} Flowchart diperbarui setelah isinya diperbaiki.</span>`;
+      rkEl.code.innerHTML = Core.highlight(RK.pseudo, 'pseudo');
+    }
+    rkPaintSel(); rkRenderDock(); rkResetRun(true);
+    rkSave();
+  }
+  function rkLabel(b) { const K = RK_KINDS[b.k]; return K.sub ? `${K.name} ${K.sub}` : K.name; }
+  function rkPaintSel() {
+    $$('.is-picked', rkEl.canvas).forEach(n => n.classList.remove('is-picked'));
+    if (!RK.sel) return;
+    if (RK.sel.add) { const g = $(`.fc-add[data-add="${RK.sel.add}"]`, rkEl.canvas); if (g) g.classList.add('is-picked'); }
+    else { const ln = RK.lineOf[RK.sel.id]; $$(`.fc-node[data-line="${ln}"]`, rkEl.canvas).forEach(n => n.classList.add('is-picked')); }
+  }
+  function rkFields(b) {
+    const f = (key, label, hint, wide) => `<label class="rk-f${wide ? ' wide' : ''}"><span>${label}</span><input type="text" data-f="${key}" value="${esc(b[key])}" spellcheck="false" autocomplete="off" autocapitalize="off">${hint ? `<small>${hint}</small>` : ''}</label>`;
+    if (b.k === 'input') return f('a', 'Variabel yang diisi', 'Contoh: <code>n</code> atau <code>panjang, lebar</code>', 1);
+    if (b.k === 'output') return f('a', 'Yang ditampilkan', 'Contoh: <code>"Total: " + total</code>', 1);
+    if (b.k === 'proc') return f('a', 'Langkah proses', 'Contoh: <code>total ← total + harga</code>. Ketik <code>&lt;-</code> untuk ←.', 1);
+    if (b.k === 'if') return f('a', 'Kondisi', 'Jalur <b>Ya</b> dijalankan bila kondisi BENAR, jalur <b>Tidak</b> bila SALAH.', 1);
+    if (b.k === 'while') return f('a', 'Ulangi selama', 'Isi badan pengulangan diulang selama kondisi ini BENAR.', 1);
+    if (b.k === 'for') return `<div class="rk-for">${f('v', 'Variabel')}${f('a', 'Dari')}${f('b', 'Hingga')}</div><small class="hint">Variabel naik 1 setiap putaran sampai melewati batas “hingga”.</small>`;
+    return '';
+  }
+  function rkRenderDock() {
+    const d = rkEl.dock;
+    if (!RK.sel) {
+      d.innerHTML = `<p class="pz-hint"><b>Belum ada yang dipilih.</b> Ketuk tanda <span class="plus-ic">+</span> di flowchart untuk menambah simbol, atau ketuk simbol untuk mengubahnya.</p>`;
+      return;
+    }
+    if (RK.sel.add) {
+      d.innerHTML = `<p class="pz-hint"><b>Tambah simbol di sini.</b> Pilih jenisnya:</p><div class="rk-kinds">` +
+        RK_ORDER.map(k => { const K = RK_KINDS[k]; return `<button type="button" class="pz-sym rk-kind" data-k="${k}">${sym(K.sym)}<span>${K.name}${K.sub ? `<br><code>${K.sub}</code>` : ''}</span></button>`; }).join('') +
+        `</div><button type="button" class="link-btn" id="rk-cancel">Batal</button>`;
+      $$('.rk-kind', d).forEach(b => b.addEventListener('click', () => rkInsert(b.dataset.k)));
+      $('#rk-cancel', d).addEventListener('click', () => { RK.sel = null; rkPaintSel(); rkRenderDock(); });
+      return;
+    }
+    const r = rkFind(RK.sel.id); if (!r) { RK.sel = null; rkRenderDock(); return; }
+    const b = r.b, bad = RK.err && RK.blockAt[RK.err.line] === b;
+    let h = `<div class="rk-head"><span class="md-tag">${esc(rkLabel(b))}</span><span class="rk-mini">${sym(RK_KINDS[b.k].sym)}</span></div>`;
+    h += `<div class="rk-fields">${rkFields(b)}</div>`;
+    h += `<div class="palette rk-ops" role="group" aria-label="Sisipkan simbol">${['←', '≠', '≤', '≥', '×', '÷'].map(o => `<button type="button" data-ins="${o}">${o}</button>`).join('')}</div>`;
+    if (bad) h += `<p class="rk-bad">${esc(RK.err.message)}</p>`;
+    h += `<div class="pz-actions"><button type="button" class="btn" id="rk-up"${r.i === 0 ? ' disabled' : ''}>Naik</button><button type="button" class="btn" id="rk-down"${r.i === r.list.length - 1 ? ' disabled' : ''}>Turun</button><button type="button" class="btn btn-quiet rk-del" id="rk-del">Hapus</button><button type="button" class="btn btn-quiet" id="rk-done">Selesai</button></div>`;
+    if ((b.yes && (b.yes.length || b.no.length)) || (b.body && b.body.length)) h += `<p class="hint" style="margin:0">Menghapus simbol ini ikut menghapus isi cabang/pengulangannya.</p>`;
+    d.innerHTML = h;
+    let lastField = $('input[data-f]', d);
+    $$('input[data-f]', d).forEach(inp => {
+      inp.addEventListener('focus', () => { lastField = inp; if (!RK.editSnap) { rkSnap(); RK.editSnap = true; } });
+      inp.addEventListener('input', () => {
+        const a = inp.selectionStart;
+        if (a >= 2 && inp.value.slice(a - 2, a) === '<-') inp.setRangeText('←', a - 2, a, 'end');
+        b[inp.dataset.f] = inp.value;
+        clearTimeout(RK.editTimer); RK.editTimer = setTimeout(rkSoftRender, 260);
+      });
+      inp.addEventListener('keydown', e => { if (e.key === 'Enter') { e.preventDefault(); rkSoftRender(); } });
+    });
+    $$('.rk-ops button', d).forEach(o => o.addEventListener('mousedown', e => e.preventDefault()));
+    $$('.rk-ops button', d).forEach(o => o.addEventListener('click', () => { if (!lastField) return; lastField.setRangeText(o.dataset.ins, lastField.selectionStart, lastField.selectionEnd, 'end'); lastField.focus(); lastField.dispatchEvent(new Event('input')); }));
+    $('#rk-up', d).addEventListener('click', () => rkMove(-1));
+    $('#rk-down', d).addEventListener('click', () => rkMove(1));
+    $('#rk-del', d).addEventListener('click', rkDelete);
+    $('#rk-done', d).addEventListener('click', () => { RK.sel = null; RK.editSnap = false; rkRender(); });
+  }
+  /* perbarui flowchart tanpa membangun ulang panel isian (fokus tetap di kotak isian) */
+  function rkSoftRender() {
+    const d = rkEl.dock, active = document.activeElement, key = active && active.dataset ? active.dataset.f : null, pos = active && active.selectionStart;
+    rkCompile();
+    if (RK.parsed) {
+      const c = Core.flowEdit(RK.parsed)[0];
+      rkEl.canvas.innerHTML = `<figure class="chart" style="margin:0"><div data-w="${c.w}">${c.svg}</div></figure>`;
+      rkApplyZoom(); rkEl.err.hidden = true;
+      try { const py = Core.toPython(RK.parsed, {}); rkEl.py.innerHTML = Core.highlight(py, 'py'); rkEl.py.dataset.src = py; } catch (e) { /* abaikan */ }
+    } else {
+      const bb = RK.blockAt[RK.err.line];
+      rkEl.err.hidden = false;
+      rkEl.err.innerHTML = `<b>${bb ? 'Simbol ' + esc(rkLabel(bb)) : 'Catatan'}</b><span>${esc(RK.err.message)} Flowchart diperbarui setelah isinya diperbaiki.</span>`;
+    }
+    rkEl.code.innerHTML = Core.highlight(RK.pseudo, 'pseudo');
+    rkPaintSel(); rkResetRun(true); rkSave();
+    const r = RK.sel && !RK.sel.add && rkFind(RK.sel.id);
+    const bad = $('.rk-bad', d), isBad = r && RK.err && RK.blockAt[RK.err.line] === r.b;
+    if (isBad) { if (bad) bad.textContent = RK.err.message; else { const p = document.createElement('p'); p.className = 'rk-bad'; p.textContent = RK.err.message; $('.rk-ops', d).after(p); } }
+    else if (bad) bad.remove();
+    if (key) { const inp = $(`input[data-f="${key}"]`, d); if (inp && document.activeElement !== inp) { inp.focus(); try { inp.setSelectionRange(pos, pos); } catch (e) { /* abaikan */ } } }
+  }
+  function rkInsert(kind) {
+    const [ctx, idx] = RK.sel.add.split('@');
+    const list = RK.ctxMap[ctx]; if (!list) return;
+    rkSnap();
+    const b = RK_KINDS[kind].make(); b.id = rkId();
+    list.splice(+idx, 0, b);
+    RK.sel = { id: b.id }; RK.editSnap = true;
+    rkRender();
+    const inp = $('input[data-f]', rkEl.dock); if (inp) { inp.focus({ preventScroll: true }); inp.select(); }
+    const node = $('.fc-node.is-picked', rkEl.canvas);
+    if (node && node.scrollIntoView) setTimeout(() => node.scrollIntoView({ block: 'center', inline: 'nearest' }), 30);
+  }
+  function rkMove(dir) {
+    const r = rkFind(RK.sel.id); if (!r) return;
+    const j = r.i + dir; if (j < 0 || j >= r.list.length) return;
+    rkSnap(); [r.list[r.i], r.list[j]] = [r.list[j], r.list[r.i]]; RK.editSnap = false; rkRender();
+  }
+  function rkDelete() {
+    const r = rkFind(RK.sel.id); if (!r) return;
+    rkSnap(); r.list.splice(r.i, 1); RK.sel = null; RK.editSnap = false; rkRender();
+    toast('Simbol dihapus.', 'Urungkan', rkUndo);
+  }
+  rkEl.canvas.addEventListener('click', e => {
+    if (!e.target.closest) return;
+    const add = e.target.closest('.fc-add'), node = e.target.closest('.fc-node');
+    if (add) { RK.sel = { add: add.dataset.add }; RK.editSnap = false; rkPaintSel(); rkRenderDock(); const f = $('.rk-kind', rkEl.dock); if (f && matchMedia('(min-width: 1081px)').matches) f.focus(); return; }
+    if (node) {
+      const b = RK.blockAt[+node.dataset.line];
+      if (!b) { toast('MULAI dan SELESAI sudah tersedia dan tidak perlu diubah.'); return; }
+      RK.sel = { id: b.id }; RK.editSnap = false; rkPaintSel(); rkRenderDock();
+    }
+  });
+  rkEl.canvas.addEventListener('keydown', e => {
+    if ((e.key === 'Enter' || e.key === ' ') && e.target.closest && e.target.closest('.fc-add')) { e.preventDefault(); e.target.closest('.fc-add').dispatchEvent(new MouseEvent('click', { bubbles: true })); const f = $('.rk-kind', rkEl.dock); if (f) f.focus(); }
+  });
+
+  /* menjalankan flowchart */
+  const RR = { rt: null, gen: null, mode: 'idle', send: undefined, timer: null, line: null };
+  function rkResetRun(silent) {
+    clearTimeout(RR.timer); RR.rt = null; RR.gen = null; RR.mode = 'idle'; RR.line = null; rkEl.ask.hidden = true;
+    $$('.fc-node.is-active, .fc-node.is-err', rkEl.canvas).forEach(n => n.classList.remove('is-active', 'is-err'));
+    $('#rk-run').lastChild.textContent = 'Jalankan';
+    if (!silent) rkEl.console.innerHTML = '';
+    rkVars();
+  }
+  function rkLog(cls, t) { const d = document.createElement('div'); d.className = 'o ' + cls; d.textContent = t; rkEl.console.appendChild(d); rkEl.console.scrollTop = rkEl.console.scrollHeight; }
+  function rkPrepare() {
+    rkCompile();
+    if (!RK.parsed) { rkEl.console.innerHTML = ''; rkLog('o-err', 'Flowchart belum bisa dijalankan: ' + RK.err.message); return false; }
+    if (!RK.prog.length) { rkEl.console.innerHTML = ''; rkLog('o-info', 'Flowchart masih kosong. Tambahkan simbol dengan tanda + dulu.'); return false; }
+    rkResetRun(false);
+    const ins = rkEl.inputs.value.trim() ? rkEl.inputs.value.split(/[\n,;]/).map(s => s.trim()).filter(Boolean) : [];
+    RR.rt = Core.createRun(RK.parsed, { inputs: ins, onOut: o => rkLog(o.kind === 'in' ? 'o-in' : 'o-out', o.text), maxSteps: 100000 });
+    RR.gen = RR.rt.gen; RR.mode = 'ready';
+    return true;
+  }
+  function rkPump(stop) {
+    for (;;) {
+      let r;
+      try { r = RR.gen.next(RR.send); RR.send = undefined; }
+      catch (err) {
+        RR.mode = 'error'; clearTimeout(RR.timer);
+        rkLog('o-err', (err.line ? `Galat di simbol ${RK.blockAt[err.line] ? rkLabel(RK.blockAt[err.line]) : ''}: ` : '') + err.message);
+        $$('.fc-node.is-active', rkEl.canvas).forEach(n => n.classList.remove('is-active'));
+        if (err.line) $$(`.fc-node[data-line="${err.line}"]`, rkEl.canvas).forEach(n => n.classList.add('is-err'));
+        $('#rk-run').lastChild.textContent = 'Jalankan';
+        return 'error';
+      }
+      if (r.done) {
+        RR.mode = 'done'; clearTimeout(RR.timer); RR.line = null;
+        rkLog('o-ok', `Selesai dalam ${RR.rt.steps.toLocaleString('id-ID')} langkah.`);
+        $$('.fc-node.is-active', rkEl.canvas).forEach(n => n.classList.remove('is-active'));
+        $('#rk-run').lastChild.textContent = 'Jalankan'; rkVars();
+        return 'done';
+      }
+      const e = r.value;
+      if (e.ev === 'step') { RR.line = e.line; if (stop) return 'step'; }
+      else if (e.ev === 'input') {
+        rkEl.ask.hidden = false; rkEl.askLabel.textContent = 'INPUT ' + e.name; rkEl.askInput.value = '';
+        RR.resume = RR.mode; RR.mode = 'input'; clearTimeout(RR.timer); rkShowLine(); rkVars();
+        setTimeout(() => rkEl.askInput.focus(), 30);
+        return 'input';
+      }
+    }
+  }
+  function rkShowLine() {
+    $$('.fc-node.is-active', rkEl.canvas).forEach(n => n.classList.remove('is-active'));
+    if (!RR.line) return;
+    const ns = $$(`.fc-node[data-line="${RR.line}"]`, rkEl.canvas);
+    ns.forEach(n => n.classList.add('is-active'));
+    if (ns.length) {
+      const box = rkEl.canvas.getBoundingClientRect(), r = ns[ns.length > 1 ? 1 : 0].getBoundingClientRect();
+      if (r.top < box.top + 20 || r.bottom > box.bottom - 20) rkEl.canvas.scrollTop += (r.top - box.top) - box.height / 3;
+    }
+  }
+  function rkVars() {
+    if (!RR.rt || !RR.rt.frames[0].vars.size) { rkEl.vars.innerHTML = '<p class="hint" style="margin:0">Nilai variabel muncul di sini saat flowchart dijalankan.</p>'; return; }
+    let h = '<div class="frame"><div class="frame-h"><span>Variabel</span></div>';
+    RR.rt.frames[0].vars.forEach((v, k) => { h += `<div class="vrow"><span class="vname">${esc(k)}<span class="vtype">${typeLabel(v)}</span></span><span class="vval">${valueHtml(v)}</span></div>`; });
+    rkEl.vars.innerHTML = h + '</div>';
+  }
+  function rkTick() {
+    if (RR.mode !== 'running') return;
+    const ms = +$('#rk-speed').value;
+    const res = rkPump(ms !== 0);
+    if (res === 'step') { rkShowLine(); rkVars(); RR.timer = setTimeout(rkTick, ms); }
+  }
+  $('#rk-run').addEventListener('click', () => {
+    if (RR.mode === 'running') return;
+    if (RR.mode === 'input') { rkEl.askInput.focus(); return; }
+    if (RR.mode !== 'paused' && RR.mode !== 'ready') { if (!rkPrepare()) return; }
+    RR.mode = 'running'; $('#rk-run').lastChild.textContent = 'Jalankan'; rkTick();
+  });
+  $('#rk-step').addEventListener('click', () => {
+    if (RR.mode === 'input') { rkEl.askInput.focus(); return; }
+    if (RR.mode === 'running') { clearTimeout(RR.timer); RR.mode = 'paused'; $('#rk-run').lastChild.textContent = 'Lanjutkan'; return; }
+    if (RR.mode !== 'paused' && RR.mode !== 'ready') { if (!rkPrepare()) return; }
+    RR.mode = 'paused'; $('#rk-run').lastChild.textContent = 'Lanjutkan';
+    if (rkPump(true) === 'step') { rkShowLine(); rkVars(); }
+  });
+  $('#rk-reset').addEventListener('click', () => rkResetRun(false));
+  rkEl.ask.addEventListener('submit', e => {
+    e.preventDefault(); if (RR.mode !== 'input') return;
+    const v = rkEl.askInput.value; if (!v.trim()) return;
+    rkEl.ask.hidden = true; RR.send = v; RR.mode = RR.resume === 'running' ? 'running' : 'paused';
+    if (RR.mode === 'running') rkTick(); else if (rkPump(true) === 'step') { rkShowLine(); rkVars(); }
+  });
+  function rkSetSub(n) {
+    RK.sub = n;
+    $$('[data-rk]').forEach(b => b.setAttribute('aria-selected', String(b.dataset.rk === n)));
+    ['run', 'code', 'py'].forEach(k => { $('#rk-p-' + k).hidden = k !== n; });
+  }
+  $$('[data-rk]').forEach(b => b.addEventListener('click', () => rkSetSub(b.dataset.rk)));
+  $('#rk-copy-code').addEventListener('click', () => copyText(RK.pseudo, 'Pseudocode disalin.'));
+  $('#rk-copy-py').addEventListener('click', () => copyText(rkEl.py.dataset.src || '', 'Kode Python disalin.'));
+  $('#rk-to-lab').addEventListener('click', () => {
+    if (S.mission) exitMission(true);
+    const prevCode = el.code.value, prevIn = el.inputs.value;
+    el.inputs.value = rkEl.inputs.value; setCode(RK.pseudo); saveCode(); setView('lab');
+    toast('Pseudocode dari flowchart dimuat ke Lab.', 'Batalkan', () => { el.inputs.value = prevIn; setCode(prevCode); saveCode(); });
+  });
+  $('#rk-undo').addEventListener('click', rkUndo);
+  $('#rk-clear').addEventListener('click', () => { if (!RK.prog.length) return; rkSnap(); RK.prog = []; RK.sel = null; rkRender(); toast('Flowchart dikosongkan.', 'Urungkan', rkUndo); });
+  document.addEventListener('keydown', e => {
+    if (S.view !== 'rakit' || !(e.ctrlKey || e.metaKey) || e.key.toLowerCase() !== 'z' || /INPUT|TEXTAREA|SELECT/.test(e.target.tagName)) return;
+    e.preventDefault(); rkUndo();
+  });
+  function rkApplyZoom() {
+    $$('.chart [data-w]', rkEl.canvas).forEach(d => { const svg = d.firstElementChild; if (svg) svg.style.width = Math.round(+d.dataset.w * RK.zoom) + 'px'; });
+    $('#rk-z-val').textContent = Math.round(RK.zoom * 100) + '%';
+  }
+  $('#rk-z-in').addEventListener('click', () => { RK.zoom = Math.min(2, +(RK.zoom + 0.1).toFixed(2)); store.set('rk.zoom', RK.zoom); rkApplyZoom(); });
+  $('#rk-z-out').addEventListener('click', () => { RK.zoom = Math.max(0.4, +(RK.zoom - 0.1).toFixed(2)); store.set('rk.zoom', RK.zoom); rkApplyZoom(); });
+  $('#rk-z-fit').addEventListener('click', () => {
+    const ws = $$('.chart [data-w]', rkEl.canvas).map(d => +d.dataset.w); if (!ws.length) return;
+    RK.zoom = Math.max(0.4, Math.min(1.4, +((rkEl.canvas.clientWidth - 30) / Math.max(...ws)).toFixed(2))); store.set('rk.zoom', RK.zoom); rkApplyZoom();
+  });
+
+  /* tantangan (misi yang bisa diselesaikan dengan flowchart) dan contoh */
+  function rkFillSelects() {
+    const ms = rkMissions();
+    rkEl.task.innerHTML = '<option value="bebas">Bebas (tanpa misi)</option>' + ms.map(m => `<option value="${m.id}">M${Data.MISSIONS.indexOf(m) + 1} · ${esc(m.title)}</option>`).join('');
+    if (RK.key !== 'bebas' && !ms.some(m => m.id === RK.key)) RK.key = 'bebas';
+    rkEl.task.value = RK.key;
+    let h = '<option value="">Pilih…</option><option value="__lab">Ambil dari kode di tab Lab</option>';
+    Data.EXAMPLES.forEach(ex => { try { rkImport(ex.code); h += `<option value="${ex.id}">${esc(ex.title)}</option>`; } catch (e) { /* contoh memakai FUNGSI, lewati */ } });
+    rkEl.example.innerHTML = h;
+  }
+  rkEl.task.addEventListener('change', () => { RK.key = rkEl.task.value; store.set('rk.key', RK.key); rkLoad(); rkTaskBox(); rkRender(); });
+  rkEl.example.addEventListener('change', () => {
+    const v = rkEl.example.value; rkEl.example.value = '';
+    if (!v) return;
+    let src, inputs = '';
+    if (v === '__lab') { src = el.code.value; inputs = el.inputs.value; }
+    else { const ex = Data.EXAMPLES.find(e => e.id === v); src = ex.code; inputs = ex.inputs; }
+    let blocks;
+    try { blocks = rkImport(src); }
+    catch (e) { toast(e instanceof Core.LabError ? `Kode di tab Lab belum bisa dibaca (baris ${e.line}).` : `Belum bisa dirakit di sini karena memakai ${e.message}.`); return; }
+    rkSnap(); RK.prog = rkWithIds(blocks); RK.sel = null; rkEl.inputs.value = inputs; rkRender();
+    toast('Contoh dimuat ke flowchart.', 'Urungkan', rkUndo);
+  });
+  function rkTaskBox() {
+    const m = Data.MISSIONS.find(x => x.id === RK.key), box = rkEl.taskbox;
+    if (!m) { box.hidden = true; box.innerHTML = ''; return; }
+    const idx = Data.MISSIONS.indexOf(m) + 1, isDone = (done()[m.id] || {}).state === 'done';
+    box.hidden = false;
+    box.innerHTML = `<div class="rk-task-main"><div class="md-tag">M${idx} · ${esc(m.lkpd)} · ${esc(m.tp)}${isDone ? ' · Lulus' : ''}</div><p><strong>${esc(m.title)}.</strong> ${esc(m.task)}</p><details class="hintbox"><summary>Lihat petunjuk</summary><p>${esc(m.hint)}</p></details></div><div class="rk-task-act"><button class="btn btn-primary" id="rk-test" type="button">Uji otomatis</button></div><div class="ms-results" id="rk-results" hidden></div>`;
+    $('#rk-test', box).addEventListener('click', () => rkTest(m));
+  }
+  function rkTest(m) {
+    rkCompile();
+    const box = $('#rk-results'); box.hidden = false;
+    if (!RK.parsed) { box.innerHTML = `<div class="ms-summary no">Flowchart belum lengkap: ${esc(RK.err.message)}</div>`; return; }
+    const r = Check.checkMission(m, RK.pseudo);
+    const nOk = r.tests.filter(t => t.ok).length, rOk = r.reqs.filter(t => t.ok).length;
+    let h = `<div class="ms-summary ${r.passed ? 'ok' : 'no'}">${r.passed ? `Lulus! Semua syarat terpenuhi dan ${r.tests.length} data uji benar.` : `Belum lulus: syarat ${rOk}/${r.reqs.length}, data uji ${nOk}/${r.tests.length}.`}</div>`;
+    h += `<div><p class="col-title">Syarat</p><ul class="checklist">${r.reqs.map(x => `<li class="${x.ok ? 'ok' : 'no'}"><span class="mk">${x.ok ? '✓' : '✗'}</span><span>${esc(x.label)}</span></li>`).join('')}</ul></div>`;
+    h += `<div><p class="col-title">Data uji</p><ul class="checklist">${r.tests.map(x => `<li class="${x.ok ? 'ok' : 'no'}"><span class="mk">${x.ok ? '✓' : '✗'}</span><span>${esc(x.label)}${x.detail ? `<span class="det">${esc(x.detail)}</span>` : ''}</span></li>`).join('')}</ul></div>`;
+    if (r.passed) h += `<div style="grid-column:1/-1"><button class="btn" type="button" id="rk-proof">Salin bukti pengerjaan</button></div>`;
+    box.innerHTML = h;
+    if (r.passed) {
+      S.missionResults[m.id] = r; store.set('code.' + m.id, RK.pseudo); setMissionState(m.id, 'done');
+      $('#rk-proof', box).addEventListener('click', () => copyProof(m));
+      toast('Misi lulus lewat flowchart!');
+    }
+  }
+  function renderRakit() {
+    if (!RK.ready) { rkFillSelects(); rkLoad(); RK.ready = true; }
+    rkTaskBox(); rkRender();
+  }
 
   /* ═════════════ misc ═════════════ */
   let toastTimer = null;
