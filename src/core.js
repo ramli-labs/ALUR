@@ -947,7 +947,7 @@
     const max = Math.max(4, Math.floor((w - pad) / CW));
     return text.length > max ? text.slice(0, max - 1) + '…' : text;
   }
-  function shape(type, x, y, w, h, text, line) {
+  function shapeInner(type, x, y, w, h, text) {
     let s = '';
     const r = n => Math.round(n * 10) / 10;
     if (type === 'term' || type === 'ret') s = `<rect x="${r(x)}" y="${r(y)}" width="${w}" height="${h}" rx="${h / 2}" class="fc-shape fc-${type}"/>`;
@@ -956,7 +956,17 @@
     else if (type === 'dec') s = `<polygon points="${r(x + w / 2)},${r(y)} ${r(x + w)},${r(y + h / 2)} ${r(x + w / 2)},${r(y + h)} ${r(x)},${r(y + h / 2)}" class="fc-shape fc-dec"/>`;
     else if (type === 'sub') s = `<rect x="${r(x)}" y="${r(y)}" width="${w}" height="${h}" rx="2" class="fc-shape fc-sub"/><line x1="${r(x + 9)}" y1="${r(y)}" x2="${r(x + 9)}" y2="${r(y + h)}" class="fc-subline"/><line x1="${r(x + w - 9)}" y1="${r(y)}" x2="${r(x + w - 9)}" y2="${r(y + h)}" class="fc-subline"/>`;
     const t = fitText(text, w, type);
-    return `<g class="fc-node" data-line="${line}"><title>${esc(text)}</title>${s}<text x="${r(x + w / 2)}" y="${r(y + h / 2 + 4)}" text-anchor="middle" class="fc-text fc-text-${type}">${esc(t)}</text></g>`;
+    return s + `<text x="${r(x + w / 2)}" y="${r(y + h / 2 + 4)}" text-anchor="middle" class="fc-text fc-text-${type}">${esc(t)}</text>`;
+  }
+  /* SINK: bila aktif, simbol tidak digambar melainkan dicatat sebagai "kotak kosong" untuk mode Susun Flowchart */
+  let SINK = null;
+  function shape(type, x, y, w, h, text, line) {
+    if (SINK) {
+      const id = SINK.length;
+      SINK.push({ id, type, text, line, x: Math.round(x * 10) / 10, y: Math.round(y * 10) / 10, w, h });
+      return `<g class="fc-slot" data-slot="${id}"></g>`;
+    }
+    return `<g class="fc-node" data-line="${line}"><title>${esc(text)}</title>${shapeInner(type, x, y, w, h, text)}</g>`;
   }
   function path(out, pts, arrow, cls) {
     const d = pts.map((p, i) => (i ? 'L' : 'M') + Math.round(p[0] * 10) / 10 + ',' + Math.round(p[1] * 10) / 10).join(' ');
@@ -1087,6 +1097,21 @@
     const body = out.join('').replace(/url\(#AH\)/g, `url(#${id})`);
     return { w: W, h: H, svg: `<svg xmlns="http://www.w3.org/2000/svg" class="fc-svg" viewBox="0 0 ${W} ${H}" width="${W}" height="${H}" role="img"><defs><marker id="${id}" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,1 L9,5 L0,9 z" class="fc-ah"/></marker></defs>${body}</svg>` };
   }
+  /* Kerangka flowchart untuk mode Susun: posisi simbol dicatat, isinya dikosongkan */
+  function flowPuzzle(prog) {
+    SINK = [];
+    let charts, slots;
+    try {
+      charts = flowcharts(prog);
+      slots = SINK;
+    } finally { SINK = null; }
+    charts.forEach((c, i) => {
+      const ids = (c.svg.match(/data-slot="\d+"/g) || []).map(m => +m.replace(/\D/g, ''));
+      c.slots = ids;
+      ids.forEach(id => { slots[id].chart = i; });
+    });
+    return { charts, slots };
+  }
   function flowcharts(prog) {
     const charts = [];
     if (!prog.main.empty) {
@@ -1134,6 +1159,6 @@
     }).join('\n');
   }
 
-  const API = { lex, parse, createRun, runHeadless, callHeadless, toPython, flowcharts, highlight, pp, stmtText, fmt, fmtNum, coerceInput, deepEq, stats, walk, LabError, NONE, KEYWORDS, BUILTINS };
+  const API = { lex, parse, createRun, runHeadless, callHeadless, toPython, flowcharts, flowPuzzle, shapeInner, fitText, highlight, pp, stmtText, fmt, fmtNum, coerceInput, deepEq, stats, walk, LabError, NONE, KEYWORDS, BUILTINS };
   if (typeof module !== 'undefined' && module.exports) module.exports = API; else root.LabCore = API;
 })(typeof window !== 'undefined' ? window : globalThis);

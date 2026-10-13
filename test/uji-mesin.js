@@ -2,7 +2,7 @@
 const assert = require('assert');
 global.LabCore = require('../src/core.js');
 const Core = global.LabCore;
-const { EXAMPLES, MISSIONS } = require('../src/data.js');
+const { EXAMPLES, MISSIONS, PUZZLES } = require('../src/data.js');
 const { checkMission } = require('../src/check.js');
 let ok = 0;
 const t = (name, fn) => { try { fn(); ok++; console.log('  ✓', name); } catch (e) { console.log('  ✗', name, '\n    ', e.message); process.exitCode = 1; } };
@@ -31,5 +31,18 @@ t('konversi Python: range dan indeks', () => { const py = Core.toPython(Core.par
 
 console.log('Misi LKPD (kerangka awal harus belum lulus)');
 MISSIONS.filter(m => !m.kind).forEach(m => t(`${m.id} ${m.title}`, () => assert.strictEqual(checkMission(m, m.starter).passed, false)));
+
+console.log('Susun flowchart');
+PUZZLES.forEach(p => t(`${p.id} ${p.title}: kerangka utuh, pengecoh tidak bentrok, program berjalan`, () => {
+  const prog = Core.parse(p.code);
+  const fp = Core.flowPuzzle(prog);
+  assert.ok(fp.slots.length >= 6, 'kotak terlalu sedikit');
+  fp.charts.forEach(c => assert.ok(!/fc-node/.test(c.svg), 'ada simbol yang tidak dikosongkan'));
+  const texts = new Set(fp.slots.map(s => s.text));
+  p.decoys.forEach(([d]) => assert.ok(!texts.has(d), 'pengecoh sama dengan jawaban: ' + d));
+  const r = Core.runHeadless(prog, p.inputs ? p.inputs.split(',').map(x => x.trim()) : []);
+  assert.ok(r.ok, r.error && r.error.message);
+}));
+t('flowchart biasa tetap utuh setelah mode Susun dipakai', () => assert.ok(/fc-node/.test(Core.flowcharts(Core.parse(PUZZLES[0].code))[0].svg)));
 
 console.log(`\n${ok} uji lulus.`);

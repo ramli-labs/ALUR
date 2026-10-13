@@ -16,6 +16,7 @@ Bebas dipakai guru dan sekolah mana pun. Dirancang untuk kelas dengan internet t
 - **Mode langkah.** Baris yang sedang dijalankan disorot di editor dan di flowchart. Panel variabel memisahkan variabel program utama dan variabel lokal fungsi, sehingga konsep *scope* terlihat.
 - **Tabel jejak otomatis.** Setiap perubahan variabel, hasil kondisi (BENAR/SALAH), INPUT, dan OUTPUT tercatat seperti tabel jejak di LKPD.
 - **Flowchart otomatis** dengan simbol standar: terminal, proses, input/output, keputusan, subprogram, dan panah kembali untuk pengulangan.
+- **Mode Susun Flowchart.** Murid menyusun sendiri flowchart dari kartu langkah ke kerangka kosong, memilih simbolnya, lalu memeriksanya. Ada 8 soal bertahap, kartu pengecoh, dan tiga tingkat kesulitan.
 - **Konversi ke Python** yang menyesuaikan indeks (`data[1]` → `data[0]`), `range(1, n + 1)`, `elif`, `f-string`, `len`, `append`, dan `math.sqrt`.
 - **Pesan galat yang mendidik**, misalnya kata kunci yang ditulis huruf kecil, `=` yang dipakai untuk menyimpan nilai, blok yang belum ditutup, variabel yang belum diberi nilai awal, indeks 0, dan pengulangan tanpa akhir.
 - **12 misi LKPD dengan uji otomatis.** Program murid dijalankan dengan beberapa data uji dan diperiksa hasilnya. Misi yang lulus menghasilkan teks *bukti pengerjaan* yang bisa ditempel di Google Classroom.
@@ -41,6 +42,33 @@ Misi disusun bertahap. Label LKPD dan kode TP (BK.9.7–BK.9.12) mengikuti modul
 | M12 | Proyek sistem kelompok (5 skenario) | LKPD 3 | Rancang sistem |
 
 ![Daftar misi LKPD dan rincian tugas](docs/tampilan-misi.png)
+
+## Susun flowchart
+
+Tab **Susun** melatih murid merancang flowchart sendiri, bukan hanya melihat hasil otomatis. Lab menampilkan kerangka flowchart (panah, cabang Ya/Tidak, dan putaran pengulangan) dengan kotak-kotak kosong bernomor. Murid menempatkan kartu langkah ke kotak yang tepat, lalu menekan **Periksa**.
+
+| Tingkat | Yang dikerjakan murid |
+|---------|-----------------------|
+| Mudah | Simbol sudah tersedia, murid cukup menempatkan kartu. Pseudocode terlihat. |
+| Sedang | Kotak kosong, murid menempatkan kartu **dan** memilih simbolnya (terminal, proses, input/output, keputusan, subprogram). |
+| Sulit | Seperti Sedang, tetapi pseudocode disembunyikan. Murid merancang dari soal cerita. |
+
+Setiap soal punya kartu pengecoh, misalnya `i < 5?` di samping `i ≤ 5?`. Bila salah, lab menyebut nomor kotaknya dan alasannya. Setelah dua kali periksa, tombol *Tunjukkan jawaban* muncul. Soal yang selesai menghasilkan bukti pengerjaan, dan flowchart-nya bisa langsung dijalankan langkah demi langkah di tab Lab.
+
+| No | Soal | Keterampilan |
+|----|------|--------------|
+| F1 | Luas persegi panjang | Sekuensial |
+| F2 | Genap atau ganjil | Seleksi |
+| F3 | Login sederhana | Seleksi + logika DAN |
+| F4 | Total belanja 5 item | Pengulangan UNTUK |
+| F5 | Validasi nilai 0–100 | Pengulangan SELAMA |
+| F6 | Faktorial n | Pengulangan SELAMA |
+| F7 | FizzBuzz 1–15 | Seleksi bertingkat |
+| F8 | Predikat dengan fungsi | Subprogram |
+
+Pilihan **Dari kode di Lab** membuat soal susun dari pseudocode yang sedang terbuka di tab Lab, sehingga guru bisa membuat soal baru sendiri.
+
+![Mode Susun Flowchart: kerangka flowchart dengan kotak bernomor, kartu langkah, dan pilihan simbol](docs/tampilan-susun.png)
 
 ## Contoh pseudocode yang dikenali
 
@@ -70,8 +98,9 @@ Tiga aturan penting: kata kunci ditulis **KAPITAL**, nilai disimpan dengan **←
 1. Bagikan alamat lab ke murid. Minta mereka membukanya sekali saat ada internet agar tersimpan untuk dipakai offline.
 2. Pertemuan 1–3: pakai contoh bawaan (rata-rata, faktorial, predikat) dengan tombol **Langkah** untuk menelusuri baris demi baris, lalu kerjakan M1–M7.
 3. Pertemuan 4–6: kerjakan M8–M11, buka tab **Flowchart** dan **Python** untuk menjembatani ke implementasi.
-4. LKPD 3: setiap kelompok memilih skenario di M12, menulis subprogram masing-masing, lalu memakai tabel jejak dan flowchart saat mini-demo.
-5. Murid mengisi nama dan kelas di tab *Misi*, lalu menempelkan *bukti pengerjaan* ke tugas Google Classroom.
+4. Pertemuan 5 (flowchart): murid mengerjakan soal di tab **Susun**, mulai dari tingkat Mudah lalu naik ke Sedang dan Sulit.
+5. LKPD 3: setiap kelompok memilih skenario di M12, menulis subprogram masing-masing, lalu memakai tabel jejak dan flowchart saat mini-demo.
+6. Murid mengisi nama dan kelas di tab *Misi*, lalu menempelkan *bukti pengerjaan* ke tugas Google Classroom.
 
 Progres dan kode murid disimpan di peramban masing-masing (localStorage), tidak di server.
 
@@ -101,8 +130,8 @@ manifest.webmanifest   data PWA
 fonts/                 IBM Plex Sans, JetBrains Mono, Newsreader (lisensi SIL OFL)
 docs/                  tangkapan layar untuk README
 src/
-  core.js              lexer, parser, interpreter langkah demi langkah, flowchart SVG, konversi Python
-  data.js              contoh dari modul dan definisi 12 misi
+  core.js              lexer, parser, interpreter langkah demi langkah, flowchart SVG (dan kerangka kosongnya), konversi Python
+  data.js              contoh dari modul, 12 misi, dan 8 soal susun flowchart
   check.js             pemeriksa misi (uji otomatis)
   app.js               antarmuka
   style.css, shell.html

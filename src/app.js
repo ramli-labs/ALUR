@@ -474,9 +474,10 @@
   function setView(v) {
     S.view = v;
     $$('.views button').forEach(b => b.setAttribute('aria-selected', String(b.dataset.view === v)));
-    ['lab', 'misi', 'notasi'].forEach(n => { $('#view-' + n).hidden = n !== v; });
+    ['lab', 'misi', 'susun', 'notasi'].forEach(n => { $('#view-' + n).hidden = n !== v; });
     store.set('view', v);
     if (v === 'misi') renderMissionList();
+    if (v === 'susun') renderSusun(false);
   }
   $$('.views button').forEach(b => b.addEventListener('click', () => setView(b.dataset.view)));
 
@@ -656,6 +657,319 @@
   ];
   $('#ref-body').innerHTML = REF.map(r => `<tr><td>${r[0]}</td><td><code class="ps">${esc(r[1])}</code></td><td><code class="pyc">${esc(r[2])}</code></td><td>${sym(r[3])}</td></tr>`).join('');
 
+  /* ═════════════ SUSUN FLOWCHART ═════════════ */
+  const SYM = {
+    term: { name: 'Terminal', why: 'Awal dan akhir (MULAI, SELESAI, kepala FUNGSI, KEMBALIKAN) memakai terminal (oval).' },
+    proc: { name: 'Proses', why: 'Penugasan dengan ← memakai simbol proses (persegi panjang).' },
+    io: { name: 'Input/Output', why: 'INPUT dan OUTPUT memakai jajar genjang.' },
+    dec: { name: 'Keputusan', why: 'Kondisi yang dijawab Ya/Tidak (bertanda ?) memakai belah ketupat.' },
+    sub: { name: 'Subprogram', why: 'Memanggil fungsi atau prosedur buatan sendiri memakai simbol subprogram (garis tepi ganda).' },
+  };
+  const SYM_ORDER = ['term', 'proc', 'io', 'dec', 'sub'];
+  const symOf = t => (t === 'ret' ? 'term' : t);
+  const LEVELS = [
+    { id: 'mudah', name: 'Mudah', desc: 'Simbol sudah tersedia. Tempatkan setiap kartu ke simbol yang tepat.' },
+    { id: 'sedang', name: 'Sedang', desc: 'Kotak masih kosong. Tempatkan kartu, lalu pilih simbolnya sendiri.' },
+    { id: 'sulit', name: 'Sulit', desc: 'Seperti Sedang, tetapi pseudocode disembunyikan. Rancang dari soal cerita.' },
+  ];
+  const P = { id: store.get('fc.sel', 'f1'), level: store.get('fc.level', 'mudah'), pz: null, place: {}, sym: {}, marks: {}, tries: 0, helped: false, solved: false, sel: null, zoom: store.get('fc.zoom', 1) };
+  const pzDone = () => store.get('fc.done', {});
+  const pzEl = { canvas: $('#pz-canvas'), soal: $('#pz-soal'), syms: $('#pz-syms'), hint: $('#pz-hint'), cards: $('#pz-cards'), actions: $('#pz-actions'), fb: $('#pz-feedback'), proof: $('#pz-proof') };
+
+  function seeded(str) {
+    let h = 2166136261;
+    for (let i = 0; i < str.length; i++) { h ^= str.charCodeAt(i); h = Math.imul(h, 16777619); }
+    return () => { h += 0x6D2B79F5; let t = h; t = Math.imul(t ^ (t >>> 15), t | 1); t ^= t + Math.imul(t ^ (t >>> 7), t | 61); return ((t ^ (t >>> 14)) >>> 0) / 4294967296; };
+  }
+  function autoDecoys(slots) {
+    const have = new Set(slots.map(s => s.text)), out = [];
+    const swaps = [[' ≤ ', ' < '], [' < ', ' ≤ '], [' ≥ ', ' > '], [' > ', ' ≥ '], [' ≠ ', ' = '], [' = ', ' ≠ ']];
+    for (const s of slots) {
+      if (out.length >= 2) break;
+      if (s.type !== 'dec') continue;
+      const sw = swaps.find(([a]) => s.text.includes(a));
+      if (sw) { const t = s.text.replace(sw[0], sw[1]); if (!have.has(t)) { out.push([t, 'Perhatikan operator pembandingnya.']); have.add(t); } }
+    }
+    if (!out.length) {
+      const s = slots.find(x => x.type === 'proc' && / [+×] /.test(x.text));
+      if (s) { const t = s.text.includes(' + ') ? s.text.replace(' + ', ' - ') : s.text.replace(' × ', ' + '); if (!have.has(t)) out.push([t, 'Perhatikan operator hitungnya.']); }
+    }
+    return out;
+  }
+  function pzStateKey() { return 'fc.st.' + P.id + '.' + P.level; }
+  function pzSave() { if (P.pz && !P.pz.custom) store.set(pzStateKey(), { place: P.place, sym: P.sym, tries: P.tries, n: P.pz.slots.length }); }
+  function buildPuzzle() {
+    const custom = P.id === 'lab';
+    const def = custom ? null : (Data.PUZZLES.find(x => x.id === P.id) || Data.PUZZLES[0]);
+    if (def) P.id = def.id;
+    const code = custom ? el.code.value : def.code;
+    P.place = {}; P.sym = {}; P.marks = {}; P.tries = 0; P.helped = false; P.solved = false; P.sel = null;
+    pzEl.fb.hidden = true; pzEl.proof.hidden = true;
+    let prog;
+    try { prog = Core.parse(code); } catch (e) { P.pz = { custom, error: `Kode di tab Lab belum bisa dibaca (baris ${e.line || '?'}: ${e.message}). Perbaiki dulu di tab Lab.` }; return; }
+    const fp = Core.flowPuzzle(prog);
+    if (!fp.slots.length) { P.pz = { custom, error: 'Kode di tab Lab belum berisi program di antara MULAI dan SELESAI.' }; return; }
+    const decoys = custom ? autoDecoys(fp.slots) : def.decoys;
+    const cards = fp.slots.map(s => ({ text: s.text })).concat(decoys.map(d => ({ text: d[0], decoy: true, why: d[1] })));
+    const rnd = seeded(custom ? code : def.id);
+    for (let i = cards.length - 1; i > 0; i--) { const j = Math.floor(rnd() * (i + 1)); [cards[i], cards[j]] = [cards[j], cards[i]]; }
+    P.pz = { custom, def, code, inputs: custom ? el.inputs.value : def.inputs, charts: fp.charts, slots: fp.slots, cards };
+    if (!custom) {
+      const st = store.get(pzStateKey(), null);
+      if (st && st.n === fp.slots.length) { P.place = st.place || {}; P.sym = st.sym || {}; P.tries = st.tries || 0; }
+    }
+  }
+  function renderSusun(rebuild) {
+    if (rebuild || !P.pz || P.id === 'lab') buildPuzzle();
+    renderLevels(); renderPicker(); renderSoal(); renderCanvas(); renderDock();
+  }
+  function renderLevels() {
+    $('#pz-levels').innerHTML = LEVELS.map(l => `<button type="button" role="radio" aria-checked="${l.id === P.level}" data-l="${l.id}">${l.name}</button>`).join('');
+    $('#pz-level-note').textContent = LEVELS.find(l => l.id === P.level).desc;
+    $$('#pz-levels button').forEach(b => b.addEventListener('click', () => { P.level = b.dataset.l; store.set('fc.level', P.level); renderSusun(true); }));
+  }
+  function renderPicker() {
+    const d = pzDone();
+    let h = Data.PUZZLES.map((p, i) => {
+      const st = d[p.id];
+      const badge = st ? LEVELS.find(l => l.id === st.level).name : '';
+      return `<button type="button" class="pz-chip${st ? ' done' : ''}" data-id="${p.id}" aria-pressed="${p.id === P.id}" title="${esc(p.skill)}"><span class="n">${st ? '✓ ' : ''}F${i + 1}</span>${esc(p.title)}${badge ? `<span class="lv">${badge}</span>` : ''}</button>`;
+    }).join('');
+    h += `<button type="button" class="pz-chip pz-chip-lab" data-id="lab" aria-pressed="${P.id === 'lab'}" title="Membuat soal dari kode yang terbuka di tab Lab"><span class="n">+</span>Dari kode di Lab</button>`;
+    const box = $('#pz-picker'); box.innerHTML = h;
+    const cur = $('.pz-chip[aria-pressed="true"]', box);
+    if (cur && box.scrollWidth > box.clientWidth) box.scrollLeft = cur.offsetLeft - 16;
+    $$('.pz-chip', box).forEach(b => b.addEventListener('click', () => { P.id = b.dataset.id; if (P.id !== 'lab') store.set('fc.sel', P.id); renderSusun(true); }));
+    updateSusunCount();
+  }
+  function updateSusunCount() {
+    const d = pzDone(); const n = Data.PUZZLES.filter(p => d[p.id]).length;
+    $('#susun-count').textContent = `${n}/${Data.PUZZLES.length}`;
+  }
+  function renderSoal() {
+    const pz = P.pz;
+    if (pz.error) { pzEl.soal.innerHTML = `<div class="md-tag">Dari kode di Lab</div><h3>Belum bisa dibuat</h3><p>${esc(pz.error)}</p>`; return; }
+    const idx = pz.custom ? 0 : Data.PUZZLES.indexOf(pz.def) + 1;
+    const tag = pz.custom ? 'Dari kode di Lab' : `F${idx} · ${pz.def.skill} · ${pz.def.ref}`;
+    const title = pz.custom ? 'Flowchart dari kodemu' : pz.def.title;
+    const story = pz.custom ? 'Kerangka ini dibuat dari pseudocode yang sedang terbuka di tab Lab. Susun kembali flowchart-nya.' : pz.def.story;
+    let h = `<div class="md-tag">${esc(tag)}</div><h3>${esc(title)}</h3><p>${esc(story)}</p>`;
+    if (P.level === 'sulit' && !P.solved) h += `<p class="hint">Pseudocode disembunyikan di tingkat Sulit. Pikirkan urutan langkahnya dari soal cerita.</p>`;
+    else h += `<details class="pz-code"${P.level === 'mudah' ? ' open' : ''}><summary>Pseudocode</summary><pre class="mini-code">${Core.highlight(pz.code, 'pseudo')}</pre></details>`;
+    pzEl.soal.innerHTML = h;
+  }
+  function renderCanvas() {
+    const pz = P.pz;
+    if (pz.error) { pzEl.canvas.innerHTML = '<p class="empty">Kerangka flowchart akan muncul di sini.</p>'; return; }
+    pzEl.canvas.innerHTML = pz.charts.map((c, i) => `<figure class="chart" style="margin:0"><h3>${pz.charts.length > 1 ? (c.kind === 'main' ? 'Program utama' : 'Subprogram ' + i) : 'Flowchart'}</h3><div data-w="${c.w}">${c.svg}</div></figure>`).join('');
+    $$('.fc-slot', pzEl.canvas).forEach(g => { g.setAttribute('tabindex', '0'); g.setAttribute('role', 'button'); });
+    pzApplyZoom();
+    paintSlots();
+  }
+  function slotSym(s) { return P.level === 'mudah' ? s.type : (P.sym[s.id] || null); }
+  function paintSlots() {
+    const pz = P.pz; if (!pz || pz.error) return;
+    pz.slots.forEach(s => {
+      const g = $(`.fc-slot[data-slot="${s.id}"]`, pzEl.canvas); if (!g) return;
+      const ci = P.place[s.id], card = ci != null ? pz.cards[ci] : null, sym = slotSym(s);
+      const text = card ? card.text : '';
+      let inner;
+      if (sym) inner = Core.shapeInner(sym, s.x, s.y, s.w, s.h, text);
+      else inner = `<rect x="${s.x}" y="${s.y}" width="${s.w}" height="${s.h}" rx="6" class="pz-ph"/>` + (text ? `<text x="${s.x + s.w / 2}" y="${s.y + s.h / 2 + 4}" text-anchor="middle" class="fc-text">${esc(Core.fitText(text, s.w, 'proc'))}</text>` : `<text x="${s.x + s.w / 2}" y="${s.y + s.h / 2 + 4}" text-anchor="middle" class="pz-q">?</text>`);
+      const n = s.id + 1;
+      inner += `<g class="pz-num" aria-hidden="true"><circle cx="${s.x + 1}" cy="${s.y + 1}" r="8.5"/><text x="${s.x + 1}" y="${s.y + 4.5}" text-anchor="middle">${n}</text></g>`;
+      g.innerHTML = (text ? `<title>${esc(text)}</title>` : '') + inner;
+      g.classList.toggle('pz-empty', !card);
+      g.classList.toggle('is-sel', !!(P.sel && P.sel.slot === s.id));
+      g.classList.toggle('is-ok', P.marks[s.id] === 'ok');
+      g.classList.toggle('is-no', P.marks[s.id] === 'no');
+      g.setAttribute('aria-label', `Kotak ${n}` + (card ? `: ${card.text}` : ', kosong') + (P.level !== 'mudah' ? (sym ? `, simbol ${SYM[symOf(sym)].name}` : ', simbol belum dipilih') : ''));
+    });
+  }
+  function renderDock() {
+    const pz = P.pz;
+    if (pz.error) { pzEl.syms.innerHTML = ''; pzEl.cards.innerHTML = ''; pzEl.hint.textContent = ''; pzEl.actions.innerHTML = ''; return; }
+    // simbol
+    const selSlot = P.sel && P.sel.slot != null ? pz.slots[P.sel.slot] : null;
+    if (P.level === 'mudah') { pzEl.syms.hidden = true; }
+    else {
+      pzEl.syms.hidden = false;
+      const cur = selSlot ? P.sym[selSlot.id] : null;
+      pzEl.syms.innerHTML = SYM_ORDER.map(k => `<button type="button" class="pz-sym" data-sym="${k}" aria-pressed="${cur ? symOf(cur) === k : false}"${selSlot && !P.solved ? '' : ' disabled'}>${sym(k)}<span>${k === 'io' ? 'Input / Output' : SYM[k].name}</span></button>`).join('');
+      $$('.pz-sym', pzEl.syms).forEach(b => b.addEventListener('click', () => setSym(b.dataset.sym)));
+    }
+    // petunjuk
+    const filled = Object.keys(P.place).length;
+    let hint;
+    if (P.solved) hint = P.helped ? 'Jawaban ditunjukkan. Tekan Ulangi untuk mencoba sendiri.' : 'Semua kotak benar. Flowchart selesai disusun.';
+    else if (P.sel && P.sel.card != null) hint = `Ketuk kotak di flowchart untuk menempatkan “${pz.cards[P.sel.card].text}”.`;
+    else if (selSlot) {
+      const n = selSlot.id + 1;
+      if (P.level !== 'mudah' && P.place[selSlot.id] != null && !P.sym[selSlot.id]) hint = `Pilih simbol untuk kotak ${n}.`;
+      else if (P.place[selSlot.id] != null) hint = `Kotak ${n} terisi. Ketuk kartu lain untuk menggantinya${P.level !== 'mudah' ? ', atau ganti simbolnya' : ''}.`;
+      else hint = `Ketuk kartu untuk mengisi kotak ${n}${P.level !== 'mudah' ? ', lalu pilih simbolnya' : ''}.`;
+    } else hint = 'Ketuk sebuah kartu, lalu ketuk kotak tujuannya di flowchart. Di laptop, kartu juga bisa diseret.';
+    pzEl.hint.innerHTML = `<b>${filled}/${pz.slots.length} terisi.</b> ${esc(hint)}`;
+    // kartu
+    const used = new Set(Object.values(P.place));
+    const left = pz.cards.map((c, i) => ({ c, i })).filter(x => !used.has(x.i));
+    pzEl.cards.innerHTML = left.length ? left.map(({ c, i }) => `<button type="button" class="pz-card" data-c="${i}" draggable="${!P.solved}" aria-pressed="${!!(P.sel && P.sel.card === i)}"${P.solved ? ' disabled' : ''}>${esc(c.text)}</button>`).join('') : '<p class="hint" style="margin:0">Semua kartu sudah dipakai. Kartu pengecoh bisa tetap tertinggal.</p>';
+    $$('.pz-card', pzEl.cards).forEach(b => {
+      b.addEventListener('click', () => onCard(+b.dataset.c));
+      b.addEventListener('dragstart', e => { try { e.dataTransfer.setData('text/plain', b.dataset.c); e.dataTransfer.effectAllowed = 'move'; } catch (er) { /* abaikan */ } P.sel = { card: +b.dataset.c }; });
+    });
+    // aksi
+    const canRemove = selSlot && P.place[selSlot.id] != null && !P.solved;
+    let a = '';
+    if (!P.solved) {
+      a += `<button class="btn btn-primary" id="pz-check" type="button">Periksa</button>`;
+      if (canRemove) a += `<button class="btn" id="pz-remove" type="button">Kembalikan kartu</button>`;
+      if (P.tries >= 2) a += `<button class="btn" id="pz-show" type="button">Tunjukkan jawaban</button>`;
+    } else {
+      if (!P.helped && !pz.custom) a += `<button class="btn btn-primary" id="pz-proof-btn" type="button">Salin bukti pengerjaan</button>`;
+      a += `<button class="btn" id="pz-lab" type="button">Jalankan di Lab</button>`;
+      const nx = !pz.custom && Data.PUZZLES[Data.PUZZLES.indexOf(pz.def) + 1];
+      if (nx) a += `<button class="btn" id="pz-next" type="button">Soal berikutnya</button>`;
+    }
+    a += `<button class="btn btn-quiet" id="pz-reset" type="button">Ulangi</button>`;
+    pzEl.actions.innerHTML = a;
+    const on = (id, f) => { const b = $('#' + id, pzEl.actions); if (b) b.addEventListener('click', f); };
+    on('pz-check', checkPuzzle); on('pz-remove', () => { delete P.place[P.sel.slot]; delete P.marks[P.sel.slot]; pzSave(); paintSlots(); renderDock(); });
+    on('pz-show', showAnswer); on('pz-proof-btn', copyPzProof); on('pz-lab', openPzInLab);
+    on('pz-next', () => { const nx = Data.PUZZLES[Data.PUZZLES.indexOf(P.pz.def) + 1]; P.id = nx.id; store.set('fc.sel', P.id); renderSusun(true); window.scrollTo({ top: $('#pz-picker').offsetTop - 10, behavior: 'smooth' }); });
+    on('pz-reset', () => { store.set(pzStateKey(), null); renderSusun(true); });
+  }
+  function nextOpenSlot(from) {
+    const sl = P.pz.slots, n = sl.length;
+    for (let k = 1; k <= n; k++) {
+      const s = sl[(from + k) % n];
+      if (P.place[s.id] == null || (P.level !== 'mudah' && !P.sym[s.id])) return s.id;
+    }
+    return null;
+  }
+  function putCard(slot, ci) {
+    for (const k of Object.keys(P.place)) if (P.place[k] === ci) { delete P.place[k]; delete P.marks[k]; }
+    P.place[slot] = ci; delete P.marks[slot];
+    if (P.level !== 'mudah' && !P.sym[slot]) P.sel = { slot };
+    else { const nx = nextOpenSlot(slot); P.sel = nx == null ? null : { slot: nx }; }
+    pzSave(); paintSlots(); renderDock();
+  }
+  function onCard(ci) {
+    if (P.solved) return;
+    if (P.sel && P.sel.slot != null) { putCard(P.sel.slot, ci); return; }
+    P.sel = P.sel && P.sel.card === ci ? null : { card: ci };
+    paintSlots(); renderDock();
+  }
+  function onSlot(id) {
+    if (P.solved) return;
+    if (P.sel && P.sel.card != null) { putCard(id, P.sel.card); return; }
+    P.sel = { slot: id };
+    paintSlots(); renderDock();
+  }
+  function setSym(k) {
+    if (!P.sel || P.sel.slot == null || P.solved) return;
+    const id = P.sel.slot;
+    P.sym[id] = k; delete P.marks[id];
+    if (P.place[id] != null) { const nx = nextOpenSlot(id); P.sel = nx == null ? null : { slot: nx }; }
+    pzSave(); paintSlots(); renderDock();
+  }
+  pzEl.canvas.addEventListener('click', e => { const g = e.target.closest && e.target.closest('.fc-slot'); if (g) onSlot(+g.dataset.slot); });
+  pzEl.canvas.addEventListener('keydown', e => {
+    const g = e.target.closest && e.target.closest('.fc-slot'); if (!g) return;
+    if (e.key === 'Escape') { P.sel = null; paintSlots(); renderDock(); return; }
+    if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); onSlot(+g.dataset.slot); setTimeout(() => { const ng = $(`.fc-slot[data-slot="${g.dataset.slot}"]`, pzEl.canvas); if (ng) ng.focus(); }, 0); }
+  });
+  pzEl.canvas.addEventListener('dragover', e => { if (e.target.closest && e.target.closest('.fc-slot')) e.preventDefault(); });
+  pzEl.canvas.addEventListener('drop', e => {
+    const g = e.target.closest && e.target.closest('.fc-slot'); if (!g || P.solved) return;
+    e.preventDefault();
+    let ci = NaN; try { ci = parseInt(e.dataTransfer.getData('text/plain'), 10); } catch (er) { /* abaikan */ }
+    if (isNaN(ci) && P.sel && P.sel.card != null) ci = P.sel.card;
+    if (!isNaN(ci)) putCard(+g.dataset.slot, ci);
+  });
+
+  function checkPuzzle() {
+    const pz = P.pz; P.tries++;
+    const items = [], empty = []; let ok = 0;
+    pz.slots.forEach(s => {
+      const n = s.id + 1, ci = P.place[s.id], card = ci != null ? pz.cards[ci] : null;
+      const want = symOf(s.type), got = P.level === 'mudah' ? want : (P.sym[s.id] ? symOf(P.sym[s.id]) : null);
+      const textOk = !!card && card.text === s.text, symOk = got === want;
+      if (textOk && symOk) { ok++; P.marks[s.id] = 'ok'; return; }
+      P.marks[s.id] = 'no';
+      if (!card && (P.level === 'mudah' || !got)) { empty.push(n); return; }
+      if (!card) items.push(`Kotak ${n} belum diberi kartu.`);
+      else if (card.decoy) items.push(`Kotak ${n}: “${card.text}” adalah kartu pengecoh. ${card.why}`);
+      else if (!textOk) items.push(`Kotak ${n}: “${card.text}” belum di tempat yang tepat. Telusuri lagi urutan langkahnya.`);
+      if (P.level !== 'mudah') {
+        if (!got) items.push(`Kotak ${n}: simbolnya belum dipilih.`);
+        else if (!symOk) items.push(`Kotak ${n}: simbol ${SYM[got].name} kurang tepat. ${SYM[want].why}`);
+      }
+    });
+    const total = pz.slots.length;
+    if (empty.length) items.unshift(empty.length === 1 ? `Kotak ${empty[0]} masih kosong.` : `Kotak ${empty.slice(0, -1).join(', ')} dan ${empty[empty.length - 1]} masih kosong.`);
+    P.sel = null;
+    if (ok === total) {
+      P.solved = true;
+      if (!pz.custom) {
+        const d = pzDone(), rank = l => LEVELS.findIndex(x => x.id === l);
+        const prev = d[P.id];
+        if (!prev || rank(P.level) >= rank(prev.level)) d[P.id] = { level: P.level, tries: P.tries, at: Date.now() };
+        store.set('fc.done', d);
+      }
+      pzEl.fb.hidden = false;
+      pzEl.fb.innerHTML = `<p class="result-line ok">Semua ${total} kotak benar${P.tries > 1 ? ` setelah ${P.tries} kali periksa` : ' pada percobaan pertama'}.</p>` + (pz.custom ? '' : `<p class="hint">${store.get('name', '') ? 'Salin bukti pengerjaan untuk dikumpulkan.' : 'Isi nama dan kelas di tab Misi agar tercantum di bukti pengerjaan.'}</p>`);
+      toast('Flowchart benar!');
+      renderPicker(); renderSoal();
+    } else {
+      pzEl.fb.hidden = false;
+      pzEl.fb.innerHTML = `<p class="result-line no">${ok} dari ${total} kotak benar.</p><ul class="checklist">${items.map(t => `<li class="no"><span class="mk">✗</span><span>${esc(t)}</span></li>`).join('')}</ul>`;
+    }
+    pzSave(); paintSlots(); renderDock();
+  }
+  function showAnswer() {
+    const pz = P.pz; const used = new Set();
+    P.place = {}; P.sym = {};
+    pz.slots.forEach(s => {
+      const ci = pz.cards.findIndex((c, i) => !used.has(i) && !c.decoy && c.text === s.text);
+      used.add(ci); P.place[s.id] = ci; P.sym[s.id] = s.type; P.marks[s.id] = 'ok';
+    });
+    P.helped = true; P.solved = true; P.sel = null;
+    pzEl.fb.hidden = false;
+    pzEl.fb.innerHTML = `<p class="result-line no">Jawaban ditunjukkan.</p><p class="hint">Bandingkan dengan susunanmu tadi, lalu tekan Ulangi untuk mencoba lagi tanpa bantuan.</p>`;
+    store.set(pzStateKey(), null);
+    renderSoal(); paintSlots(); renderDock();
+  }
+  function copyPzProof() {
+    const pz = P.pz, d = pzDone()[P.id] || {};
+    const idx = Data.PUZZLES.indexOf(pz.def) + 1;
+    const when = new Date(d.at || Date.now()).toLocaleString('id-ID', { dateStyle: 'long', timeStyle: 'short' });
+    const lv = LEVELS.find(l => l.id === P.level).name;
+    const txt = ['ALUR · Susun Flowchart · bukti pengerjaan', `Nama    : ${store.get('name', '') || '-'}`, `Kelas   : ${store.get('kelas', '') || '-'}`,
+      `Soal    : F${idx} ${pz.def.title} · ${pz.def.ref}`, `Tingkat : ${lv}`, `Hasil   : BENAR SEMUA · ${pz.slots.length} kotak · diperiksa ${P.tries} kali`, `Waktu   : ${when}`].join('\n');
+    copyText(txt, 'Bukti pengerjaan disalin. Tempelkan di tugas Google Classroom.', () => { pzEl.proof.hidden = false; pzEl.proof.value = txt; pzEl.proof.focus(); pzEl.proof.select(); });
+  }
+  function openPzInLab() {
+    const pz = P.pz;
+    if (pz.custom) { setView('lab'); setSub('flow'); return; }
+    if (S.mission) exitMission(true);
+    const prevCode = el.code.value, prevIn = el.inputs.value;
+    el.inputs.value = pz.inputs; setCode(pz.code); saveCode();
+    setView('lab'); setSub('flow');
+    toast(`Soal “${pz.def.title}” dimuat ke Lab. Tekan Langkah untuk menelusuri flowchart-nya.`, 'Batalkan', () => { el.inputs.value = prevIn; setCode(prevCode); saveCode(); });
+  }
+  function pzApplyZoom() {
+    $$('.chart [data-w]', pzEl.canvas).forEach(d => { const svg = d.firstElementChild; if (svg) svg.style.width = Math.round(+d.dataset.w * P.zoom) + 'px'; });
+    $('#pz-z-val').textContent = Math.round(P.zoom * 100) + '%';
+  }
+  $('#pz-z-in').addEventListener('click', () => { P.zoom = Math.min(2, +(P.zoom + 0.1).toFixed(2)); store.set('fc.zoom', P.zoom); pzApplyZoom(); });
+  $('#pz-z-out').addEventListener('click', () => { P.zoom = Math.max(0.4, +(P.zoom - 0.1).toFixed(2)); store.set('fc.zoom', P.zoom); pzApplyZoom(); });
+  $('#pz-z-fit').addEventListener('click', () => {
+    const ws = $$('.chart [data-w]', pzEl.canvas).map(d => +d.dataset.w); if (!ws.length) return;
+    P.zoom = Math.max(0.4, Math.min(1.4, +((pzEl.canvas.clientWidth - 30) / Math.max(...ws)).toFixed(2)));
+    store.set('fc.zoom', P.zoom); pzApplyZoom();
+  });
+
   /* ═════════════ misc ═════════════ */
   let toastTimer = null;
   function toast(msg, actLabel, act) {
@@ -695,6 +1009,7 @@
   compile();
   setSub(store.get('sub', 'vars'));
   updateCount();
+  updateSusunCount();
   setView('lab');
   if (S.prog) {
     // jalankan sekali secara instan agar panel langsung terisi

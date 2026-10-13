@@ -347,6 +347,79 @@ kbd { border: 1px solid var(--rule); border-bottom-width: 2px; border-radius: 4p
 .toast button { background: none; border: 0; color: var(--amber); font-weight: 600; cursor: pointer; text-decoration: underline; }
 
 /* responsive */
+/* ───────── Susun flowchart ───────── */
+#view-susun:not([hidden]) { display: flex; flex-direction: column; gap: 16px; }
+.lvl-box { display: flex; flex-direction: column; align-items: flex-end; gap: 6px; }
+.lvl { display: inline-flex; gap: 2px; background: var(--sheet); border: 1px solid var(--rule); border-radius: 999px; padding: 4px; box-shadow: var(--shadow); }
+.lvl button { border: 0; background: transparent; padding: 6px 16px; border-radius: 999px; cursor: pointer; font-weight: 500; color: var(--ink-2); }
+.lvl button[aria-checked="true"] { background: var(--ink); color: var(--sheet); }
+.lvl-note { margin: 0; font-size: 0.85rem; color: var(--ink-2); max-width: 40ch; text-align: right; }
+.pz-picker { display: flex; flex-wrap: wrap; gap: 8px; }
+.pz-chip { display: inline-flex; align-items: center; gap: 8px; border: 1px solid var(--rule); background: var(--sheet); color: var(--ink); border-radius: 999px; padding: 5px 12px 5px 5px; cursor: pointer; font-size: 0.88rem; }
+.pz-chip:hover { border-color: var(--ink-2); }
+.pz-chip .n { font: 600 0.72rem var(--font-code); background: var(--tint); color: var(--ink-2); border-radius: 999px; padding: 3px 8px; }
+.pz-chip .lv { font: 500 0.7rem var(--font-code); color: var(--teal-ink); }
+.pz-chip.done .n { background: var(--teal-soft); color: var(--teal-ink); }
+.pz-chip[aria-pressed="true"] { border-color: var(--verm); box-shadow: 0 0 0 1px var(--verm); }
+.pz-chip-lab { border-style: dashed; }
+.pz-grid { display: grid; grid-template-columns: minmax(0, 1fr) 360px; gap: 18px; align-items: start; }
+.pz-main { min-width: 0; background: var(--sheet); border: 1px solid var(--rule); border-radius: var(--r); box-shadow: var(--shadow); padding: 12px; display: flex; flex-direction: column; gap: 10px; }
+.pz-bar { display: flex; justify-content: space-between; align-items: center; gap: 10px; flex-wrap: wrap; }
+.pz-canvas { min-height: 360px; max-height: none; }
+.pz-feedback { border-top: 1px solid var(--rule); padding-top: 10px; display: flex; flex-direction: column; gap: 8px; }
+.pz-feedback p { margin: 0; }
+.pz-side { position: sticky; top: 12px; display: flex; flex-direction: column; gap: 14px; max-height: calc(100vh - 24px); overflow: auto; }
+.pz-soal, .pz-dock { background: var(--sheet); border: 1px solid var(--rule); border-radius: var(--r); box-shadow: var(--shadow); padding: 14px; display: flex; flex-direction: column; gap: 10px; }
+.pz-soal h3 { font: 600 1.3rem/1.2 var(--font-display); margin: 2px 0 0; }
+.pz-soal p { margin: 0; }
+.pz-code summary { cursor: pointer; font-weight: 500; color: var(--ink-2); font-size: 0.88rem; }
+.pz-code .mini-code { margin-top: 8px; font-size: 12.5px; }
+.pz-syms { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 6px; }
+.pz-syms[hidden] { display: none; }
+.pz-sym { display: flex; flex-direction: column; align-items: center; gap: 4px; padding: 7px 2px 6px; border: 1px solid var(--rule); border-radius: 8px; background: var(--sheet); color: var(--ink); font-size: 0.7rem; cursor: pointer; line-height: 1.15; text-align: center; }
+.pz-sym:hover:not(:disabled) { border-color: var(--ink-2); }
+.pz-sym[aria-pressed="true"] { border-color: var(--verm); background: var(--verm-soft); box-shadow: 0 0 0 1px var(--verm); }
+.pz-sym:disabled { opacity: 0.4; cursor: not-allowed; }
+.pz-hint { margin: 0; font-size: 0.86rem; color: var(--ink-2); }
+.pz-hint b { color: var(--ink); font-weight: 600; }
+.pz-cards { display: flex; flex-wrap: wrap; gap: 6px; }
+.pz-card { font: 12.5px/1.35 var(--font-code); text-align: left; border: 1px solid var(--rule); border-bottom-width: 2px; background: var(--tint); color: var(--ink); padding: 6px 9px; border-radius: 7px; cursor: grab; max-width: 100%; overflow-wrap: anywhere; }
+.pz-card:hover:not(:disabled) { border-color: var(--ink-2); }
+.pz-card[aria-pressed="true"] { border-color: var(--verm); background: var(--verm-soft); box-shadow: 0 0 0 1px var(--verm); }
+.pz-actions { display: flex; flex-wrap: wrap; gap: 8px; }
+.fc-slot { cursor: pointer; outline: none; }
+.pz-ph { fill: var(--tint); stroke: var(--ink-2); stroke-width: 1.3; stroke-dasharray: 5 4; }
+.pz-q { font: 600 14px var(--font-ui); fill: var(--ink-2); }
+.fc-slot.pz-empty .fc-shape { fill-opacity: 0.28; stroke-dasharray: 5 4; }
+.fc-slot:hover .fc-shape, .fc-slot:hover .pz-ph { stroke: var(--verm); }
+.fc-slot:focus-visible .fc-shape, .fc-slot:focus-visible .pz-ph { stroke: var(--focus); stroke-width: 3; }
+.fc-slot.is-ok .fc-shape { stroke: var(--teal); stroke-width: 2.6; }
+.fc-slot.is-no .fc-shape, .fc-slot.is-no .pz-ph { stroke: var(--verm); stroke-width: 2.6; stroke-dasharray: 6 3; }
+.fc-slot.is-sel .fc-shape, .fc-slot.is-sel .pz-ph { stroke: var(--verm); stroke-width: 3; stroke-dasharray: none; filter: drop-shadow(0 0 4px rgb(232 86 42 / 0.45)); }
+.pz-num circle { fill: var(--ink-2); }
+.pz-num text { font: 700 10px var(--font-ui); fill: var(--sheet); }
+.fc-slot.is-sel .pz-num circle, .fc-slot.is-no .pz-num circle { fill: var(--verm); }
+.fc-slot.is-ok .pz-num circle { fill: var(--teal-ink); }
+@media (max-width: 1080px) {
+  .pz-grid { display: flex; flex-direction: column; align-items: stretch; }
+  .pz-side { display: contents; }
+  .pz-soal { order: -1; }
+  .pz-dock { order: 1; position: sticky; bottom: 0; z-index: 6; max-height: 48vh; overflow: auto; box-shadow: 0 -8px 24px rgb(20 24 29 / 0.14); padding-bottom: calc(14px + env(safe-area-inset-bottom, 0px)); }
+  .lvl-box { align-items: flex-start; }
+  .lvl-note { text-align: left; }
+}
+@media (max-width: 720px) {
+  .pz-picker { flex-wrap: nowrap; overflow-x: auto; padding-bottom: 4px; margin-inline: -16px; padding-inline: 16px; }
+  .pz-chip { flex: none; }
+  .pz-canvas { min-height: 260px; }
+  .pz-syms span { font-size: 0.62rem; }
+  .pz-dock { max-height: 44vh; gap: 8px; padding: 10px 12px; }
+  .pz-sym { padding: 4px 2px; gap: 2px; }
+  .pz-sym svg { height: 16px; }
+  .pz-cards { max-height: 8.6rem; overflow: auto; }
+  .pz-card { padding: 5px 8px; font-size: 12px; }
+}
+
 @media (max-width: 1080px) {
   .lab-grid { grid-template-columns: minmax(0, 1fr); height: auto; }
   .editor { height: 440px; flex: none; }
@@ -390,6 +463,7 @@ kbd { border: 1px solid var(--rule); border-bottom-width: 2px; border-radius: 4p
     <nav class="views" role="tablist" aria-label="Bagian lab">
       <button role="tab" id="tab-lab" aria-selected="true" aria-controls="view-lab" data-view="lab">Lab</button>
       <button role="tab" id="tab-misi" aria-selected="false" aria-controls="view-misi" data-view="misi">Misi <span class="count" id="misi-count">0/12</span></button>
+      <button role="tab" id="tab-susun" aria-selected="false" aria-controls="view-susun" data-view="susun">Susun <span class="count" id="susun-count">0/8</span></button>
       <button role="tab" id="tab-notasi" aria-selected="false" aria-controls="view-notasi" data-view="notasi">Notasi</button>
     </nav>
     <button class="icon-btn theme-btn" id="theme-btn" type="button" aria-label="Ganti tema terang/gelap" title="Ganti tema">
@@ -518,6 +592,48 @@ kbd { border: 1px solid var(--rule); border-bottom-width: 2px; border-radius: 4p
       <div class="misi-grid">
         <ol class="misi-list" id="misi-list"></ol>
         <article class="misi-detail" id="misi-detail" aria-live="polite"></article>
+      </div>
+    </section>
+
+    <!-- ───────────── SUSUN FLOWCHART ───────────── -->
+    <section id="view-susun" role="tabpanel" aria-labelledby="tab-susun" hidden>
+      <div class="misi-head">
+        <div>
+          <h2>Susun flowchart</h2>
+          <p class="lede">Kerangka flowchart sudah tersedia, tetapi isinya masih kosong. Tempatkan setiap kartu langkah ke kotak yang tepat, pilih simbolnya, lalu periksa. Hati-hati, ada kartu pengecoh.</p>
+        </div>
+        <div class="lvl-box">
+          <div class="lvl" role="radiogroup" aria-label="Tingkat kesulitan" id="pz-levels"></div>
+          <p class="lvl-note" id="pz-level-note"></p>
+        </div>
+      </div>
+      <div class="pz-picker" id="pz-picker" role="group" aria-label="Pilih soal"></div>
+      <div class="pz-grid">
+        <div class="pz-main">
+          <div class="pz-bar">
+            <div class="legend" aria-label="Arti simbol">
+              <span><i class="lg lg-term"></i>Terminal</span><span><i class="lg lg-proc"></i>Proses</span><span><i class="lg lg-io"></i>Input/output</span><span><i class="lg lg-dec"></i>Keputusan</span><span><i class="lg lg-sub"></i>Subprogram</span>
+            </div>
+            <div class="zoom" role="group" aria-label="Perbesaran">
+              <button type="button" class="icon-btn" id="pz-z-out" aria-label="Perkecil">−</button>
+              <span id="pz-z-val">100%</span>
+              <button type="button" class="icon-btn" id="pz-z-in" aria-label="Perbesar">+</button>
+              <button type="button" class="link-btn" id="pz-z-fit">Pas</button>
+            </div>
+          </div>
+          <div class="flow-canvas pz-canvas" id="pz-canvas"></div>
+          <div class="pz-feedback" id="pz-feedback" aria-live="polite" hidden></div>
+        </div>
+        <aside class="pz-side">
+          <div class="pz-soal" id="pz-soal"></div>
+          <div class="pz-dock" id="pz-dock">
+            <div class="pz-syms" id="pz-syms" role="group" aria-label="Pilih simbol untuk kotak terpilih"></div>
+            <p class="pz-hint" id="pz-hint" aria-live="polite"></p>
+            <div class="pz-cards" id="pz-cards" role="group" aria-label="Kartu langkah"></div>
+            <div class="pz-actions" id="pz-actions"></div>
+            <textarea class="proof" id="pz-proof" readonly hidden aria-label="Teks bukti pengerjaan"></textarea>
+          </div>
+        </aside>
       </div>
     </section>
 
@@ -1531,7 +1647,7 @@ kbd { border: 1px solid var(--rule); border-bottom-width: 2px; border-radius: 4p
     const max = Math.max(4, Math.floor((w - pad) / CW));
     return text.length > max ? text.slice(0, max - 1) + '…' : text;
   }
-  function shape(type, x, y, w, h, text, line) {
+  function shapeInner(type, x, y, w, h, text) {
     let s = '';
     const r = n => Math.round(n * 10) / 10;
     if (type === 'term' || type === 'ret') s = `<rect x="${r(x)}" y="${r(y)}" width="${w}" height="${h}" rx="${h / 2}" class="fc-shape fc-${type}"/>`;
@@ -1540,7 +1656,17 @@ kbd { border: 1px solid var(--rule); border-bottom-width: 2px; border-radius: 4p
     else if (type === 'dec') s = `<polygon points="${r(x + w / 2)},${r(y)} ${r(x + w)},${r(y + h / 2)} ${r(x + w / 2)},${r(y + h)} ${r(x)},${r(y + h / 2)}" class="fc-shape fc-dec"/>`;
     else if (type === 'sub') s = `<rect x="${r(x)}" y="${r(y)}" width="${w}" height="${h}" rx="2" class="fc-shape fc-sub"/><line x1="${r(x + 9)}" y1="${r(y)}" x2="${r(x + 9)}" y2="${r(y + h)}" class="fc-subline"/><line x1="${r(x + w - 9)}" y1="${r(y)}" x2="${r(x + w - 9)}" y2="${r(y + h)}" class="fc-subline"/>`;
     const t = fitText(text, w, type);
-    return `<g class="fc-node" data-line="${line}"><title>${esc(text)}</title>${s}<text x="${r(x + w / 2)}" y="${r(y + h / 2 + 4)}" text-anchor="middle" class="fc-text fc-text-${type}">${esc(t)}</text></g>`;
+    return s + `<text x="${r(x + w / 2)}" y="${r(y + h / 2 + 4)}" text-anchor="middle" class="fc-text fc-text-${type}">${esc(t)}</text>`;
+  }
+  /* SINK: bila aktif, simbol tidak digambar melainkan dicatat sebagai "kotak kosong" untuk mode Susun Flowchart */
+  let SINK = null;
+  function shape(type, x, y, w, h, text, line) {
+    if (SINK) {
+      const id = SINK.length;
+      SINK.push({ id, type, text, line, x: Math.round(x * 10) / 10, y: Math.round(y * 10) / 10, w, h });
+      return `<g class="fc-slot" data-slot="${id}"></g>`;
+    }
+    return `<g class="fc-node" data-line="${line}"><title>${esc(text)}</title>${shapeInner(type, x, y, w, h, text)}</g>`;
   }
   function path(out, pts, arrow, cls) {
     const d = pts.map((p, i) => (i ? 'L' : 'M') + Math.round(p[0] * 10) / 10 + ',' + Math.round(p[1] * 10) / 10).join(' ');
@@ -1671,6 +1797,21 @@ kbd { border: 1px solid var(--rule); border-bottom-width: 2px; border-radius: 4p
     const body = out.join('').replace(/url\(#AH\)/g, `url(#${id})`);
     return { w: W, h: H, svg: `<svg xmlns="http://www.w3.org/2000/svg" class="fc-svg" viewBox="0 0 ${W} ${H}" width="${W}" height="${H}" role="img"><defs><marker id="${id}" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,1 L9,5 L0,9 z" class="fc-ah"/></marker></defs>${body}</svg>` };
   }
+  /* Kerangka flowchart untuk mode Susun: posisi simbol dicatat, isinya dikosongkan */
+  function flowPuzzle(prog) {
+    SINK = [];
+    let charts, slots;
+    try {
+      charts = flowcharts(prog);
+      slots = SINK;
+    } finally { SINK = null; }
+    charts.forEach((c, i) => {
+      const ids = (c.svg.match(/data-slot="\d+"/g) || []).map(m => +m.replace(/\D/g, ''));
+      c.slots = ids;
+      ids.forEach(id => { slots[id].chart = i; });
+    });
+    return { charts, slots };
+  }
   function flowcharts(prog) {
     const charts = [];
     if (!prog.main.empty) {
@@ -1718,7 +1859,7 @@ kbd { border: 1px solid var(--rule); border-bottom-width: 2px; border-radius: 4p
     }).join('\n');
   }
 
-  const API = { lex, parse, createRun, runHeadless, callHeadless, toPython, flowcharts, highlight, pp, stmtText, fmt, fmtNum, coerceInput, deepEq, stats, walk, LabError, NONE, KEYWORDS, BUILTINS };
+  const API = { lex, parse, createRun, runHeadless, callHeadless, toPython, flowcharts, flowPuzzle, shapeInner, fitText, highlight, pp, stmtText, fmt, fmtNum, coerceInput, deepEq, stats, walk, LabError, NONE, KEYWORDS, BUILTINS };
   if (typeof module !== 'undefined' && module.exports) module.exports = API; else root.LabCore = API;
 })(typeof window !== 'undefined' ? window : globalThis);
 
@@ -2059,7 +2200,129 @@ SELESAI` },
       ] },
   ];
 
-  const API = { EXAMPLES, MISSIONS };
+
+  /* Soal mode Susun Flowchart: pengecoh = kartu yang tampak benar tetapi salah, beserta alasannya */
+  const PUZZLES = [
+    { id: 'f1', title: 'Luas persegi panjang', skill: 'Sekuensial', ref: 'BK.9.11',
+      story: 'Program meminta panjang dan lebar sebuah persegi panjang, menghitung luasnya, lalu menampilkan hasilnya.',
+      inputs: '8, 5',
+      decoys: [['luas ← panjang + lebar', 'Luas dihitung dengan mengalikan panjang dan lebar, bukan menjumlahkannya.']],
+      code:
+`MULAI
+  INPUT panjang
+  INPUT lebar
+  luas ← panjang × lebar
+  OUTPUT "Luas = " + luas
+SELESAI` },
+    { id: 'f2', title: 'Genap atau ganjil', skill: 'Seleksi', ref: 'LKPD 1 · A',
+      story: 'Program meminta sebuah bilangan bulat. Jika sisa baginya dengan 2 adalah 0, tampilkan "Genap"; jika tidak, tampilkan "Ganjil".',
+      inputs: '7',
+      decoys: [['angka DIV 2 = 0?', 'DIV menghasilkan hasil bagi, bukan sisa bagi. Untuk memeriksa genap, pakai MOD.']],
+      code:
+`MULAI
+  INPUT angka
+  JIKA angka MOD 2 = 0 MAKA
+    OUTPUT "Genap"
+  JIKA LAIN
+    OUTPUT "Ganjil"
+  AKHIR JIKA
+SELESAI` },
+    { id: 'f3', title: 'Login sederhana', skill: 'Seleksi + logika DAN', ref: 'BK.9.7',
+      story: 'Pengguna mengetik username dan password. Login berhasil hanya jika username "admin" dan password "1234" keduanya benar.',
+      inputs: 'admin, 1234',
+      decoys: [['username = "admin" ATAU password = "1234"?', 'Dengan ATAU, login tetap berhasil walaupun password-nya salah.']],
+      code:
+`MULAI
+  INPUT username
+  INPUT password
+  JIKA username = "admin" DAN password = "1234" MAKA
+    OUTPUT "Login berhasil"
+  JIKA LAIN
+    OUTPUT "Login gagal"
+  AKHIR JIKA
+SELESAI` },
+    { id: 'f4', title: 'Total belanja 5 item', skill: 'Pengulangan UNTUK', ref: 'LKPD 1 · A',
+      story: 'Kasir memasukkan harga 5 barang satu per satu. Program menjumlahkan semuanya, lalu menampilkan total belanja.',
+      inputs: '12000, 5000, 7500, 3000, 2500',
+      decoys: [['i < 5?', 'Dengan i < 5, pengulangan berhenti sebelum barang ke-5 dihitung.'], ['total ← harga', 'total ← harga menimpa total dengan harga terakhir. Total harus ditambah: total ← total + harga.']],
+      code:
+`MULAI
+  total ← 0
+  UNTUK i DARI 1 HINGGA 5
+    INPUT harga
+    total ← total + harga
+  AKHIR UNTUK
+  OUTPUT "Total belanja: " + total
+SELESAI` },
+    { id: 'f5', title: 'Validasi nilai 0–100', skill: 'Pengulangan SELAMA', ref: 'BK.9.9',
+      story: 'Program meminta nilai ujian. Selama nilai di bawah 0 atau di atas 100, program menampilkan peringatan dan meminta nilai lagi.',
+      inputs: '150, -5, 87',
+      decoys: [['nilai < 0 DAN nilai > 100?', 'Tidak ada bilangan yang sekaligus di bawah 0 dan di atas 100, jadi kondisi ini selalu SALAH.']],
+      code:
+`MULAI
+  INPUT nilai
+  SELAMA nilai < 0 ATAU nilai > 100
+    OUTPUT "Tidak valid, ulangi"
+    INPUT nilai
+  AKHIR SELAMA
+  OUTPUT "Nilai diterima: " + nilai
+SELESAI` },
+    { id: 'f6', title: 'Faktorial n', skill: 'Pengulangan SELAMA', ref: 'LKPD 1 · C',
+      story: 'Program meminta n, lalu menghitung n! = 1 × 2 × … × n dengan pengulangan SELAMA dan menampilkan hasilnya.',
+      inputs: '4',
+      decoys: [['i < n?', 'Dengan i < n, perkalian dengan n sendiri terlewat. 4! akan menjadi 6, bukan 24.'], ['hasil ← hasil + i', 'Faktorial adalah perkalian berturut-turut, bukan penjumlahan.']],
+      code:
+`MULAI
+  INPUT n
+  hasil ← 1
+  i ← 1
+  SELAMA i ≤ n
+    hasil ← hasil × i
+    i ← i + 1
+  AKHIR SELAMA
+  OUTPUT hasil
+SELESAI` },
+    { id: 'f7', title: 'FizzBuzz 1–15', skill: 'Seleksi bertingkat', ref: 'LKPD 2 · C',
+      story: 'Untuk i dari 1 sampai 15: kelipatan 15 ditulis "FizzBuzz", kelipatan 3 ditulis "Fizz", kelipatan 5 ditulis "Buzz", selain itu tulis angkanya. Urutan pemeriksaan menentukan hasil.',
+      inputs: '',
+      decoys: [['i MOD 2 = 0?', 'FizzBuzz tidak memeriksa kelipatan 2.']],
+      code:
+`MULAI
+  UNTUK i DARI 1 HINGGA 15
+    JIKA i MOD 15 = 0 MAKA
+      OUTPUT "FizzBuzz"
+    JIKA LAIN JIKA i MOD 3 = 0 MAKA
+      OUTPUT "Fizz"
+    JIKA LAIN JIKA i MOD 5 = 0 MAKA
+      OUTPUT "Buzz"
+    JIKA LAIN
+      OUTPUT i
+    AKHIR JIKA
+  AKHIR UNTUK
+SELESAI` },
+    { id: 'f8', title: 'Predikat dengan fungsi', skill: 'Subprogram', ref: 'LKPD 2 · A',
+      story: 'Program utama meminta nilai lalu memanggil fungsi predikat. Fungsi mengembalikan "A" untuk nilai ≥ 90, "B" untuk nilai ≥ 75, dan "C" untuk nilai lainnya. Ada dua flowchart: program utama dan fungsinya.',
+      inputs: '82',
+      decoys: [['nilai ≤ 90?', 'Predikat A untuk nilai 90 ke atas, jadi kondisinya nilai ≥ 90.']],
+      code:
+`FUNGSI predikat(nilai)
+  JIKA nilai ≥ 90 MAKA
+    KEMBALIKAN "A"
+  JIKA LAIN JIKA nilai ≥ 75 MAKA
+    KEMBALIKAN "B"
+  JIKA LAIN
+    KEMBALIKAN "C"
+  AKHIR JIKA
+AKHIR FUNGSI
+
+MULAI
+  INPUT nilai
+  hasil ← predikat(nilai)
+  OUTPUT "Predikat: " + hasil
+SELESAI` },
+  ];
+
+  const API = { EXAMPLES, MISSIONS, PUZZLES };
   if (typeof module !== 'undefined' && module.exports) module.exports = API; else root.LabData = API;
 })(typeof window !== 'undefined' ? window : globalThis);
 
@@ -2651,9 +2914,10 @@ SELESAI` },
   function setView(v) {
     S.view = v;
     $$('.views button').forEach(b => b.setAttribute('aria-selected', String(b.dataset.view === v)));
-    ['lab', 'misi', 'notasi'].forEach(n => { $('#view-' + n).hidden = n !== v; });
+    ['lab', 'misi', 'susun', 'notasi'].forEach(n => { $('#view-' + n).hidden = n !== v; });
     store.set('view', v);
     if (v === 'misi') renderMissionList();
+    if (v === 'susun') renderSusun(false);
   }
   $$('.views button').forEach(b => b.addEventListener('click', () => setView(b.dataset.view)));
 
@@ -2833,6 +3097,319 @@ SELESAI` },
   ];
   $('#ref-body').innerHTML = REF.map(r => `<tr><td>${r[0]}</td><td><code class="ps">${esc(r[1])}</code></td><td><code class="pyc">${esc(r[2])}</code></td><td>${sym(r[3])}</td></tr>`).join('');
 
+  /* ═════════════ SUSUN FLOWCHART ═════════════ */
+  const SYM = {
+    term: { name: 'Terminal', why: 'Awal dan akhir (MULAI, SELESAI, kepala FUNGSI, KEMBALIKAN) memakai terminal (oval).' },
+    proc: { name: 'Proses', why: 'Penugasan dengan ← memakai simbol proses (persegi panjang).' },
+    io: { name: 'Input/Output', why: 'INPUT dan OUTPUT memakai jajar genjang.' },
+    dec: { name: 'Keputusan', why: 'Kondisi yang dijawab Ya/Tidak (bertanda ?) memakai belah ketupat.' },
+    sub: { name: 'Subprogram', why: 'Memanggil fungsi atau prosedur buatan sendiri memakai simbol subprogram (garis tepi ganda).' },
+  };
+  const SYM_ORDER = ['term', 'proc', 'io', 'dec', 'sub'];
+  const symOf = t => (t === 'ret' ? 'term' : t);
+  const LEVELS = [
+    { id: 'mudah', name: 'Mudah', desc: 'Simbol sudah tersedia. Tempatkan setiap kartu ke simbol yang tepat.' },
+    { id: 'sedang', name: 'Sedang', desc: 'Kotak masih kosong. Tempatkan kartu, lalu pilih simbolnya sendiri.' },
+    { id: 'sulit', name: 'Sulit', desc: 'Seperti Sedang, tetapi pseudocode disembunyikan. Rancang dari soal cerita.' },
+  ];
+  const P = { id: store.get('fc.sel', 'f1'), level: store.get('fc.level', 'mudah'), pz: null, place: {}, sym: {}, marks: {}, tries: 0, helped: false, solved: false, sel: null, zoom: store.get('fc.zoom', 1) };
+  const pzDone = () => store.get('fc.done', {});
+  const pzEl = { canvas: $('#pz-canvas'), soal: $('#pz-soal'), syms: $('#pz-syms'), hint: $('#pz-hint'), cards: $('#pz-cards'), actions: $('#pz-actions'), fb: $('#pz-feedback'), proof: $('#pz-proof') };
+
+  function seeded(str) {
+    let h = 2166136261;
+    for (let i = 0; i < str.length; i++) { h ^= str.charCodeAt(i); h = Math.imul(h, 16777619); }
+    return () => { h += 0x6D2B79F5; let t = h; t = Math.imul(t ^ (t >>> 15), t | 1); t ^= t + Math.imul(t ^ (t >>> 7), t | 61); return ((t ^ (t >>> 14)) >>> 0) / 4294967296; };
+  }
+  function autoDecoys(slots) {
+    const have = new Set(slots.map(s => s.text)), out = [];
+    const swaps = [[' ≤ ', ' < '], [' < ', ' ≤ '], [' ≥ ', ' > '], [' > ', ' ≥ '], [' ≠ ', ' = '], [' = ', ' ≠ ']];
+    for (const s of slots) {
+      if (out.length >= 2) break;
+      if (s.type !== 'dec') continue;
+      const sw = swaps.find(([a]) => s.text.includes(a));
+      if (sw) { const t = s.text.replace(sw[0], sw[1]); if (!have.has(t)) { out.push([t, 'Perhatikan operator pembandingnya.']); have.add(t); } }
+    }
+    if (!out.length) {
+      const s = slots.find(x => x.type === 'proc' && / [+×] /.test(x.text));
+      if (s) { const t = s.text.includes(' + ') ? s.text.replace(' + ', ' - ') : s.text.replace(' × ', ' + '); if (!have.has(t)) out.push([t, 'Perhatikan operator hitungnya.']); }
+    }
+    return out;
+  }
+  function pzStateKey() { return 'fc.st.' + P.id + '.' + P.level; }
+  function pzSave() { if (P.pz && !P.pz.custom) store.set(pzStateKey(), { place: P.place, sym: P.sym, tries: P.tries, n: P.pz.slots.length }); }
+  function buildPuzzle() {
+    const custom = P.id === 'lab';
+    const def = custom ? null : (Data.PUZZLES.find(x => x.id === P.id) || Data.PUZZLES[0]);
+    if (def) P.id = def.id;
+    const code = custom ? el.code.value : def.code;
+    P.place = {}; P.sym = {}; P.marks = {}; P.tries = 0; P.helped = false; P.solved = false; P.sel = null;
+    pzEl.fb.hidden = true; pzEl.proof.hidden = true;
+    let prog;
+    try { prog = Core.parse(code); } catch (e) { P.pz = { custom, error: `Kode di tab Lab belum bisa dibaca (baris ${e.line || '?'}: ${e.message}). Perbaiki dulu di tab Lab.` }; return; }
+    const fp = Core.flowPuzzle(prog);
+    if (!fp.slots.length) { P.pz = { custom, error: 'Kode di tab Lab belum berisi program di antara MULAI dan SELESAI.' }; return; }
+    const decoys = custom ? autoDecoys(fp.slots) : def.decoys;
+    const cards = fp.slots.map(s => ({ text: s.text })).concat(decoys.map(d => ({ text: d[0], decoy: true, why: d[1] })));
+    const rnd = seeded(custom ? code : def.id);
+    for (let i = cards.length - 1; i > 0; i--) { const j = Math.floor(rnd() * (i + 1)); [cards[i], cards[j]] = [cards[j], cards[i]]; }
+    P.pz = { custom, def, code, inputs: custom ? el.inputs.value : def.inputs, charts: fp.charts, slots: fp.slots, cards };
+    if (!custom) {
+      const st = store.get(pzStateKey(), null);
+      if (st && st.n === fp.slots.length) { P.place = st.place || {}; P.sym = st.sym || {}; P.tries = st.tries || 0; }
+    }
+  }
+  function renderSusun(rebuild) {
+    if (rebuild || !P.pz || P.id === 'lab') buildPuzzle();
+    renderLevels(); renderPicker(); renderSoal(); renderCanvas(); renderDock();
+  }
+  function renderLevels() {
+    $('#pz-levels').innerHTML = LEVELS.map(l => `<button type="button" role="radio" aria-checked="${l.id === P.level}" data-l="${l.id}">${l.name}</button>`).join('');
+    $('#pz-level-note').textContent = LEVELS.find(l => l.id === P.level).desc;
+    $$('#pz-levels button').forEach(b => b.addEventListener('click', () => { P.level = b.dataset.l; store.set('fc.level', P.level); renderSusun(true); }));
+  }
+  function renderPicker() {
+    const d = pzDone();
+    let h = Data.PUZZLES.map((p, i) => {
+      const st = d[p.id];
+      const badge = st ? LEVELS.find(l => l.id === st.level).name : '';
+      return `<button type="button" class="pz-chip${st ? ' done' : ''}" data-id="${p.id}" aria-pressed="${p.id === P.id}" title="${esc(p.skill)}"><span class="n">${st ? '✓ ' : ''}F${i + 1}</span>${esc(p.title)}${badge ? `<span class="lv">${badge}</span>` : ''}</button>`;
+    }).join('');
+    h += `<button type="button" class="pz-chip pz-chip-lab" data-id="lab" aria-pressed="${P.id === 'lab'}" title="Membuat soal dari kode yang terbuka di tab Lab"><span class="n">+</span>Dari kode di Lab</button>`;
+    const box = $('#pz-picker'); box.innerHTML = h;
+    const cur = $('.pz-chip[aria-pressed="true"]', box);
+    if (cur && box.scrollWidth > box.clientWidth) box.scrollLeft = cur.offsetLeft - 16;
+    $$('.pz-chip', box).forEach(b => b.addEventListener('click', () => { P.id = b.dataset.id; if (P.id !== 'lab') store.set('fc.sel', P.id); renderSusun(true); }));
+    updateSusunCount();
+  }
+  function updateSusunCount() {
+    const d = pzDone(); const n = Data.PUZZLES.filter(p => d[p.id]).length;
+    $('#susun-count').textContent = `${n}/${Data.PUZZLES.length}`;
+  }
+  function renderSoal() {
+    const pz = P.pz;
+    if (pz.error) { pzEl.soal.innerHTML = `<div class="md-tag">Dari kode di Lab</div><h3>Belum bisa dibuat</h3><p>${esc(pz.error)}</p>`; return; }
+    const idx = pz.custom ? 0 : Data.PUZZLES.indexOf(pz.def) + 1;
+    const tag = pz.custom ? 'Dari kode di Lab' : `F${idx} · ${pz.def.skill} · ${pz.def.ref}`;
+    const title = pz.custom ? 'Flowchart dari kodemu' : pz.def.title;
+    const story = pz.custom ? 'Kerangka ini dibuat dari pseudocode yang sedang terbuka di tab Lab. Susun kembali flowchart-nya.' : pz.def.story;
+    let h = `<div class="md-tag">${esc(tag)}</div><h3>${esc(title)}</h3><p>${esc(story)}</p>`;
+    if (P.level === 'sulit' && !P.solved) h += `<p class="hint">Pseudocode disembunyikan di tingkat Sulit. Pikirkan urutan langkahnya dari soal cerita.</p>`;
+    else h += `<details class="pz-code"${P.level === 'mudah' ? ' open' : ''}><summary>Pseudocode</summary><pre class="mini-code">${Core.highlight(pz.code, 'pseudo')}</pre></details>`;
+    pzEl.soal.innerHTML = h;
+  }
+  function renderCanvas() {
+    const pz = P.pz;
+    if (pz.error) { pzEl.canvas.innerHTML = '<p class="empty">Kerangka flowchart akan muncul di sini.</p>'; return; }
+    pzEl.canvas.innerHTML = pz.charts.map((c, i) => `<figure class="chart" style="margin:0"><h3>${pz.charts.length > 1 ? (c.kind === 'main' ? 'Program utama' : 'Subprogram ' + i) : 'Flowchart'}</h3><div data-w="${c.w}">${c.svg}</div></figure>`).join('');
+    $$('.fc-slot', pzEl.canvas).forEach(g => { g.setAttribute('tabindex', '0'); g.setAttribute('role', 'button'); });
+    pzApplyZoom();
+    paintSlots();
+  }
+  function slotSym(s) { return P.level === 'mudah' ? s.type : (P.sym[s.id] || null); }
+  function paintSlots() {
+    const pz = P.pz; if (!pz || pz.error) return;
+    pz.slots.forEach(s => {
+      const g = $(`.fc-slot[data-slot="${s.id}"]`, pzEl.canvas); if (!g) return;
+      const ci = P.place[s.id], card = ci != null ? pz.cards[ci] : null, sym = slotSym(s);
+      const text = card ? card.text : '';
+      let inner;
+      if (sym) inner = Core.shapeInner(sym, s.x, s.y, s.w, s.h, text);
+      else inner = `<rect x="${s.x}" y="${s.y}" width="${s.w}" height="${s.h}" rx="6" class="pz-ph"/>` + (text ? `<text x="${s.x + s.w / 2}" y="${s.y + s.h / 2 + 4}" text-anchor="middle" class="fc-text">${esc(Core.fitText(text, s.w, 'proc'))}</text>` : `<text x="${s.x + s.w / 2}" y="${s.y + s.h / 2 + 4}" text-anchor="middle" class="pz-q">?</text>`);
+      const n = s.id + 1;
+      inner += `<g class="pz-num" aria-hidden="true"><circle cx="${s.x + 1}" cy="${s.y + 1}" r="8.5"/><text x="${s.x + 1}" y="${s.y + 4.5}" text-anchor="middle">${n}</text></g>`;
+      g.innerHTML = (text ? `<title>${esc(text)}</title>` : '') + inner;
+      g.classList.toggle('pz-empty', !card);
+      g.classList.toggle('is-sel', !!(P.sel && P.sel.slot === s.id));
+      g.classList.toggle('is-ok', P.marks[s.id] === 'ok');
+      g.classList.toggle('is-no', P.marks[s.id] === 'no');
+      g.setAttribute('aria-label', `Kotak ${n}` + (card ? `: ${card.text}` : ', kosong') + (P.level !== 'mudah' ? (sym ? `, simbol ${SYM[symOf(sym)].name}` : ', simbol belum dipilih') : ''));
+    });
+  }
+  function renderDock() {
+    const pz = P.pz;
+    if (pz.error) { pzEl.syms.innerHTML = ''; pzEl.cards.innerHTML = ''; pzEl.hint.textContent = ''; pzEl.actions.innerHTML = ''; return; }
+    // simbol
+    const selSlot = P.sel && P.sel.slot != null ? pz.slots[P.sel.slot] : null;
+    if (P.level === 'mudah') { pzEl.syms.hidden = true; }
+    else {
+      pzEl.syms.hidden = false;
+      const cur = selSlot ? P.sym[selSlot.id] : null;
+      pzEl.syms.innerHTML = SYM_ORDER.map(k => `<button type="button" class="pz-sym" data-sym="${k}" aria-pressed="${cur ? symOf(cur) === k : false}"${selSlot && !P.solved ? '' : ' disabled'}>${sym(k)}<span>${k === 'io' ? 'Input / Output' : SYM[k].name}</span></button>`).join('');
+      $$('.pz-sym', pzEl.syms).forEach(b => b.addEventListener('click', () => setSym(b.dataset.sym)));
+    }
+    // petunjuk
+    const filled = Object.keys(P.place).length;
+    let hint;
+    if (P.solved) hint = P.helped ? 'Jawaban ditunjukkan. Tekan Ulangi untuk mencoba sendiri.' : 'Semua kotak benar. Flowchart selesai disusun.';
+    else if (P.sel && P.sel.card != null) hint = `Ketuk kotak di flowchart untuk menempatkan “${pz.cards[P.sel.card].text}”.`;
+    else if (selSlot) {
+      const n = selSlot.id + 1;
+      if (P.level !== 'mudah' && P.place[selSlot.id] != null && !P.sym[selSlot.id]) hint = `Pilih simbol untuk kotak ${n}.`;
+      else if (P.place[selSlot.id] != null) hint = `Kotak ${n} terisi. Ketuk kartu lain untuk menggantinya${P.level !== 'mudah' ? ', atau ganti simbolnya' : ''}.`;
+      else hint = `Ketuk kartu untuk mengisi kotak ${n}${P.level !== 'mudah' ? ', lalu pilih simbolnya' : ''}.`;
+    } else hint = 'Ketuk sebuah kartu, lalu ketuk kotak tujuannya di flowchart. Di laptop, kartu juga bisa diseret.';
+    pzEl.hint.innerHTML = `<b>${filled}/${pz.slots.length} terisi.</b> ${esc(hint)}`;
+    // kartu
+    const used = new Set(Object.values(P.place));
+    const left = pz.cards.map((c, i) => ({ c, i })).filter(x => !used.has(x.i));
+    pzEl.cards.innerHTML = left.length ? left.map(({ c, i }) => `<button type="button" class="pz-card" data-c="${i}" draggable="${!P.solved}" aria-pressed="${!!(P.sel && P.sel.card === i)}"${P.solved ? ' disabled' : ''}>${esc(c.text)}</button>`).join('') : '<p class="hint" style="margin:0">Semua kartu sudah dipakai. Kartu pengecoh bisa tetap tertinggal.</p>';
+    $$('.pz-card', pzEl.cards).forEach(b => {
+      b.addEventListener('click', () => onCard(+b.dataset.c));
+      b.addEventListener('dragstart', e => { try { e.dataTransfer.setData('text/plain', b.dataset.c); e.dataTransfer.effectAllowed = 'move'; } catch (er) { /* abaikan */ } P.sel = { card: +b.dataset.c }; });
+    });
+    // aksi
+    const canRemove = selSlot && P.place[selSlot.id] != null && !P.solved;
+    let a = '';
+    if (!P.solved) {
+      a += `<button class="btn btn-primary" id="pz-check" type="button">Periksa</button>`;
+      if (canRemove) a += `<button class="btn" id="pz-remove" type="button">Kembalikan kartu</button>`;
+      if (P.tries >= 2) a += `<button class="btn" id="pz-show" type="button">Tunjukkan jawaban</button>`;
+    } else {
+      if (!P.helped && !pz.custom) a += `<button class="btn btn-primary" id="pz-proof-btn" type="button">Salin bukti pengerjaan</button>`;
+      a += `<button class="btn" id="pz-lab" type="button">Jalankan di Lab</button>`;
+      const nx = !pz.custom && Data.PUZZLES[Data.PUZZLES.indexOf(pz.def) + 1];
+      if (nx) a += `<button class="btn" id="pz-next" type="button">Soal berikutnya</button>`;
+    }
+    a += `<button class="btn btn-quiet" id="pz-reset" type="button">Ulangi</button>`;
+    pzEl.actions.innerHTML = a;
+    const on = (id, f) => { const b = $('#' + id, pzEl.actions); if (b) b.addEventListener('click', f); };
+    on('pz-check', checkPuzzle); on('pz-remove', () => { delete P.place[P.sel.slot]; delete P.marks[P.sel.slot]; pzSave(); paintSlots(); renderDock(); });
+    on('pz-show', showAnswer); on('pz-proof-btn', copyPzProof); on('pz-lab', openPzInLab);
+    on('pz-next', () => { const nx = Data.PUZZLES[Data.PUZZLES.indexOf(P.pz.def) + 1]; P.id = nx.id; store.set('fc.sel', P.id); renderSusun(true); window.scrollTo({ top: $('#pz-picker').offsetTop - 10, behavior: 'smooth' }); });
+    on('pz-reset', () => { store.set(pzStateKey(), null); renderSusun(true); });
+  }
+  function nextOpenSlot(from) {
+    const sl = P.pz.slots, n = sl.length;
+    for (let k = 1; k <= n; k++) {
+      const s = sl[(from + k) % n];
+      if (P.place[s.id] == null || (P.level !== 'mudah' && !P.sym[s.id])) return s.id;
+    }
+    return null;
+  }
+  function putCard(slot, ci) {
+    for (const k of Object.keys(P.place)) if (P.place[k] === ci) { delete P.place[k]; delete P.marks[k]; }
+    P.place[slot] = ci; delete P.marks[slot];
+    if (P.level !== 'mudah' && !P.sym[slot]) P.sel = { slot };
+    else { const nx = nextOpenSlot(slot); P.sel = nx == null ? null : { slot: nx }; }
+    pzSave(); paintSlots(); renderDock();
+  }
+  function onCard(ci) {
+    if (P.solved) return;
+    if (P.sel && P.sel.slot != null) { putCard(P.sel.slot, ci); return; }
+    P.sel = P.sel && P.sel.card === ci ? null : { card: ci };
+    paintSlots(); renderDock();
+  }
+  function onSlot(id) {
+    if (P.solved) return;
+    if (P.sel && P.sel.card != null) { putCard(id, P.sel.card); return; }
+    P.sel = { slot: id };
+    paintSlots(); renderDock();
+  }
+  function setSym(k) {
+    if (!P.sel || P.sel.slot == null || P.solved) return;
+    const id = P.sel.slot;
+    P.sym[id] = k; delete P.marks[id];
+    if (P.place[id] != null) { const nx = nextOpenSlot(id); P.sel = nx == null ? null : { slot: nx }; }
+    pzSave(); paintSlots(); renderDock();
+  }
+  pzEl.canvas.addEventListener('click', e => { const g = e.target.closest && e.target.closest('.fc-slot'); if (g) onSlot(+g.dataset.slot); });
+  pzEl.canvas.addEventListener('keydown', e => {
+    const g = e.target.closest && e.target.closest('.fc-slot'); if (!g) return;
+    if (e.key === 'Escape') { P.sel = null; paintSlots(); renderDock(); return; }
+    if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); onSlot(+g.dataset.slot); setTimeout(() => { const ng = $(`.fc-slot[data-slot="${g.dataset.slot}"]`, pzEl.canvas); if (ng) ng.focus(); }, 0); }
+  });
+  pzEl.canvas.addEventListener('dragover', e => { if (e.target.closest && e.target.closest('.fc-slot')) e.preventDefault(); });
+  pzEl.canvas.addEventListener('drop', e => {
+    const g = e.target.closest && e.target.closest('.fc-slot'); if (!g || P.solved) return;
+    e.preventDefault();
+    let ci = NaN; try { ci = parseInt(e.dataTransfer.getData('text/plain'), 10); } catch (er) { /* abaikan */ }
+    if (isNaN(ci) && P.sel && P.sel.card != null) ci = P.sel.card;
+    if (!isNaN(ci)) putCard(+g.dataset.slot, ci);
+  });
+
+  function checkPuzzle() {
+    const pz = P.pz; P.tries++;
+    const items = [], empty = []; let ok = 0;
+    pz.slots.forEach(s => {
+      const n = s.id + 1, ci = P.place[s.id], card = ci != null ? pz.cards[ci] : null;
+      const want = symOf(s.type), got = P.level === 'mudah' ? want : (P.sym[s.id] ? symOf(P.sym[s.id]) : null);
+      const textOk = !!card && card.text === s.text, symOk = got === want;
+      if (textOk && symOk) { ok++; P.marks[s.id] = 'ok'; return; }
+      P.marks[s.id] = 'no';
+      if (!card && (P.level === 'mudah' || !got)) { empty.push(n); return; }
+      if (!card) items.push(`Kotak ${n} belum diberi kartu.`);
+      else if (card.decoy) items.push(`Kotak ${n}: “${card.text}” adalah kartu pengecoh. ${card.why}`);
+      else if (!textOk) items.push(`Kotak ${n}: “${card.text}” belum di tempat yang tepat. Telusuri lagi urutan langkahnya.`);
+      if (P.level !== 'mudah') {
+        if (!got) items.push(`Kotak ${n}: simbolnya belum dipilih.`);
+        else if (!symOk) items.push(`Kotak ${n}: simbol ${SYM[got].name} kurang tepat. ${SYM[want].why}`);
+      }
+    });
+    const total = pz.slots.length;
+    if (empty.length) items.unshift(empty.length === 1 ? `Kotak ${empty[0]} masih kosong.` : `Kotak ${empty.slice(0, -1).join(', ')} dan ${empty[empty.length - 1]} masih kosong.`);
+    P.sel = null;
+    if (ok === total) {
+      P.solved = true;
+      if (!pz.custom) {
+        const d = pzDone(), rank = l => LEVELS.findIndex(x => x.id === l);
+        const prev = d[P.id];
+        if (!prev || rank(P.level) >= rank(prev.level)) d[P.id] = { level: P.level, tries: P.tries, at: Date.now() };
+        store.set('fc.done', d);
+      }
+      pzEl.fb.hidden = false;
+      pzEl.fb.innerHTML = `<p class="result-line ok">Semua ${total} kotak benar${P.tries > 1 ? ` setelah ${P.tries} kali periksa` : ' pada percobaan pertama'}.</p>` + (pz.custom ? '' : `<p class="hint">${store.get('name', '') ? 'Salin bukti pengerjaan untuk dikumpulkan.' : 'Isi nama dan kelas di tab Misi agar tercantum di bukti pengerjaan.'}</p>`);
+      toast('Flowchart benar!');
+      renderPicker(); renderSoal();
+    } else {
+      pzEl.fb.hidden = false;
+      pzEl.fb.innerHTML = `<p class="result-line no">${ok} dari ${total} kotak benar.</p><ul class="checklist">${items.map(t => `<li class="no"><span class="mk">✗</span><span>${esc(t)}</span></li>`).join('')}</ul>`;
+    }
+    pzSave(); paintSlots(); renderDock();
+  }
+  function showAnswer() {
+    const pz = P.pz; const used = new Set();
+    P.place = {}; P.sym = {};
+    pz.slots.forEach(s => {
+      const ci = pz.cards.findIndex((c, i) => !used.has(i) && !c.decoy && c.text === s.text);
+      used.add(ci); P.place[s.id] = ci; P.sym[s.id] = s.type; P.marks[s.id] = 'ok';
+    });
+    P.helped = true; P.solved = true; P.sel = null;
+    pzEl.fb.hidden = false;
+    pzEl.fb.innerHTML = `<p class="result-line no">Jawaban ditunjukkan.</p><p class="hint">Bandingkan dengan susunanmu tadi, lalu tekan Ulangi untuk mencoba lagi tanpa bantuan.</p>`;
+    store.set(pzStateKey(), null);
+    renderSoal(); paintSlots(); renderDock();
+  }
+  function copyPzProof() {
+    const pz = P.pz, d = pzDone()[P.id] || {};
+    const idx = Data.PUZZLES.indexOf(pz.def) + 1;
+    const when = new Date(d.at || Date.now()).toLocaleString('id-ID', { dateStyle: 'long', timeStyle: 'short' });
+    const lv = LEVELS.find(l => l.id === P.level).name;
+    const txt = ['ALUR · Susun Flowchart · bukti pengerjaan', `Nama    : ${store.get('name', '') || '-'}`, `Kelas   : ${store.get('kelas', '') || '-'}`,
+      `Soal    : F${idx} ${pz.def.title} · ${pz.def.ref}`, `Tingkat : ${lv}`, `Hasil   : BENAR SEMUA · ${pz.slots.length} kotak · diperiksa ${P.tries} kali`, `Waktu   : ${when}`].join('\n');
+    copyText(txt, 'Bukti pengerjaan disalin. Tempelkan di tugas Google Classroom.', () => { pzEl.proof.hidden = false; pzEl.proof.value = txt; pzEl.proof.focus(); pzEl.proof.select(); });
+  }
+  function openPzInLab() {
+    const pz = P.pz;
+    if (pz.custom) { setView('lab'); setSub('flow'); return; }
+    if (S.mission) exitMission(true);
+    const prevCode = el.code.value, prevIn = el.inputs.value;
+    el.inputs.value = pz.inputs; setCode(pz.code); saveCode();
+    setView('lab'); setSub('flow');
+    toast(`Soal “${pz.def.title}” dimuat ke Lab. Tekan Langkah untuk menelusuri flowchart-nya.`, 'Batalkan', () => { el.inputs.value = prevIn; setCode(prevCode); saveCode(); });
+  }
+  function pzApplyZoom() {
+    $$('.chart [data-w]', pzEl.canvas).forEach(d => { const svg = d.firstElementChild; if (svg) svg.style.width = Math.round(+d.dataset.w * P.zoom) + 'px'; });
+    $('#pz-z-val').textContent = Math.round(P.zoom * 100) + '%';
+  }
+  $('#pz-z-in').addEventListener('click', () => { P.zoom = Math.min(2, +(P.zoom + 0.1).toFixed(2)); store.set('fc.zoom', P.zoom); pzApplyZoom(); });
+  $('#pz-z-out').addEventListener('click', () => { P.zoom = Math.max(0.4, +(P.zoom - 0.1).toFixed(2)); store.set('fc.zoom', P.zoom); pzApplyZoom(); });
+  $('#pz-z-fit').addEventListener('click', () => {
+    const ws = $$('.chart [data-w]', pzEl.canvas).map(d => +d.dataset.w); if (!ws.length) return;
+    P.zoom = Math.max(0.4, Math.min(1.4, +((pzEl.canvas.clientWidth - 30) / Math.max(...ws)).toFixed(2)));
+    store.set('fc.zoom', P.zoom); pzApplyZoom();
+  });
+
   /* ═════════════ misc ═════════════ */
   let toastTimer = null;
   function toast(msg, actLabel, act) {
@@ -2872,6 +3449,7 @@ SELESAI` },
   compile();
   setSub(store.get('sub', 'vars'));
   updateCount();
+  updateSusunCount();
   setView('lab');
   if (S.prog) {
     // jalankan sekali secara instan agar panel langsung terisi

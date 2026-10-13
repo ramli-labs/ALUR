@@ -333,6 +333,128 @@ SELESAI` },
       ] },
   ];
 
-  const API = { EXAMPLES, MISSIONS };
+
+  /* Soal mode Susun Flowchart: pengecoh = kartu yang tampak benar tetapi salah, beserta alasannya */
+  const PUZZLES = [
+    { id: 'f1', title: 'Luas persegi panjang', skill: 'Sekuensial', ref: 'BK.9.11',
+      story: 'Program meminta panjang dan lebar sebuah persegi panjang, menghitung luasnya, lalu menampilkan hasilnya.',
+      inputs: '8, 5',
+      decoys: [['luas ← panjang + lebar', 'Luas dihitung dengan mengalikan panjang dan lebar, bukan menjumlahkannya.']],
+      code:
+`MULAI
+  INPUT panjang
+  INPUT lebar
+  luas ← panjang × lebar
+  OUTPUT "Luas = " + luas
+SELESAI` },
+    { id: 'f2', title: 'Genap atau ganjil', skill: 'Seleksi', ref: 'LKPD 1 · A',
+      story: 'Program meminta sebuah bilangan bulat. Jika sisa baginya dengan 2 adalah 0, tampilkan "Genap"; jika tidak, tampilkan "Ganjil".',
+      inputs: '7',
+      decoys: [['angka DIV 2 = 0?', 'DIV menghasilkan hasil bagi, bukan sisa bagi. Untuk memeriksa genap, pakai MOD.']],
+      code:
+`MULAI
+  INPUT angka
+  JIKA angka MOD 2 = 0 MAKA
+    OUTPUT "Genap"
+  JIKA LAIN
+    OUTPUT "Ganjil"
+  AKHIR JIKA
+SELESAI` },
+    { id: 'f3', title: 'Login sederhana', skill: 'Seleksi + logika DAN', ref: 'BK.9.7',
+      story: 'Pengguna mengetik username dan password. Login berhasil hanya jika username "admin" dan password "1234" keduanya benar.',
+      inputs: 'admin, 1234',
+      decoys: [['username = "admin" ATAU password = "1234"?', 'Dengan ATAU, login tetap berhasil walaupun password-nya salah.']],
+      code:
+`MULAI
+  INPUT username
+  INPUT password
+  JIKA username = "admin" DAN password = "1234" MAKA
+    OUTPUT "Login berhasil"
+  JIKA LAIN
+    OUTPUT "Login gagal"
+  AKHIR JIKA
+SELESAI` },
+    { id: 'f4', title: 'Total belanja 5 item', skill: 'Pengulangan UNTUK', ref: 'LKPD 1 · A',
+      story: 'Kasir memasukkan harga 5 barang satu per satu. Program menjumlahkan semuanya, lalu menampilkan total belanja.',
+      inputs: '12000, 5000, 7500, 3000, 2500',
+      decoys: [['i < 5?', 'Dengan i < 5, pengulangan berhenti sebelum barang ke-5 dihitung.'], ['total ← harga', 'total ← harga menimpa total dengan harga terakhir. Total harus ditambah: total ← total + harga.']],
+      code:
+`MULAI
+  total ← 0
+  UNTUK i DARI 1 HINGGA 5
+    INPUT harga
+    total ← total + harga
+  AKHIR UNTUK
+  OUTPUT "Total belanja: " + total
+SELESAI` },
+    { id: 'f5', title: 'Validasi nilai 0–100', skill: 'Pengulangan SELAMA', ref: 'BK.9.9',
+      story: 'Program meminta nilai ujian. Selama nilai di bawah 0 atau di atas 100, program menampilkan peringatan dan meminta nilai lagi.',
+      inputs: '150, -5, 87',
+      decoys: [['nilai < 0 DAN nilai > 100?', 'Tidak ada bilangan yang sekaligus di bawah 0 dan di atas 100, jadi kondisi ini selalu SALAH.']],
+      code:
+`MULAI
+  INPUT nilai
+  SELAMA nilai < 0 ATAU nilai > 100
+    OUTPUT "Tidak valid, ulangi"
+    INPUT nilai
+  AKHIR SELAMA
+  OUTPUT "Nilai diterima: " + nilai
+SELESAI` },
+    { id: 'f6', title: 'Faktorial n', skill: 'Pengulangan SELAMA', ref: 'LKPD 1 · C',
+      story: 'Program meminta n, lalu menghitung n! = 1 × 2 × … × n dengan pengulangan SELAMA dan menampilkan hasilnya.',
+      inputs: '4',
+      decoys: [['i < n?', 'Dengan i < n, perkalian dengan n sendiri terlewat. 4! akan menjadi 6, bukan 24.'], ['hasil ← hasil + i', 'Faktorial adalah perkalian berturut-turut, bukan penjumlahan.']],
+      code:
+`MULAI
+  INPUT n
+  hasil ← 1
+  i ← 1
+  SELAMA i ≤ n
+    hasil ← hasil × i
+    i ← i + 1
+  AKHIR SELAMA
+  OUTPUT hasil
+SELESAI` },
+    { id: 'f7', title: 'FizzBuzz 1–15', skill: 'Seleksi bertingkat', ref: 'LKPD 2 · C',
+      story: 'Untuk i dari 1 sampai 15: kelipatan 15 ditulis "FizzBuzz", kelipatan 3 ditulis "Fizz", kelipatan 5 ditulis "Buzz", selain itu tulis angkanya. Urutan pemeriksaan menentukan hasil.',
+      inputs: '',
+      decoys: [['i MOD 2 = 0?', 'FizzBuzz tidak memeriksa kelipatan 2.']],
+      code:
+`MULAI
+  UNTUK i DARI 1 HINGGA 15
+    JIKA i MOD 15 = 0 MAKA
+      OUTPUT "FizzBuzz"
+    JIKA LAIN JIKA i MOD 3 = 0 MAKA
+      OUTPUT "Fizz"
+    JIKA LAIN JIKA i MOD 5 = 0 MAKA
+      OUTPUT "Buzz"
+    JIKA LAIN
+      OUTPUT i
+    AKHIR JIKA
+  AKHIR UNTUK
+SELESAI` },
+    { id: 'f8', title: 'Predikat dengan fungsi', skill: 'Subprogram', ref: 'LKPD 2 · A',
+      story: 'Program utama meminta nilai lalu memanggil fungsi predikat. Fungsi mengembalikan "A" untuk nilai ≥ 90, "B" untuk nilai ≥ 75, dan "C" untuk nilai lainnya. Ada dua flowchart: program utama dan fungsinya.',
+      inputs: '82',
+      decoys: [['nilai ≤ 90?', 'Predikat A untuk nilai 90 ke atas, jadi kondisinya nilai ≥ 90.']],
+      code:
+`FUNGSI predikat(nilai)
+  JIKA nilai ≥ 90 MAKA
+    KEMBALIKAN "A"
+  JIKA LAIN JIKA nilai ≥ 75 MAKA
+    KEMBALIKAN "B"
+  JIKA LAIN
+    KEMBALIKAN "C"
+  AKHIR JIKA
+AKHIR FUNGSI
+
+MULAI
+  INPUT nilai
+  hasil ← predikat(nilai)
+  OUTPUT "Predikat: " + hasil
+SELESAI` },
+  ];
+
+  const API = { EXAMPLES, MISSIONS, PUZZLES };
   if (typeof module !== 'undefined' && module.exports) module.exports = API; else root.LabData = API;
 })(typeof window !== 'undefined' ? window : globalThis);

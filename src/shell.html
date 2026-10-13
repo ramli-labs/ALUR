@@ -32,6 +32,7 @@
     <nav class="views" role="tablist" aria-label="Bagian lab">
       <button role="tab" id="tab-lab" aria-selected="true" aria-controls="view-lab" data-view="lab">Lab</button>
       <button role="tab" id="tab-misi" aria-selected="false" aria-controls="view-misi" data-view="misi">Misi <span class="count" id="misi-count">0/12</span></button>
+      <button role="tab" id="tab-susun" aria-selected="false" aria-controls="view-susun" data-view="susun">Susun <span class="count" id="susun-count">0/8</span></button>
       <button role="tab" id="tab-notasi" aria-selected="false" aria-controls="view-notasi" data-view="notasi">Notasi</button>
     </nav>
     <button class="icon-btn theme-btn" id="theme-btn" type="button" aria-label="Ganti tema terang/gelap" title="Ganti tema">
@@ -160,6 +161,48 @@
       <div class="misi-grid">
         <ol class="misi-list" id="misi-list"></ol>
         <article class="misi-detail" id="misi-detail" aria-live="polite"></article>
+      </div>
+    </section>
+
+    <!-- ───────────── SUSUN FLOWCHART ───────────── -->
+    <section id="view-susun" role="tabpanel" aria-labelledby="tab-susun" hidden>
+      <div class="misi-head">
+        <div>
+          <h2>Susun flowchart</h2>
+          <p class="lede">Kerangka flowchart sudah tersedia, tetapi isinya masih kosong. Tempatkan setiap kartu langkah ke kotak yang tepat, pilih simbolnya, lalu periksa. Hati-hati, ada kartu pengecoh.</p>
+        </div>
+        <div class="lvl-box">
+          <div class="lvl" role="radiogroup" aria-label="Tingkat kesulitan" id="pz-levels"></div>
+          <p class="lvl-note" id="pz-level-note"></p>
+        </div>
+      </div>
+      <div class="pz-picker" id="pz-picker" role="group" aria-label="Pilih soal"></div>
+      <div class="pz-grid">
+        <div class="pz-main">
+          <div class="pz-bar">
+            <div class="legend" aria-label="Arti simbol">
+              <span><i class="lg lg-term"></i>Terminal</span><span><i class="lg lg-proc"></i>Proses</span><span><i class="lg lg-io"></i>Input/output</span><span><i class="lg lg-dec"></i>Keputusan</span><span><i class="lg lg-sub"></i>Subprogram</span>
+            </div>
+            <div class="zoom" role="group" aria-label="Perbesaran">
+              <button type="button" class="icon-btn" id="pz-z-out" aria-label="Perkecil">−</button>
+              <span id="pz-z-val">100%</span>
+              <button type="button" class="icon-btn" id="pz-z-in" aria-label="Perbesar">+</button>
+              <button type="button" class="link-btn" id="pz-z-fit">Pas</button>
+            </div>
+          </div>
+          <div class="flow-canvas pz-canvas" id="pz-canvas"></div>
+          <div class="pz-feedback" id="pz-feedback" aria-live="polite" hidden></div>
+        </div>
+        <aside class="pz-side">
+          <div class="pz-soal" id="pz-soal"></div>
+          <div class="pz-dock" id="pz-dock">
+            <div class="pz-syms" id="pz-syms" role="group" aria-label="Pilih simbol untuk kotak terpilih"></div>
+            <p class="pz-hint" id="pz-hint" aria-live="polite"></p>
+            <div class="pz-cards" id="pz-cards" role="group" aria-label="Kartu langkah"></div>
+            <div class="pz-actions" id="pz-actions"></div>
+            <textarea class="proof" id="pz-proof" readonly hidden aria-label="Teks bukti pengerjaan"></textarea>
+          </div>
+        </aside>
       </div>
     </section>
 
